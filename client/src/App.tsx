@@ -67,6 +67,7 @@ import RegisterPharmacy from "./pages/RegisterPharmacy";
 import Maintenance from "./pages/Maintenance";
 import { useCustomAuth } from "./hooks/useCustomAuth";
 import { InstallPWA } from "./components/InstallPWA";
+import { AppInitializer } from "./components/AppInitializer";
 import { trpc } from "@/lib/trpc";
 
 function Router() {
@@ -652,6 +653,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
+          <AppInitializer />
           <Router />
           <InstallPWA />
         </TooltipProvider>

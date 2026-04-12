@@ -11,6 +11,7 @@ import { initializeCronJobs } from "../cron";
 import { handleTraccarWebhook } from "../traccar-webhook";
 import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
+import { WebSocketManager } from "../websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -208,6 +209,12 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+
+    // Initialize WebSocket for real-time tracking
+    const wsManager = new WebSocketManager(server);
+    (global as any).websocketManager = wsManager;
+    console.log('[WebSocket] Manager initialized');
+
     // Initialize cron jobs
     initializeCronJobs();
   });

@@ -6010,7 +6010,7 @@ export async function getNotificationStats(branchId: number, startDate?: string,
   const successCount = logs.filter(log => log.status === 'success').length;
   const failedCount = logs.filter(log => log.status === 'failed').length;
   const totalRecipients = logs.reduce((sum, log) => sum + (log.recipientCount || 0), 0);
-  
+
   return {
     totalSent,
     successCount,
@@ -6018,4 +6018,192 @@ export async function getNotificationStats(branchId: number, startDate?: string,
     successRate: totalSent > 0 ? ((successCount / totalSent) * 100).toFixed(2) : '0',
     totalRecipients,
   };
+}
+
+// ===== FCM Token Management =====
+
+export async function saveFCMToken(userId: number, fcmToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
+
+  const user = await db.select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (user.length === 0) {
+    throw new Error("User not found");
+  }
+
+  await db.update(users)
+    .set({ fcmToken })
+    .where(eq(users.id, userId));
+
+  return { success: true };
+}
+
+export async function getFCMToken(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const user = await db.select({ fcmToken: users.fcmToken })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return user.length > 0 ? user[0].fcmToken : null;
+}
+
+export async function getAllFCMTokens(role?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [isNotNull(users.fcmToken)];
+
+  if (role) {
+    conditions.push(eq(users.role, role));
+  }
+
+  const result = await db.select({ id: users.id, fcmToken: users.fcmToken })
+    .from(users)
+    .where(and(...conditions));
+
+  return result;
+}
+
+// ===== Location Tracking =====
+
+export async function saveDeliveryLocation(data: {
+  userId: number;
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  altitude?: number;
+  heading?: number;
+  speed?: number;
+  createdAt?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
+
+  const result = await db.insert(deliveryLocations).values({
+    userId: data.userId,
+    latitude: data.latitude.toString(),
+    longitude: data.longitude.toString(),
+    accuracy: data.accuracy,
+    altitude: data.altitude,
+    heading: data.heading,
+    speed: data.speed,
+    createdAt: data.createdAt || new Date(),
+  });
+
+  return result;
+}
+
+export async function getDeliveryLocations(userId: number, limit: number = 50, withinMinutes: number = 60) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const timeCutoff = new Date(Date.now() - withinMinutes * 60 * 1000);
+
+  const locations = await db.select()
+    .from(deliveryLocations)
+    .where(
+      and(
+        eq(deliveryLocations.userId, userId),
+        gte(deliveryLocations.createdAt, timeCutoff)
+      )
+    )
+    .orderBy(desc(deliveryLocations.createdAt))
+    .limit(limit);
+
+  return locations.map(loc => ({
+    ...loc,
+    latitude: parseFloat(loc.latitude),
+    longitude: parseFloat(loc.longitude),
+  }));
+}
+
+export async function getCurrentDeliveryLocation(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const location = await db.select()
+    .from(deliveryLocations)
+    .where(eq(deliveryLocations.userId, userId))
+    .orderBy(desc(deliveryLocations.createdAt))
+    .limit(1);
+
+  if (location.length === 0) return null;
+
+  return {
+    ...location[0],
+    latitude: parseFloat(location[0].latitude),
+    longitude: parseFloat(location[0].longitude),
+  };
+}
+
+export async function getActiveDeliveryLocations(branchId: number, withinMinutes: number = 15) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const timeCutoff = new Date(Date.now() - withinMinutes * 60 * 1000);
+
+  // Get latest location for each active delivery person in branch
+  const locations = await db.select()
+    .from(deliveryLocations)
+    .innerJoin(users, eq(deliveryLocations.userId, users.id))
+    .where(
+      and(
+        eq(users.branchId, branchId),
+        gte(deliveryLocations.createdAt, timeCutoff)
+      )
+    )
+    .orderBy(desc(deliveryLocations.createdAt));
+
+  // Group by user to get latest location
+  const latestByUser = new Map();
+  locations.forEach(({ delivery_locations, users: user }) => {
+    if (!latestByUser.has(delivery_locations.userId)) {
+      latestByUser.set(delivery_locations.userId, {
+        userId: delivery_locations.userId,
+        userName: user.name,
+        latitude: parseFloat(delivery_locations.latitude),
+        longitude: parseFloat(delivery_locations.longitude),
+        accuracy: delivery_locations.accuracy,
+        heading: delivery_locations.heading,
+        speed: delivery_locations.speed,
+        updatedAt: delivery_locations.createdAt,
+      });
+    }
+  });
+
+  return Array.from(latestByUser.values());
+}
+
+export async function getDeliveryRoute(orderId: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get delivery person for this order
+  const delivery = await db.select()
+    .from(deliveries)
+    .where(eq(deliveries.orderId, orderId))
+    .limit(1);
+
+  if (delivery.length === 0) return [];
+
+  const userId = delivery[0].userId;
+
+  // Get all locations during delivery
+  const locations = await db.select()
+    .from(deliveryLocations)
+    .where(eq(deliveryLocations.userId, userId))
+    .orderBy(asc(deliveryLocations.createdAt));
+
+  return locations.map(loc => ({
+    ...loc,
+    latitude: parseFloat(loc.latitude),
+    longitude: parseFloat(loc.longitude),
+  }));
 }
