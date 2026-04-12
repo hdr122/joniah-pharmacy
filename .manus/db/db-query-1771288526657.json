@@ -1,0 +1,26 @@
+{
+  "query": "SELECT b.name as branch_name, COUNT(u.id) as delivery_count FROM branches b LEFT JOIN users u ON b.id = u.branchId AND u.role = 'delivery' GROUP BY b.id, b.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT b.name as branch_name, COUNT(u.id) as delivery_count FROM branches b LEFT JOIN users u ON b.id = u.branchId AND u.role = 'delivery' GROUP BY b.id, b.name;",
+  "rows": [
+    {
+      "branch_name": "صيدلية جونيا - العامرية",
+      "delivery_count": "30"
+    },
+    {
+      "branch_name": "test",
+      "delivery_count": "0"
+    },
+    {
+      "branch_name": "صيدلية جونيا - السيدية",
+      "delivery_count": "8"
+    },
+    {
+      "branch_name": "تجربة",
+      "delivery_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "branch_name\tdelivery_count\nصيدلية جونيا - العامرية\t30\ntest\t0\nصيدلية جونيا - السيدية\t8\nتجربة\t0\n",
+  "stderr": "",
+  "execution_time_ms": 370
+}

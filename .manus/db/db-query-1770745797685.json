@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'orders' AND COLUMN_NAME LIKE '%price%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'orders' AND COLUMN_NAME LIKE '%price%';",
+  "rows": [
+    {
+      "COLUMN_NAME": "price"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nprice\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

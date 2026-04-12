@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  (SELECT COUNT(*) FROM customers) as customers_count,\n  (SELECT COUNT(*) FROM regions) as regions_count,\n  (SELECT COUNT(*) FROM provinces) as provinces_count",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT \n  (SELECT COUNT(*) FROM customers) as customers_count,\n  (SELECT COUNT(*) FROM regions) as regions_count,\n  (SELECT COUNT(*) FROM provinces) as provinces_count",
+  "rows": [
+    {
+      "customers_count": "0",
+      "regions_count": "0",
+      "provinces_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "customers_count\tregions_count\tprovinces_count\n0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 103
+}

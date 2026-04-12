@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name FROM branches ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name FROM branches ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "صيدلية جونيا - العامرية"
+    },
+    {
+      "id": "2",
+      "name": "صيدلية جونيا - السيدية"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tصيدلية جونيا - العامرية\n2\tصيدلية جونيا - السيدية\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

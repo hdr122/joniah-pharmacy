@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, username, name, role, branchId FROM users WHERE role IN ('admin', 'super_admin') ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, username, name, role, branchId FROM users WHERE role IN ('admin', 'super_admin') ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "username": "NULL",
+      "name": "HIVE",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "57",
+      "username": "arif",
+      "name": "المدير الرئيسي",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60001",
+      "username": "Mustafasalem",
+      "name": "مصطفى سليم",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60002",
+      "username": "abody",
+      "name": "عبد المغيث",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60003",
+      "username": "HarthHDR",
+      "name": "حساب المطور",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "90002",
+      "username": "admin2",
+      "name": "مدير فرع السيدية",
+      "role": "admin",
+      "branchId": "2"
+    },
+    {
+      "id": "180010",
+      "username": "omer1",
+      "name": "omer",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "210010",
+      "username": "test33",
+      "name": "test1 ",
+      "role": "admin",
+      "branchId": "NULL"
+    },
+    {
+      "id": "210020",
+      "username": "Ihsan",
+      "name": "احسان علي",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "390007",
+      "username": "test88",
+      "name": "test88",
+      "role": "admin",
+      "branchId": "30002"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tbranchId\n1\tNULL\tHIVE\tadmin\t1\n57\tarif\tالمدير الرئيسي\tadmin\t1\n60001\tMustafasalem\tمصطفى سليم\tadmin\t1\n60002\tabody\tعبد المغيث\tadmin\t1\n60003\tHarthHDR\tحساب المطور\tadmin\t1\n90002\tadmin2\tمدير فرع السيدية\tadmin\t2\n180010\tomer1\tomer\tadmin\t1\n210010\ttest33\ttest1 \tadmin\tNULL\n210020\tIhsan\tاحسان علي\tadmin\t1\n390007\ttest88\ttest88\tadmin\t30002\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

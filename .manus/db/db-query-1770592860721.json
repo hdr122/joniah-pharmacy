@@ -1,0 +1,24 @@
+{
+  "query": "SELECT o.id, o.deliveryDuration, o.deliveryDuration IS NULL as is_null, o.deliveryDuration = 0 as is_zero, c.phone\nFROM orders o\nJOIN customers c ON o.customerId = c.id\nWHERE c.phone IN ('07878886827', '07729292555')\nORDER BY o.id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT o.id, o.deliveryDuration, o.deliveryDuration IS NULL as is_null, o.deliveryDuration = 0 as is_zero, c.phone\nFROM orders o\nJOIN customers c ON o.customerId = c.id\nWHERE c.phone IN ('07878886827', '07729292555')\nORDER BY o.id;",
+  "rows": [
+    {
+      "id": "1470159",
+      "deliveryDuration": "0",
+      "is_null": "0",
+      "is_zero": "1",
+      "phone": "07729292555"
+    },
+    {
+      "id": "1470177",
+      "deliveryDuration": "0",
+      "is_null": "0",
+      "is_zero": "1",
+      "phone": "07878886827"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryDuration\tis_null\tis_zero\tphone\n1470159\t0\t0\t1\t07729292555\n1470177\t0\t0\t1\t07878886827\n",
+  "stderr": "",
+  "execution_time_ms": 73
+}

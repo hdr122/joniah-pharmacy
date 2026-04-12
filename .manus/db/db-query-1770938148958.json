@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET role = 'superadmin', permissions = '[\"VIEW_ORDERS\",\"CREATE_ORDERS\",\"EDIT_ORDERS\",\"DELETE_ORDERS\",\"VIEW_DELIVERIES\",\"MANAGE_DELIVERIES\",\"VIEW_CUSTOMERS\",\"MANAGE_CUSTOMERS\",\"VIEW_STATISTICS\",\"VIEW_MAPS\",\"VIEW_SETTINGS\",\"MANAGE_USERS\"]' WHERE username = 'harthhdr0';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE users SET role = 'superadmin', permissions = '[\"VIEW_ORDERS\",\"CREATE_ORDERS\",\"EDIT_ORDERS\",\"DELETE_ORDERS\",\"VIEW_DELIVERIES\",\"MANAGE_DELIVERIES\",\"VIEW_CUSTOMERS\",\"MANAGE_CUSTOMERS\",\"VIEW_STATISTICS\",\"VIEW_MAPS\",\"VIEW_SETTINGS\",\"MANAGE_USERS\"]' WHERE username = 'harthhdr0';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 349
+}

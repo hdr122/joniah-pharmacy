@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET branchId = 2 WHERE role = 'delivery' AND id IN (SELECT id FROM (SELECT id FROM users WHERE role = 'delivery' ORDER BY id LIMIT 5) as temp);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE users SET branchId = 2 WHERE role = 'delivery' AND id IN (SELECT id FROM (SELECT id FROM users WHERE role = 'delivery' ORDER BY id LIMIT 5) as temp);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 353
+}

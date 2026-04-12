@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, customerId, price, createdAt FROM orders WHERE customerId IN (SELECT id FROM customers WHERE phone = '07812345678') ORDER BY createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, customerId, price, createdAt FROM orders WHERE customerId IN (SELECT id FROM customers WHERE phone = '07812345678') ORDER BY createdAt DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "2940800",
+      "customerId": "2850152",
+      "price": "5000",
+      "createdAt": "2026-03-15 03:11:32"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcustomerId\tprice\tcreatedAt\n2940800\t2850152\t5000\t2026-03-15 03:11:32\n",
+  "stderr": "",
+  "execution_time_ms": 84
+}

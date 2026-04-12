@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO `site_settings` (`key`, `value`) VALUES \n('site_name', 'صيدلية جونيا'),\n('site_logo', '')\nON DUPLICATE KEY UPDATE `value` = VALUES(`value`);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute INSERT INTO `site_settings` (`key`, `value`) VALUES \n('site_name', 'صيدلية جونيا'),\n('site_logo', '')\nON DUPLICATE KEY UPDATE `value` = VALUES(`value`);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'key' in 'field list'"
+  ]
+}

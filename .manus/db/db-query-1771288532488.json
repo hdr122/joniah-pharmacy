@@ -1,0 +1,15 @@
+{
+  "query": "SELECT username, role, permissions FROM users WHERE role IN ('admin', 'superadmin') AND (permissions IS NULL OR permissions = '' OR permissions = '[]');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT username, role, permissions FROM users WHERE role IN ('admin', 'superadmin') AND (permissions IS NULL OR permissions = '' OR permissions = '[]');",
+  "rows": [
+    {
+      "username": "HarthHDR1",
+      "role": "superadmin",
+      "permissions": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "username\trole\tpermissions\nHarthHDR1\tsuperadmin\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 345
+}

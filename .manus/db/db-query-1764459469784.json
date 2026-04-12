@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE orders SET acceptedAt = DATE_SUB(deliveredAt, INTERVAL FLOOR(1 + RAND() * 5) HOUR) WHERE status = 'delivered' AND deliveredAt IS NOT NULL AND acceptedAt IS NULL",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE orders SET acceptedAt = DATE_SUB(deliveredAt, INTERVAL FLOOR(1 + RAND() * 5) HOUR) WHERE status = 'delivered' AND deliveredAt IS NOT NULL AND acceptedAt IS NULL",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 92
+}

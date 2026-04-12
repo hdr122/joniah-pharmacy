@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, \n       createdAt IS NOT NULL as has_created,\n       acceptedAt IS NOT NULL as has_accepted,\n       deliveredAt IS NOT NULL as has_delivered,\n       deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, \n       createdAt IS NOT NULL as has_created,\n       acceptedAt IS NOT NULL as has_accepted,\n       deliveredAt IS NOT NULL as has_delivered,\n       deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "90298",
+      "has_created": "1",
+      "has_accepted": "1",
+      "has_delivered": "1",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "120205",
+      "has_created": "1",
+      "has_accepted": "1",
+      "has_delivered": "1",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "150232",
+      "has_created": "1",
+      "has_accepted": "1",
+      "has_delivered": "1",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "210319",
+      "has_created": "1",
+      "has_accepted": "1",
+      "has_delivered": "1",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "240220",
+      "has_created": "1",
+      "has_accepted": "1",
+      "has_delivered": "1",
+      "deliveryDuration": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\thas_created\thas_accepted\thas_delivered\tdeliveryDuration\n90298\t1\t1\t1\tNULL\n120205\t1\t1\t1\tNULL\n150232\t1\t1\t1\tNULL\n210319\t1\t1\t1\tNULL\n240220\t1\t1\t1\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

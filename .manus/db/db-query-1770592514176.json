@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, deliveryPersonId, acceptedAt, deliveredAt, deliveryDuration, status \nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL \nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, deliveryPersonId, acceptedAt, deliveredAt, deliveryDuration, status \nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL \nLIMIT 5;",
+  "rows": [
+    {
+      "id": "90298",
+      "deliveryPersonId": "46",
+      "acceptedAt": "2026-01-01 01:36:44",
+      "deliveredAt": "2026-01-01 01:37:04",
+      "deliveryDuration": "NULL",
+      "status": "delivered"
+    },
+    {
+      "id": "120205",
+      "deliveryPersonId": "36",
+      "acceptedAt": "2026-01-01 18:27:49",
+      "deliveredAt": "2026-01-01 21:45:12",
+      "deliveryDuration": "NULL",
+      "status": "delivered"
+    },
+    {
+      "id": "150232",
+      "deliveryPersonId": "27",
+      "acceptedAt": "2026-01-02 17:34:56",
+      "deliveredAt": "2026-01-02 20:07:49",
+      "deliveryDuration": "NULL",
+      "status": "delivered"
+    },
+    {
+      "id": "210319",
+      "deliveryPersonId": "41",
+      "acceptedAt": "2026-01-04 20:38:10",
+      "deliveredAt": "2026-01-04 23:08:21",
+      "deliveryDuration": "NULL",
+      "status": "delivered"
+    },
+    {
+      "id": "240142",
+      "deliveryPersonId": "39",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 22:13:47",
+      "deliveryDuration": "NULL",
+      "status": "delivered"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tacceptedAt\tdeliveredAt\tdeliveryDuration\tstatus\n90298\t46\t2026-01-01 01:36:44\t2026-01-01 01:37:04\tNULL\tdelivered\n120205\t36\t2026-01-01 18:27:49\t2026-01-01 21:45:12\tNULL\tdelivered\n150232\t27\t2026-01-02 17:34:56\t2026-01-02 20:07:49\tNULL\tdelivered\n210319\t41\t2026-01-04 20:38:10\t2026-01-04 23:08:21\tNULL\tdelivered\n240142\t39\tNULL\t2026-01-05 22:13:47\tNULL\tdelivered\n",
+  "stderr": "",
+  "execution_time_ms": 633
+}

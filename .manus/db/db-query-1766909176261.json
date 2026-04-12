@@ -1,0 +1,70 @@
+{
+  "query": "SELECT o.id, c.locationUrl1, c.locationUrl2, o.locationLink \nFROM orders o \nLEFT JOIN customers c ON o.customerId = c.id\nWHERE o.status = 'accepted' OR o.status = 'pending'\nORDER BY o.id DESC \nLIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT o.id, c.locationUrl1, c.locationUrl2, o.locationLink \nFROM orders o \nLEFT JOIN customers c ON o.customerId = c.id\nWHERE o.status = 'accepted' OR o.status = 'pending'\nORDER BY o.id DESC \nLIMIT 10",
+  "rows": [
+    {
+      "id": "2670335",
+      "locationUrl1": "NULL",
+      "locationUrl2": "NULL",
+      "locationLink": "NULL"
+    },
+    {
+      "id": "2670334",
+      "locationUrl1": "NULL",
+      "locationUrl2": "NULL",
+      "locationLink": "NULL"
+    },
+    {
+      "id": "2670333",
+      "locationUrl1": "NULL",
+      "locationUrl2": "NULL",
+      "locationLink": "NULL"
+    },
+    {
+      "id": "2670332",
+      "locationUrl1": "https://maps.app.goo.gl/dzS1hjpyHv7MnbBr8?g_st=ac",
+      "locationUrl2": "NULL",
+      "locationLink": "https://maps.app.goo.gl/dzS1hjpyHv7MnbBr8?g_st=ac"
+    },
+    {
+      "id": "2670330",
+      "locationUrl1": "NULL",
+      "locationUrl2": "NULL",
+      "locationLink": ""
+    },
+    {
+      "id": "2670327",
+      "locationUrl1": "https://www.google.com/maps?q=33.2968367,44.2911722",
+      "locationUrl2": "NULL",
+      "locationLink": "https://www.google.com/maps?q=33.2968367,44.2911722"
+    },
+    {
+      "id": "2670325",
+      "locationUrl1": "https://www.google.com/maps?q=33.321604,44.2658691",
+      "locationUrl2": "NULL",
+      "locationLink": "https://www.google.com/maps?q=33.321604,44.2658691"
+    },
+    {
+      "id": "2670305",
+      "locationUrl1": "https://www.google.com/maps?q=33.296660152132226,44.2910615814411",
+      "locationUrl2": "NULL",
+      "locationLink": "https://www.google.com/maps?q=33.296660152132226,44.2910615814411"
+    },
+    {
+      "id": "2670249",
+      "locationUrl1": "https://www.google.com/maps?q=33.2922216,44.2777815",
+      "locationUrl2": "NULL",
+      "locationLink": "https://www.google.com/maps?q=33.2922216,44.2777815"
+    },
+    {
+      "id": "2670174",
+      "locationUrl1": "NULL",
+      "locationUrl2": "NULL",
+      "locationLink": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlocationUrl1\tlocationUrl2\tlocationLink\n2670335\tNULL\tNULL\tNULL\n2670334\tNULL\tNULL\tNULL\n2670333\tNULL\tNULL\tNULL\n2670332\thttps://maps.app.goo.gl/dzS1hjpyHv7MnbBr8?g_st=ac\tNULL\thttps://maps.app.goo.gl/dzS1hjpyHv7MnbBr8?g_st=ac\n2670330\tNULL\tNULL\t\n2670327\thttps://www.google.com/maps?q=33.2968367,44.2911722\tNULL\thttps://www.google.com/maps?q=33.2968367,44.2911722\n2670325\thttps://www.google.com/maps?q=33.321604,44.2658691\tNULL\thttps://www.google.com/maps?q=33.321604,44.2658691\n2670305\thttps://www.google.com/maps?q=33.296660152132226,44.2910615814411\tNULL\thttps://www.google.com/maps?q=33.296660152132226,44.2910615814411\n2670249\thttps://www.google.com/maps?q=33.2922216,44.2777815\tNULL\thttps://www.google.com/maps?q=33.2922216,44.2777815\n2670174\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 78
+}

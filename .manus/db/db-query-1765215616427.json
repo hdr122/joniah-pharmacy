@@ -1,0 +1,80 @@
+{
+  "query": "SELECT dl.*, u.name, u.username \nFROM delivery_locations dl\nLEFT JOIN users u ON dl.deliveryPersonId = u.id\nWHERE u.username = 'harth'\nORDER BY dl.timestamp DESC\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT dl.*, u.name, u.username \nFROM delivery_locations dl\nLEFT JOIN users u ON dl.deliveryPersonId = u.id\nWHERE u.username = 'harth'\nORDER BY dl.timestamp DESC\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "2101025",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3152",
+      "longitude": "44.3661",
+      "accuracy": "10",
+      "timestamp": "2025-12-08 17:38:59",
+      "speed": "0",
+      "heading": "0",
+      "battery": "85",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth"
+    },
+    {
+      "id": "2100605",
+      "deliveryPersonId": "630001",
+      "latitude": "33.366724",
+      "longitude": "43.7631471",
+      "accuracy": "11.529999732971191",
+      "timestamp": "2025-12-08 16:05:58",
+      "speed": "0.25840288400650024",
+      "heading": "188.00408935546875",
+      "battery": "9",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth"
+    },
+    {
+      "id": "2100604",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3667532",
+      "longitude": "43.763152",
+      "accuracy": "11.515000343322754",
+      "timestamp": "2025-12-08 16:05:46",
+      "speed": "0.19187809526920319",
+      "heading": "351.7930603027344",
+      "battery": "9",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth"
+    },
+    {
+      "id": "2100603",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3667286",
+      "longitude": "43.7631562",
+      "accuracy": "11.508999824523926",
+      "timestamp": "2025-12-08 16:05:33",
+      "speed": "NULL",
+      "heading": "NULL",
+      "battery": "9",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth"
+    },
+    {
+      "id": "2100602",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3667404",
+      "longitude": "43.7631683",
+      "accuracy": "12.496000289916992",
+      "timestamp": "2025-12-08 16:05:16",
+      "speed": "0.7745011448860168",
+      "heading": "155.6901092529297",
+      "battery": "9",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tlatitude\tlongitude\taccuracy\ttimestamp\tspeed\theading\tbattery\tdeviceId\tname\tusername\n2101025\t630001\t33.3152\t44.3661\t10\t2025-12-08 17:38:59\t0\t0\t85\tNULL\tحارث 1\tharth\n2100605\t630001\t33.366724\t43.7631471\t11.529999732971191\t2025-12-08 16:05:58\t0.25840288400650024\t188.00408935546875\t9\tNULL\tحارث 1\tharth\n2100604\t630001\t33.3667532\t43.763152\t11.515000343322754\t2025-12-08 16:05:46\t0.19187809526920319\t351.7930603027344\t9\tNULL\tحارث 1\tharth\n2100603\t630001\t33.3667286\t43.7631562\t11.508999824523926\t2025-12-08 16:05:33\tNULL\tNULL\t9\tNULL\tحارث 1\tharth\n2100602\t630001\t33.3667404\t43.7631683\t12.496000289916992\t2025-12-08 16:05:16\t0.7745011448860168\t155.6901092529297\t9\tNULL\tحارث 1\tharth\n",
+  "stderr": "",
+  "execution_time_ms": 72
+}

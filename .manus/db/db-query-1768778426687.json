@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, branchId FROM regions LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, branchId FROM regions LIMIT 10;",
+  "rows": [
+    {
+      "id": "3",
+      "name": "تجريبي",
+      "branchId": "1"
+    },
+    {
+      "id": "30001",
+      "name": "العامريه",
+      "branchId": "1"
+    },
+    {
+      "id": "30002",
+      "name": "الغزاليه",
+      "branchId": "1"
+    },
+    {
+      "id": "30003",
+      "name": "الخضراء",
+      "branchId": "1"
+    },
+    {
+      "id": "30004",
+      "name": "الجهاد",
+      "branchId": "1"
+    },
+    {
+      "id": "30005",
+      "name": "الفرات",
+      "branchId": "1"
+    },
+    {
+      "id": "30006",
+      "name": "ابو غريب",
+      "branchId": "1"
+    },
+    {
+      "id": "30007",
+      "name": "الجامعة",
+      "branchId": "1"
+    },
+    {
+      "id": "30008",
+      "name": "البكرية",
+      "branchId": "1"
+    },
+    {
+      "id": "30009",
+      "name": "حي الحسين",
+      "branchId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tbranchId\n3\tتجريبي\t1\n30001\tالعامريه\t1\n30002\tالغزاليه\t1\n30003\tالخضراء\t1\n30004\tالجهاد\t1\n30005\tالفرات\t1\n30006\tابو غريب\t1\n30007\tالجامعة\t1\n30008\tالبكرية\t1\n30009\tحي الحسين\t1\n",
+  "stderr": "",
+  "execution_time_ms": 85
+}

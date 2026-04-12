@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, phone FROM users WHERE name LIKE '%احمد%' OR name LIKE '%باسم%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, phone FROM users WHERE name LIKE '%احمد%' OR name LIKE '%باسم%'",
+  "rows": [
+    {
+      "id": "720003",
+      "name": "احمد باسم كاضم",
+      "phone": "07736122003"
+    },
+    {
+      "id": "2010001",
+      "name": "بشار احمد محسن",
+      "phone": "07827289509"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tphone\n720003\tاحمد باسم كاضم\t07736122003\n2010001\tبشار احمد محسن\t07827289509\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

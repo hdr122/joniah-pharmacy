@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, customerId, createdAt, acceptedAt, deliveredAt, deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, customerId, createdAt, acceptedAt, deliveredAt, deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "90298",
+      "customerId": "7745",
+      "createdAt": "2026-01-01 01:36:08",
+      "acceptedAt": "2026-01-01 01:36:44",
+      "deliveredAt": "2026-01-01 01:37:04",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "120205",
+      "customerId": "120041",
+      "createdAt": "2026-01-01 18:01:03",
+      "acceptedAt": "2026-01-01 18:27:49",
+      "deliveredAt": "2026-01-01 21:45:12",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "150232",
+      "customerId": "5298",
+      "createdAt": "2026-01-02 17:23:58",
+      "acceptedAt": "2026-01-02 17:34:56",
+      "deliveredAt": "2026-01-02 20:07:49",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "210319",
+      "customerId": "361",
+      "createdAt": "2026-01-04 19:40:22",
+      "acceptedAt": "2026-01-04 20:38:10",
+      "deliveredAt": "2026-01-04 23:08:21",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "240220",
+      "customerId": "240043",
+      "createdAt": "2026-01-05 18:49:39",
+      "acceptedAt": "2026-01-05 18:49:57",
+      "deliveredAt": "2026-01-05 18:50:37",
+      "deliveryDuration": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcustomerId\tcreatedAt\tacceptedAt\tdeliveredAt\tdeliveryDuration\n90298\t7745\t2026-01-01 01:36:08\t2026-01-01 01:36:44\t2026-01-01 01:37:04\tNULL\n120205\t120041\t2026-01-01 18:01:03\t2026-01-01 18:27:49\t2026-01-01 21:45:12\tNULL\n150232\t5298\t2026-01-02 17:23:58\t2026-01-02 17:34:56\t2026-01-02 20:07:49\tNULL\n210319\t361\t2026-01-04 19:40:22\t2026-01-04 20:38:10\t2026-01-04 23:08:21\tNULL\n240220\t240043\t2026-01-05 18:49:39\t2026-01-05 18:49:57\t2026-01-05 18:50:37\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

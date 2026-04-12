@@ -1,0 +1,65 @@
+{
+  "query": "SELECT \n  orders.deliveryPersonId,\n  users.name as deliveryPersonName,\n  users.username as deliveryPersonUsername,\n  COUNT(*) as totalOrders,\n  SUM(CASE WHEN orders.status = 'delivered' THEN 1 ELSE 0 END) as deliveredOrders,\n  SUM(CASE WHEN orders.status = 'returned' THEN 1 ELSE 0 END) as returnedOrders,\n  SUM(CASE WHEN orders.status = 'postponed' THEN 1 ELSE 0 END) as postponedOrders,\n  SUM(CASE WHEN orders.status = 'cancelled' THEN 1 ELSE 0 END) as cancelledOrders,\n  SUM(CASE WHEN orders.status = 'delivered' THEN orders.price ELSE 0 END) as totalRevenue\nFROM orders\nINNER JOIN users ON orders.deliveryPersonId = users.id\nWHERE orders.deliveryPersonId IS NOT NULL AND users.role = 'delivery'\nGROUP BY orders.deliveryPersonId, users.name, users.username\nLIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT \n  orders.deliveryPersonId,\n  users.name as deliveryPersonName,\n  users.username as deliveryPersonUsername,\n  COUNT(*) as totalOrders,\n  SUM(CASE WHEN orders.status = 'delivered' THEN 1 ELSE 0 END) as deliveredOrders,\n  SUM(CASE WHEN orders.status = 'returned' THEN 1 ELSE 0 END) as returnedOrders,\n  SUM(CASE WHEN orders.status = 'postponed' THEN 1 ELSE 0 END) as postponedOrders,\n  SUM(CASE WHEN orders.status = 'cancelled' THEN 1 ELSE 0 END) as cancelledOrders,\n  SUM(CASE WHEN orders.status = 'delivered' THEN orders.price ELSE 0 END) as totalRevenue\nFROM orders\nINNER JOIN users ON orders.deliveryPersonId = users.id\nWHERE orders.deliveryPersonId IS NOT NULL AND users.role = 'delivery'\nGROUP BY orders.deliveryPersonId, users.name, users.username\nLIMIT 5",
+  "rows": [
+    {
+      "deliveryPersonId": "720004",
+      "deliveryPersonName": "ابراهيم محمد ابراهيم",
+      "deliveryPersonUsername": "Ibrahim",
+      "totalOrders": "592",
+      "deliveredOrders": "570",
+      "returnedOrders": "12",
+      "postponedOrders": "2",
+      "cancelledOrders": "1",
+      "totalRevenue": "11911500"
+    },
+    {
+      "deliveryPersonId": "2010001",
+      "deliveryPersonName": "بشار احمد محسن",
+      "deliveryPersonUsername": "Bashar",
+      "totalOrders": "421",
+      "deliveredOrders": "397",
+      "returnedOrders": "15",
+      "postponedOrders": "4",
+      "cancelledOrders": "0",
+      "totalRevenue": "7899250"
+    },
+    {
+      "deliveryPersonId": "630001",
+      "deliveryPersonName": "حارث 1",
+      "deliveryPersonUsername": "harth",
+      "totalOrders": "29",
+      "deliveredOrders": "10",
+      "returnedOrders": "2",
+      "postponedOrders": "3",
+      "cancelledOrders": "10",
+      "totalRevenue": "14500"
+    },
+    {
+      "deliveryPersonId": "2100001",
+      "deliveryPersonName": "حسن زيد قصي تكسي",
+      "deliveryPersonUsername": "Hasan",
+      "totalOrders": "69",
+      "deliveredOrders": "45",
+      "returnedOrders": "7",
+      "postponedOrders": "3",
+      "cancelledOrders": "0",
+      "totalRevenue": "2718000"
+    },
+    {
+      "deliveryPersonId": "2610367",
+      "deliveryPersonName": "حارث 2 تجربة",
+      "deliveryPersonUsername": "harth2",
+      "totalOrders": "2",
+      "deliveredOrders": "0",
+      "returnedOrders": "0",
+      "postponedOrders": "0",
+      "cancelledOrders": "1",
+      "totalRevenue": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "deliveryPersonId\tdeliveryPersonName\tdeliveryPersonUsername\ttotalOrders\tdeliveredOrders\treturnedOrders\tpostponedOrders\tcancelledOrders\ttotalRevenue\n720004\tابراهيم محمد ابراهيم\tIbrahim\t592\t570\t12\t2\t1\t11911500\n2010001\tبشار احمد محسن\tBashar\t421\t397\t15\t4\t0\t7899250\n630001\tحارث 1\tharth\t29\t10\t2\t3\t10\t14500\n2100001\tحسن زيد قصي تكسي\tHasan\t69\t45\t7\t3\t0\t2718000\n2610367\tحارث 2 تجربة\tharth2\t2\t0\t0\t0\t1\t0\n",
+  "stderr": "",
+  "execution_time_ms": 75
+}

@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, status, createdAt, acceptedAt, deliveredAt, deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, status, createdAt, acceptedAt, deliveredAt, deliveryDuration\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL\nLIMIT 3;",
+  "rows": [
+    {
+      "id": "90298",
+      "status": "delivered",
+      "createdAt": "2026-01-01 01:36:08",
+      "acceptedAt": "2026-01-01 01:36:44",
+      "deliveredAt": "2026-01-01 01:37:04",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "120205",
+      "status": "delivered",
+      "createdAt": "2026-01-01 18:01:03",
+      "acceptedAt": "2026-01-01 18:27:49",
+      "deliveredAt": "2026-01-01 21:45:12",
+      "deliveryDuration": "NULL"
+    },
+    {
+      "id": "150232",
+      "status": "delivered",
+      "createdAt": "2026-01-02 17:23:58",
+      "acceptedAt": "2026-01-02 17:34:56",
+      "deliveredAt": "2026-01-02 20:07:49",
+      "deliveryDuration": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tcreatedAt\tacceptedAt\tdeliveredAt\tdeliveryDuration\n90298\tdelivered\t2026-01-01 01:36:08\t2026-01-01 01:36:44\t2026-01-01 01:37:04\tNULL\n120205\tdelivered\t2026-01-01 18:01:03\t2026-01-01 18:27:49\t2026-01-01 21:45:12\tNULL\n150232\tdelivered\t2026-01-02 17:23:58\t2026-01-02 17:34:56\t2026-01-02 20:07:49\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

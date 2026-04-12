@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO regions (name, provinceId) VALUES \n('العامرية', 1),\n('الفلوجة', 1),\n('السيدية', 2);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute INSERT INTO regions (name, provinceId) VALUES \n('العامرية', 1),\n('الفلوجة', 1),\n('السيدية', 2);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 71
+}

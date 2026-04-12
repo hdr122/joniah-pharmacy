@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, provinceId FROM regions;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, provinceId FROM regions;",
+  "rows": [
+    {
+      "id": "30001",
+      "name": "العامرية",
+      "provinceId": "1"
+    },
+    {
+      "id": "30002",
+      "name": "السيدية",
+      "provinceId": "1"
+    },
+    {
+      "id": "60001",
+      "name": "الفلوجة",
+      "provinceId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprovinceId\n30001\tالعامرية\t1\n30002\tالسيدية\t1\n60001\tالفلوجة\t1\n",
+  "stderr": "",
+  "execution_time_ms": 99
+}

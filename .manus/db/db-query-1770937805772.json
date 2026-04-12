@@ -1,0 +1,40 @@
+{
+  "query": "SELECT DISTINCT u.id, u.username, u.name, u.phone FROM users u INNER JOIN orders o ON u.id = o.deliveryPersonId WHERE o.branchId = 2 AND u.role = 'delivery';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT DISTINCT u.id, u.username, u.name, u.phone FROM users u INNER JOIN orders o ON u.id = o.deliveryPersonId WHERE o.branchId = 2 AND u.role = 'delivery';",
+  "rows": [
+    {
+      "id": "660001",
+      "username": "jamal",
+      "name": "جمال محسن طوكان",
+      "phone": "07882136125"
+    },
+    {
+      "id": "660006",
+      "username": "amam",
+      "name": "مندوب عامرية ",
+      "phone": "******"
+    },
+    {
+      "id": "46",
+      "username": "harth",
+      "name": "حارث 1",
+      "phone": "07845688860"
+    },
+    {
+      "id": "660003",
+      "username": "aliabd",
+      "name": "علي عبد صوين",
+      "phone": "07804529456"
+    },
+    {
+      "id": "660004",
+      "username": "TEST",
+      "name": "TEST",
+      "phone": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\tphone\n660001\tjamal\tجمال محسن طوكان\t07882136125\n660006\tamam\tمندوب عامرية \t******\n46\tharth\tحارث 1\t07845688860\n660003\taliabd\tعلي عبد صوين\t07804529456\n660004\tTEST\tTEST\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 379
+}

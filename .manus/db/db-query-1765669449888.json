@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name, username, role FROM users WHERE role = 'delivery' LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, role FROM users WHERE role = 'delivery' LIMIT 10",
+  "rows": [
+    {
+      "id": "630001",
+      "name": "حارث 1",
+      "username": "harth",
+      "role": "delivery"
+    },
+    {
+      "id": "690001",
+      "name": "Aref ali",
+      "username": "Aref",
+      "role": "delivery"
+    },
+    {
+      "id": "720001",
+      "name": "عثمان عبدالله رعد",
+      "username": "Othman",
+      "role": "delivery"
+    },
+    {
+      "id": "720002",
+      "name": "خطاب مالك محسن",
+      "username": "Khatab",
+      "role": "delivery"
+    },
+    {
+      "id": "720003",
+      "name": "احمد باسم كاضم",
+      "username": "Ahmed",
+      "role": "delivery"
+    },
+    {
+      "id": "720004",
+      "name": "ابراهيم محمد ابراهيم",
+      "username": "Ibrahim",
+      "role": "delivery"
+    },
+    {
+      "id": "720006",
+      "name": "بلال حسين علي",
+      "username": "Belal",
+      "role": "delivery"
+    },
+    {
+      "id": "720007",
+      "name": "همام سليم جواد",
+      "username": "Humam",
+      "role": "delivery"
+    },
+    {
+      "id": "720008",
+      "name": "عبدالله فضيل سليمان",
+      "username": "Abdulla",
+      "role": "delivery"
+    },
+    {
+      "id": "720009",
+      "name": "يوسف رعد ليلو",
+      "username": "Yousef r",
+      "role": "delivery"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\trole\n630001\tحارث 1\tharth\tdelivery\n690001\tAref ali\tAref\tdelivery\n720001\tعثمان عبدالله رعد\tOthman\tdelivery\n720002\tخطاب مالك محسن\tKhatab\tdelivery\n720003\tاحمد باسم كاضم\tAhmed\tdelivery\n720004\tابراهيم محمد ابراهيم\tIbrahim\tdelivery\n720006\tبلال حسين علي\tBelal\tdelivery\n720007\tهمام سليم جواد\tHumam\tdelivery\n720008\tعبدالله فضيل سليمان\tAbdulla\tdelivery\n720009\tيوسف رعد ليلو\tYousef r\tdelivery\n",
+  "stderr": "",
+  "execution_time_ms": 96
+}

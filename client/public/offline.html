@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>غير متصل - صيدلية جونيا</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 50%, #f0fdfa 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+    }
+    .icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+    .icon svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+    h1 {
+      font-size: 28px;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .retry-btn {
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s ease;
+    }
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(16, 185, 129, 0.4);
+    }
+    .retry-btn:active {
+      transform: translateY(0);
+    }
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 8px;
+    }
+    .retry-btn.loading .spinner {
+      display: inline-block;
+    }
+    .retry-btn.loading .text {
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .tips {
+      margin-top: 32px;
+      padding: 16px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 12px;
+      text-align: right;
+    }
+    .tips h3 {
+      font-size: 14px;
+      color: #10b981;
+      margin-bottom: 8px;
+    }
+    .tips ul {
+      font-size: 13px;
+      color: #6b7280;
+      padding-right: 20px;
+    }
+    .tips li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+      </svg>
+    </div>
+    <h1>غير متصل بالإنترنت</h1>
+    <p>يبدو أنك غير متصل بالإنترنت. تحقق من اتصالك وحاول مرة أخرى.</p>
+    <button class="retry-btn" onclick="retryConnection()">
+      <span class="text">إعادة المحاولة</span>
+      <span class="spinner"></span>
+    </button>
+    
+    <div class="tips">
+      <h3>نصائح:</h3>
+      <ul>
+        <li>تأكد من تشغيل بيانات الهاتف أو Wi-Fi</li>
+        <li>حاول الاقتراب من جهاز الراوتر</li>
+        <li>أعد تشغيل التطبيق</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    function retryConnection() {
+      const btn = document.querySelector('.retry-btn');
+      btn.classList.add('loading');
+      
+      // Try to fetch the main page
+      fetch('/', { method: 'HEAD', cache: 'no-store' })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            throw new Error('Still offline');
+          }
+        })
+        .catch(() => {
+          btn.classList.remove('loading');
+          // Show a brief message
+          const p = document.querySelector('p');
+          p.textContent = 'لا يزال الاتصال غير متاح. حاول مرة أخرى.';
+          setTimeout(() => {
+            p.textContent = 'يبدو أنك غير متصل بالإنترنت. تحقق من اتصالك وحاول مرة أخرى.';
+          }, 3000);
+        });
+    }
+    
+    // Auto-retry when connection is restored
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

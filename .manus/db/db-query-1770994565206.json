@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as total_orders, branchId FROM orders WHERE deliveryPersonId IN (SELECT id FROM users WHERE username IN ('Abdu', 'Ammar')) GROUP BY branchId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT COUNT(*) as total_orders, branchId FROM orders WHERE deliveryPersonId IN (SELECT id FROM users WHERE username IN ('Abdu', 'Ammar')) GROUP BY branchId;",
+  "rows": [
+    {
+      "total_orders": "2694",
+      "branchId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_orders\tbranchId\n2694\t1\n",
+  "stderr": "",
+  "execution_time_ms": 363
+}

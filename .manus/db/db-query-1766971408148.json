@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_delivery_users,\n  SUM(CASE WHEN isActive = 1 THEN 1 ELSE 0 END) as active_users,\n  SUM(CASE WHEN isActive = 0 THEN 1 ELSE 0 END) as inactive_users\nFROM users \nWHERE role = 'delivery'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT \n  COUNT(*) as total_delivery_users,\n  SUM(CASE WHEN isActive = 1 THEN 1 ELSE 0 END) as active_users,\n  SUM(CASE WHEN isActive = 0 THEN 1 ELSE 0 END) as inactive_users\nFROM users \nWHERE role = 'delivery'",
+  "rows": [
+    {
+      "total_delivery_users": "23",
+      "active_users": "14",
+      "inactive_users": "9"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_delivery_users\tactive_users\tinactive_users\n23\t14\t9\n",
+  "stderr": "",
+  "execution_time_ms": 246
+}

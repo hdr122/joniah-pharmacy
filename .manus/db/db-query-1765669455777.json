@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, username FROM users WHERE role = 'delivery' LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username FROM users WHERE role = 'delivery' LIMIT 5",
+  "rows": [
+    {
+      "id": "630001",
+      "name": "حارث 1",
+      "username": "harth"
+    },
+    {
+      "id": "690001",
+      "name": "Aref ali",
+      "username": "Aref"
+    },
+    {
+      "id": "720001",
+      "name": "عثمان عبدالله رعد",
+      "username": "Othman"
+    },
+    {
+      "id": "720002",
+      "name": "خطاب مالك محسن",
+      "username": "Khatab"
+    },
+    {
+      "id": "720003",
+      "name": "احمد باسم كاضم",
+      "username": "Ahmed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\n630001\tحارث 1\tharth\n690001\tAref ali\tAref\n720001\tعثمان عبدالله رعد\tOthman\n720002\tخطاب مالك محسن\tKhatab\n720003\tاحمد باسم كاضم\tAhmed\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

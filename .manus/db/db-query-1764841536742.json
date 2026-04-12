@@ -1,0 +1,90 @@
+{
+  "query": "SELECT * FROM delivery_locations ORDER BY timestamp DESC LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT * FROM delivery_locations ORDER BY timestamp DESC LIMIT 10",
+  "rows": [
+    {
+      "id": "1290012",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:45:03"
+    },
+    {
+      "id": "1290011",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:44:57"
+    },
+    {
+      "id": "1290010",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:43:47"
+    },
+    {
+      "id": "1290009",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:43:44"
+    },
+    {
+      "id": "1290008",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:43:37"
+    },
+    {
+      "id": "1290007",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:42:42"
+    },
+    {
+      "id": "1290006",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:42:32"
+    },
+    {
+      "id": "1290005",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:42:19"
+    },
+    {
+      "id": "1290004",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:41:15"
+    },
+    {
+      "id": "1290003",
+      "deliveryPersonId": "630001",
+      "latitude": "33.35409043922917",
+      "longitude": "43.800411494507685",
+      "accuracy": "2250",
+      "timestamp": "2025-12-04 09:41:11"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tlatitude\tlongitude\taccuracy\ttimestamp\n1290012\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:45:03\n1290011\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:44:57\n1290010\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:43:47\n1290009\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:43:44\n1290008\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:43:37\n1290007\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:42:42\n1290006\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:42:32\n1290005\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:42:19\n1290004\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:41:15\n1290003\t630001\t33.35409043922917\t43.800411494507685\t2250\t2025-12-04 09:41:11\n",
+  "stderr": "",
+  "execution_time_ms": 641
+}

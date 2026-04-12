@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, status, acceptedAt, deliveredAt, createdAt FROM orders WHERE isDeleted = 0 LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, status, acceptedAt, deliveredAt, createdAt FROM orders WHERE isDeleted = 0 LIMIT 5",
+  "rows": [
+    {
+      "id": "300001",
+      "status": "delivered",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2025-11-28 10:40:58",
+      "createdAt": "2025-11-28 10:39:52"
+    },
+    {
+      "id": "330001",
+      "status": "pending_approval",
+      "acceptedAt": "NULL",
+      "deliveredAt": "NULL",
+      "createdAt": "2025-11-29 00:20:51"
+    },
+    {
+      "id": "330002",
+      "status": "pending_approval",
+      "acceptedAt": "NULL",
+      "deliveredAt": "NULL",
+      "createdAt": "2025-11-29 00:22:30"
+    },
+    {
+      "id": "330003",
+      "status": "delivered",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2025-11-29 00:28:39",
+      "createdAt": "2025-11-29 00:26:50"
+    },
+    {
+      "id": "360001",
+      "status": "delivered",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2025-11-29 15:29:14",
+      "createdAt": "2025-11-29 14:50:43"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tacceptedAt\tdeliveredAt\tcreatedAt\n300001\tdelivered\tNULL\t2025-11-28 10:40:58\t2025-11-28 10:39:52\n330001\tpending_approval\tNULL\tNULL\t2025-11-29 00:20:51\n330002\tpending_approval\tNULL\tNULL\t2025-11-29 00:22:30\n330003\tdelivered\tNULL\t2025-11-29 00:28:39\t2025-11-29 00:26:50\n360001\tdelivered\tNULL\t2025-11-29 15:29:14\t2025-11-29 14:50:43\n",
+  "stderr": "",
+  "execution_time_ms": 88
+}

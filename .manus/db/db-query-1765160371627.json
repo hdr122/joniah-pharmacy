@@ -1,0 +1,70 @@
+{
+  "query": "SELECT o.id, o.deliveryPersonId, u.name, o.status FROM orders o LEFT JOIN users u ON o.deliveryPersonId = u.id WHERE u.name LIKE '%احمد%باسم%' LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT o.id, o.deliveryPersonId, u.name, o.status FROM orders o LEFT JOIN users u ON o.deliveryPersonId = u.id WHERE u.name LIKE '%احمد%باسم%' LIMIT 10",
+  "rows": [
+    {
+      "id": "360008",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "360009",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "360010",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "360011",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "360032",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "600007",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "600008",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "690014",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "690015",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    },
+    {
+      "id": "690016",
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "status": "delivered"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tname\tstatus\n360008\t720003\tاحمد باسم كاضم\tdelivered\n360009\t720003\tاحمد باسم كاضم\tdelivered\n360010\t720003\tاحمد باسم كاضم\tdelivered\n360011\t720003\tاحمد باسم كاضم\tdelivered\n360032\t720003\tاحمد باسم كاضم\tdelivered\n600007\t720003\tاحمد باسم كاضم\tdelivered\n600008\t720003\tاحمد باسم كاضم\tdelivered\n690014\t720003\tاحمد باسم كاضم\tdelivered\n690015\t720003\tاحمد باسم كاضم\tdelivered\n690016\t720003\tاحمد باسم كاضم\tdelivered\n",
+  "stderr": "",
+  "execution_time_ms": 47
+}

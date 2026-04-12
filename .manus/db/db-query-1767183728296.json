@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS settings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  `key` VARCHAR(100) NOT NULL,\n  value TEXT NOT NULL,\n  description TEXT,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX key_idx(`key`)\n);\n\nINSERT INTO settings (`key`, value, description) \nVALUES ('day_start_hour', '5', 'ساعة بدء اليوم الجديد (0-23)')\nON DUPLICATE KEY UPDATE value = value;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute CREATE TABLE IF NOT EXISTS settings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  `key` VARCHAR(100) NOT NULL,\n  value TEXT NOT NULL,\n  description TEXT,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX key_idx(`key`)\n);\n\nINSERT INTO settings (`key`, value, description) \nVALUES ('day_start_hour', '5', 'ساعة بدء اليوم الجديد (0-23)')\nON DUPLICATE KEY UPDATE value = value;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 236
+}

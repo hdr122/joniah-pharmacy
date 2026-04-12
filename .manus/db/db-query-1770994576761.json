@@ -1,0 +1,52 @@
+{
+  "query": "SELECT u.username, u.name, o.status, COUNT(*) as count FROM orders o JOIN users u ON o.deliveryPersonId = u.id WHERE u.username IN ('Abdu', 'Ammar') GROUP BY u.username, u.name, o.status ORDER BY u.username, o.status;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT u.username, u.name, o.status, COUNT(*) as count FROM orders o JOIN users u ON o.deliveryPersonId = u.id WHERE u.username IN ('Abdu', 'Ammar') GROUP BY u.username, u.name, o.status ORDER BY u.username, o.status;",
+  "rows": [
+    {
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "status": "pending_approval",
+      "count": "3"
+    },
+    {
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "status": "delivered",
+      "count": "1166"
+    },
+    {
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "status": "postponed",
+      "count": "6"
+    },
+    {
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "status": "returned",
+      "count": "33"
+    },
+    {
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "status": "pending_approval",
+      "count": "1"
+    },
+    {
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "status": "delivered",
+      "count": "1437"
+    },
+    {
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "status": "returned",
+      "count": "48"
+    }
+  ],
+  "messages": [],
+  "stdout": "username\tname\tstatus\tcount\nAbdu\tعبد الرحمن صفاء غازي\tpending_approval\t3\nAbdu\tعبد الرحمن صفاء غازي\tdelivered\t1166\nAbdu\tعبد الرحمن صفاء غازي\tpostponed\t6\nAbdu\tعبد الرحمن صفاء غازي\treturned\t33\nAmmar\tعمار احمد محسن\tpending_approval\t1\nAmmar\tعمار احمد محسن\tdelivered\t1437\nAmmar\tعمار احمد محسن\treturned\t48\n",
+  "stderr": "",
+  "execution_time_ms": 367
+}

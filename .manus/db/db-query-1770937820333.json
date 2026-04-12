@@ -1,0 +1,18 @@
+{
+  "query": "SELECT branchId, COUNT(*) as count FROM users WHERE role = 'delivery' GROUP BY branchId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT branchId, COUNT(*) as count FROM users WHERE role = 'delivery' GROUP BY branchId;",
+  "rows": [
+    {
+      "branchId": "2",
+      "count": "10"
+    },
+    {
+      "branchId": "1",
+      "count": "28"
+    }
+  ],
+  "messages": [],
+  "stdout": "branchId\tcount\n2\t10\n1\t28\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}

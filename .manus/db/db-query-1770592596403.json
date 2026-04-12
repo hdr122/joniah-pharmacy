@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, customerId, createdAt, acceptedAt, deliveredAt, deliveryDuration, \n       TIMESTAMPDIFF(MINUTE, createdAt, deliveredAt) as calc_from_created,\n       TIMESTAMPDIFF(MINUTE, acceptedAt, deliveredAt) as calc_from_accepted\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL AND DATE(deliveredAt) = '2026-02-07'\nLIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, customerId, createdAt, acceptedAt, deliveredAt, deliveryDuration, \n       TIMESTAMPDIFF(MINUTE, createdAt, deliveredAt) as calc_from_created,\n       TIMESTAMPDIFF(MINUTE, acceptedAt, deliveredAt) as calc_from_accepted\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL AND DATE(deliveredAt) = '2026-02-07'\nLIMIT 1;",
+  "rows": [
+    {
+      "id": "1440074",
+      "customerId": "1410019",
+      "createdAt": "2026-02-07 10:59:47",
+      "acceptedAt": "2026-02-07 11:01:28",
+      "deliveredAt": "2026-02-07 11:39:42",
+      "deliveryDuration": "NULL",
+      "calc_from_created": "39",
+      "calc_from_accepted": "38"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcustomerId\tcreatedAt\tacceptedAt\tdeliveredAt\tdeliveryDuration\tcalc_from_created\tcalc_from_accepted\n1440074\t1410019\t2026-02-07 10:59:47\t2026-02-07 11:01:28\t2026-02-07 11:39:42\tNULL\t39\t38\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT COUNT(*) as total_delivered, \n  SUM(CASE WHEN price > 0 THEN 1 ELSE 0 END) as with_price,\n  SUM(CASE WHEN price IS NULL OR price = 0 THEN 1 ELSE 0 END) as without_price\nFROM orders \nWHERE status = 'delivered';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT COUNT(*) as total_delivered, \n  SUM(CASE WHEN price > 0 THEN 1 ELSE 0 END) as with_price,\n  SUM(CASE WHEN price IS NULL OR price = 0 THEN 1 ELSE 0 END) as without_price\nFROM orders \nWHERE status = 'delivered';",
+  "rows": [
+    {
+      "total_delivered": "14110",
+      "with_price": "13827",
+      "without_price": "283"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_delivered\twith_price\twithout_price\n14110\t13827\t283\n",
+  "stderr": "",
+  "execution_time_ms": 647
+}

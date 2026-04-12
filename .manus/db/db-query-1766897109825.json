@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, locationLink FROM orders WHERE locationLink IS NOT NULL AND locationLink != '' LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, locationLink FROM orders WHERE locationLink IS NOT NULL AND locationLink != '' LIMIT 10",
+  "rows": [
+    {
+      "id": "1800100",
+      "locationLink": "https://www.google.com/maps?q=33.2973536,44.2869207"
+    },
+    {
+      "id": "1800306",
+      "locationLink": "https://harth.com"
+    },
+    {
+      "id": "1920009",
+      "locationLink": "https://www.google.com/maps?q=33.2955739,44.288287"
+    },
+    {
+      "id": "1920010",
+      "locationLink": "https://www.google.com/maps?q=33.2984683,44.2851433"
+    },
+    {
+      "id": "1920050",
+      "locationLink": "https://maps.app.goo.gl/cp5WVdFL6S5nEdcu5"
+    },
+    {
+      "id": "1920051",
+      "locationLink": "https://maps.app.goo.gl/g7Tgty6cNTywR3mW9"
+    },
+    {
+      "id": "1920052",
+      "locationLink": "https://maps.app.goo.gl/bBPxdbgrAsREismX9"
+    },
+    {
+      "id": "1920053",
+      "locationLink": "https://maps.app.goo.gl/s2QnemAkdysQg1fa7"
+    },
+    {
+      "id": "1920054",
+      "locationLink": "https://maps.app.goo.gl/XhfXMZ45qtqVqQJ18"
+    },
+    {
+      "id": "1920055",
+      "locationLink": "https://maps.app.goo.gl/ALLbvMKnkTZE9XPC8"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlocationLink\n1800100\thttps://www.google.com/maps?q=33.2973536,44.2869207\n1800306\thttps://harth.com\n1920009\thttps://www.google.com/maps?q=33.2955739,44.288287\n1920010\thttps://www.google.com/maps?q=33.2984683,44.2851433\n1920050\thttps://maps.app.goo.gl/cp5WVdFL6S5nEdcu5\n1920051\thttps://maps.app.goo.gl/g7Tgty6cNTywR3mW9\n1920052\thttps://maps.app.goo.gl/bBPxdbgrAsREismX9\n1920053\thttps://maps.app.goo.gl/s2QnemAkdysQg1fa7\n1920054\thttps://maps.app.goo.gl/XhfXMZ45qtqVqQJ18\n1920055\thttps://maps.app.goo.gl/ALLbvMKnkTZE9XPC8\n",
+  "stderr": "",
+  "execution_time_ms": 121
+}

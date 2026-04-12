@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE orders \nSET deliveryDuration = TIMESTAMPDIFF(MINUTE, createdAt, deliveredAt)\nWHERE status = 'delivered' \n  AND deliveryDuration IS NULL \n  AND acceptedAt IS NULL \n  AND deliveredAt IS NOT NULL \n  AND createdAt IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE orders \nSET deliveryDuration = TIMESTAMPDIFF(MINUTE, createdAt, deliveredAt)\nWHERE status = 'delivered' \n  AND deliveryDuration IS NULL \n  AND acceptedAt IS NULL \n  AND deliveredAt IS NOT NULL \n  AND createdAt IS NOT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 217
+}

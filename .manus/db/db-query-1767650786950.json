@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE branches \nADD COLUMN IF NOT EXISTS subscriptionStartDate timestamp NULL,\nADD COLUMN IF NOT EXISTS subscriptionEndDate timestamp NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute ALTER TABLE branches \nADD COLUMN IF NOT EXISTS subscriptionStartDate timestamp NULL,\nADD COLUMN IF NOT EXISTS subscriptionEndDate timestamp NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1202
+}

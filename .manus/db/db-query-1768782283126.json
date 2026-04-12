@@ -1,0 +1,31 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'site_settings' AND TABLE_SCHEMA = DATABASE();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'site_settings' AND TABLE_SCHEMA = DATABASE();",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "siteName"
+    },
+    {
+      "COLUMN_NAME": "loginPageTitle"
+    },
+    {
+      "COLUMN_NAME": "loginPageSubtitle"
+    },
+    {
+      "COLUMN_NAME": "loginPageNote"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    },
+    {
+      "COLUMN_NAME": "updatedBy"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nsiteName\nloginPageTitle\nloginPageSubtitle\nloginPageNote\nupdatedAt\nupdatedBy\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

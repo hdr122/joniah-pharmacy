@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `maintenance_mode` (\n\t`id` int AUTO_INCREMENT NOT NULL PRIMARY KEY,\n\t`isEnabled` tinyint NOT NULL DEFAULT 0,\n\t`message` text,\n\t`estimatedEndTime` timestamp,\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\t`updatedBy` int\n);\n\nINSERT INTO `maintenance_mode` (`isEnabled`, `message`) VALUES (0, 'الموقع تحت الصيانة حالياً. سنعود قريباً!');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute CREATE TABLE IF NOT EXISTS `maintenance_mode` (\n\t`id` int AUTO_INCREMENT NOT NULL PRIMARY KEY,\n\t`isEnabled` tinyint NOT NULL DEFAULT 0,\n\t`message` text,\n\t`estimatedEndTime` timestamp,\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\t`updatedBy` int\n);\n\nINSERT INTO `maintenance_mode` (`isEnabled`, `message`) VALUES (0, 'الموقع تحت الصيانة حالياً. سنعود قريباً!');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 222
+}

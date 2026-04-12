@@ -1,0 +1,82 @@
+{
+  "query": "SELECT id, username, name, role, branchId, isActive FROM users WHERE role IN ('admin', 'branch_admin', 'branch_user') ORDER BY branchId, id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, username, name, role, branchId, isActive FROM users WHERE role IN ('admin', 'branch_admin', 'branch_user') ORDER BY branchId, id;",
+  "rows": [
+    {
+      "id": "60003",
+      "username": "HarthHDR",
+      "name": "حساب المطور",
+      "role": "admin",
+      "branchId": "NULL",
+      "isActive": "1"
+    },
+    {
+      "id": "210010",
+      "username": "test33",
+      "name": "test1 ",
+      "role": "admin",
+      "branchId": "NULL",
+      "isActive": "1"
+    },
+    {
+      "id": "1",
+      "username": "NULL",
+      "name": "HIVE",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "57",
+      "username": "arif",
+      "name": "المدير الرئيسي",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "60001",
+      "username": "Mustafasalem",
+      "name": "مصطفى سليم",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "60002",
+      "username": "abody",
+      "name": "عبد المغيث",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "180010",
+      "username": "omer1",
+      "name": "omer",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "210020",
+      "username": "Ihsan",
+      "name": "احسان علي",
+      "role": "admin",
+      "branchId": "1",
+      "isActive": "1"
+    },
+    {
+      "id": "90002",
+      "username": "admin2",
+      "name": "مدير فرع السيدية",
+      "role": "admin",
+      "branchId": "2",
+      "isActive": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tbranchId\tisActive\n60003\tHarthHDR\tحساب المطور\tadmin\tNULL\t1\n210010\ttest33\ttest1 \tadmin\tNULL\t1\n1\tNULL\tHIVE\tadmin\t1\t1\n57\tarif\tالمدير الرئيسي\tadmin\t1\t1\n60001\tMustafasalem\tمصطفى سليم\tadmin\t1\t1\n60002\tabody\tعبد المغيث\tadmin\t1\t1\n180010\tomer1\tomer\tadmin\t1\t1\n210020\tIhsan\tاحسان علي\tadmin\t1\t1\n90002\tadmin2\tمدير فرع السيدية\tadmin\t2\t1\n",
+  "stderr": "",
+  "execution_time_ms": 648
+}

@@ -1,0 +1,16 @@
+{
+  "query": "\nSELECT \n  c.id,\n  c.name,\n  c.phone,\n  COALESCE(SUM(CASE WHEN o.status = 'delivered' THEN o.price ELSE 0 END), 0) as totalSpent\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customerId\nWHERE c.id = 1530073\nGROUP BY c.id, c.name, c.phone;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute \nSELECT \n  c.id,\n  c.name,\n  c.phone,\n  COALESCE(SUM(CASE WHEN o.status = 'delivered' THEN o.price ELSE 0 END), 0) as totalSpent\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customerId\nWHERE c.id = 1530073\nGROUP BY c.id, c.name, c.phone;\n",
+  "rows": [
+    {
+      "id": "1530073",
+      "name": "NULL",
+      "phone": "07783318870",
+      "totalSpent": "12000"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tphone\ttotalSpent\n1530073\tNULL\t07783318870\t12000\n",
+  "stderr": "",
+  "execution_time_ms": 66
+}

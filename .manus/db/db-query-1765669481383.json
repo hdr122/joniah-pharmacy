@@ -1,0 +1,60 @@
+{
+  "query": "SELECT deliveryPersonId, COUNT(*) as count, MAX(timestamp) as last_update FROM delivery_locations GROUP BY deliveryPersonId LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT deliveryPersonId, COUNT(*) as count, MAX(timestamp) as last_update FROM delivery_locations GROUP BY deliveryPersonId LIMIT 10",
+  "rows": [
+    {
+      "deliveryPersonId": "1170002",
+      "count": "1335",
+      "last_update": "2025-12-13 18:12:09"
+    },
+    {
+      "deliveryPersonId": "720008",
+      "count": "130007",
+      "last_update": "2025-12-13 21:29:06"
+    },
+    {
+      "deliveryPersonId": "720004",
+      "count": "5855",
+      "last_update": "2025-12-13 21:52:37"
+    },
+    {
+      "deliveryPersonId": "810060",
+      "count": "2",
+      "last_update": "2025-11-30 00:23:24"
+    },
+    {
+      "deliveryPersonId": "2430001",
+      "count": "106232",
+      "last_update": "2025-12-13 22:15:36"
+    },
+    {
+      "deliveryPersonId": "1170001",
+      "count": "2678",
+      "last_update": "2025-12-13 21:50:44"
+    },
+    {
+      "deliveryPersonId": "2280001",
+      "count": "30359",
+      "last_update": "2025-12-13 20:24:38"
+    },
+    {
+      "deliveryPersonId": "720007",
+      "count": "1008",
+      "last_update": "2025-12-09 18:45:29"
+    },
+    {
+      "deliveryPersonId": "720009",
+      "count": "1402",
+      "last_update": "2025-12-13 22:09:42"
+    },
+    {
+      "deliveryPersonId": "720005",
+      "count": "534",
+      "last_update": "2025-11-30 18:24:05"
+    }
+  ],
+  "messages": [],
+  "stdout": "deliveryPersonId\tcount\tlast_update\n1170002\t1335\t2025-12-13 18:12:09\n720008\t130007\t2025-12-13 21:29:06\n720004\t5855\t2025-12-13 21:52:37\n810060\t2\t2025-11-30 00:23:24\n2430001\t106232\t2025-12-13 22:15:36\n1170001\t2678\t2025-12-13 21:50:44\n2280001\t30359\t2025-12-13 20:24:38\n720007\t1008\t2025-12-09 18:45:29\n720009\t1402\t2025-12-13 22:09:42\n720005\t534\t2025-11-30 18:24:05\n",
+  "stderr": "",
+  "execution_time_ms": 511
+}

@@ -1,0 +1,24 @@
+{
+  "query": "SELECT u.id, u.name, u.username, u.branchId, b.name as branchName FROM users u LEFT JOIN branches b ON u.branchId = b.id WHERE u.username IN ('Abdu', 'Ammar') AND u.role = 'delivery';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT u.id, u.name, u.username, u.branchId, b.name as branchName FROM users u LEFT JOIN branches b ON u.branchId = b.id WHERE u.username IN ('Abdu', 'Ammar') AND u.role = 'delivery';",
+  "rows": [
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية"
+    },
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\tbranchId\tbranchName\n28\tعمار احمد محسن\tAmmar\t1\tصيدلية جونيا - العامرية\n27\tعبد الرحمن صفاء غازي\tAbdu\t1\tصيدلية جونيا - العامرية\n",
+  "stderr": "",
+  "execution_time_ms": 367
+}

@@ -1,0 +1,24 @@
+{
+  "query": "SELECT u.username, u.name, COUNT(*) as total_orders, SUM(CASE WHEN o.status = 'delivered' THEN 1 ELSE 0 END) as delivered, SUM(CASE WHEN o.status = 'pending' THEN 1 ELSE 0 END) as pending FROM orders o JOIN users u ON o.deliveryPersonId = u.id WHERE u.username IN ('Abdu', 'Ammar') GROUP BY u.username, u.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT u.username, u.name, COUNT(*) as total_orders, SUM(CASE WHEN o.status = 'delivered' THEN 1 ELSE 0 END) as delivered, SUM(CASE WHEN o.status = 'pending' THEN 1 ELSE 0 END) as pending FROM orders o JOIN users u ON o.deliveryPersonId = u.id WHERE u.username IN ('Abdu', 'Ammar') GROUP BY u.username, u.name;",
+  "rows": [
+    {
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "total_orders": "1208",
+      "delivered": "1166",
+      "pending": "0"
+    },
+    {
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "total_orders": "1486",
+      "delivered": "1437",
+      "pending": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "username\tname\ttotal_orders\tdelivered\tpending\nAbdu\tعبد الرحمن صفاء غازي\t1208\t1166\t0\nAmmar\tعمار احمد محسن\t1486\t1437\t0\n",
+  "stderr": "",
+  "execution_time_ms": 372
+}

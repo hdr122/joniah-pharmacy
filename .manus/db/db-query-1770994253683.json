@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, username FROM users WHERE username IN ('Abdu', 'Ammar') AND role = 'delivery';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username FROM users WHERE username IN ('Abdu', 'Ammar') AND role = 'delivery';",
+  "rows": [
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu"
+    },
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\n27\tعبد الرحمن صفاء غازي\tAbdu\n28\tعمار احمد محسن\tAmmar\n",
+  "stderr": "",
+  "execution_time_ms": 363
+}

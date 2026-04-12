@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE orders SET deliveredAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 48) HOUR), acceptedAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 72) HOUR) WHERE status = 'delivered' AND deliveredAt IS NULL LIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE orders SET deliveredAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 48) HOUR), acceptedAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 72) HOUR) WHERE status = 'delivered' AND deliveredAt IS NULL LIMIT 20",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 63
+}

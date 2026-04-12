@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE user SET role = 'user' WHERE username = 'HarthHDR'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute UPDATE user SET role = 'user' WHERE username = 'HarthHDR'",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'nuxmcfygeo7baczx3zufks.user' doesn't exist"
+  ]
+}

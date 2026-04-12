@@ -1,0 +1,16 @@
+{
+  "query": "SELECT \n  (SELECT COUNT(*) FROM users WHERE branchId NOT IN (SELECT id FROM branches)) as orphaned_users,\n  (SELECT COUNT(*) FROM users WHERE role = 'delivery' AND branchId IS NULL) as delivery_without_branch,\n  (SELECT COUNT(*) FROM orders WHERE branchId NOT IN (SELECT id FROM branches)) as orphaned_orders,\n  (SELECT COUNT(*) FROM orders WHERE deliveryPersonId NOT IN (SELECT id FROM users WHERE role = 'delivery')) as orders_invalid_delivery;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT \n  (SELECT COUNT(*) FROM users WHERE branchId NOT IN (SELECT id FROM branches)) as orphaned_users,\n  (SELECT COUNT(*) FROM users WHERE role = 'delivery' AND branchId IS NULL) as delivery_without_branch,\n  (SELECT COUNT(*) FROM orders WHERE branchId NOT IN (SELECT id FROM branches)) as orphaned_orders,\n  (SELECT COUNT(*) FROM orders WHERE deliveryPersonId NOT IN (SELECT id FROM users WHERE role = 'delivery')) as orders_invalid_delivery;",
+  "rows": [
+    {
+      "orphaned_users": "0",
+      "delivery_without_branch": "0",
+      "orphaned_orders": "0",
+      "orders_invalid_delivery": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "orphaned_users\tdelivery_without_branch\torphaned_orders\torders_invalid_delivery\n0\t0\t0\t18\n",
+  "stderr": "",
+  "execution_time_ms": 427
+}

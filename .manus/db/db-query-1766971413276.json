@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, name, username, phone, isActive \nFROM users \nWHERE role = 'delivery' \nORDER BY id \nLIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, phone, isActive \nFROM users \nWHERE role = 'delivery' \nORDER BY id \nLIMIT 10",
+  "rows": [
+    {
+      "id": "24",
+      "name": "Other Delivery",
+      "username": "other_delivery_gps@",
+      "phone": "9876543210",
+      "isActive": "1"
+    },
+    {
+      "id": "25",
+      "name": "Test Delivery Person",
+      "username": "test_delivery_gps@",
+      "phone": "1234567890",
+      "isActive": "0"
+    },
+    {
+      "id": "26",
+      "name": "احمد وسام ملاكي",
+      "username": "Ahmed.2@",
+      "phone": "07830115360",
+      "isActive": "1"
+    },
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu@",
+      "phone": "07741699169",
+      "isActive": "1"
+    },
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar@",
+      "phone": "07768527999",
+      "isActive": "1"
+    },
+    {
+      "id": "29",
+      "name": "حارث 2 تريفة",
+      "username": "harth.2@",
+      "phone": "0784649566",
+      "isActive": "0"
+    },
+    {
+      "id": "30",
+      "name": "سمر محمد مهدي(ابراك)",
+      "username": "Samer@",
+      "phone": "07876206262",
+      "isActive": "0"
+    },
+    {
+      "id": "31",
+      "name": "حسن رحيم سماري",
+      "username": "Hasan@",
+      "phone": "07814867895",
+      "isActive": "0"
+    },
+    {
+      "id": "32",
+      "name": "سلام محسن طوقان",
+      "username": "Salam@",
+      "phone": "07845347513",
+      "isActive": "1"
+    },
+    {
+      "id": "33",
+      "name": "مصطفى محسن طوقان",
+      "username": "Mustafa@",
+      "phone": "07834343451",
+      "isActive": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\tphone\tisActive\n24\tOther Delivery\tother_delivery_gps@\t9876543210\t1\n25\tTest Delivery Person\ttest_delivery_gps@\t1234567890\t0\n26\tاحمد وسام ملاكي\tAhmed.2@\t07830115360\t1\n27\tعبد الرحمن صفاء غازي\tAbdu@\t07741699169\t1\n28\tعمار احمد محسن\tAmmar@\t07768527999\t1\n29\tحارث 2 تريفة\tharth.2@\t0784649566\t0\n30\tسمر محمد مهدي(ابراك)\tSamer@\t07876206262\t0\n31\tحسن رحيم سماري\tHasan@\t07814867895\t0\n32\tسلام محسن طوقان\tSalam@\t07845347513\t1\n33\tمصطفى محسن طوقان\tMustafa@\t07834343451\t0\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

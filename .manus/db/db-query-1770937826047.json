@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, username, name, phone FROM users WHERE role = 'delivery' AND branchId = 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, username, name, phone FROM users WHERE role = 'delivery' AND branchId = 2;",
+  "rows": [
+    {
+      "id": "26",
+      "username": "Ahmed2",
+      "name": "احمد وسام منادي",
+      "phone": "07830115360"
+    },
+    {
+      "id": "27",
+      "username": "Abdu",
+      "name": "عبد الرحمن صفاء غازي",
+      "phone": "07741699169"
+    },
+    {
+      "id": "28",
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "phone": "07768527999"
+    },
+    {
+      "id": "29",
+      "username": "harth.2",
+      "name": "حارث 2 تريفة",
+      "phone": "0784649566"
+    },
+    {
+      "id": "30",
+      "username": "Samer",
+      "name": "سمر محمد مهدي(ابراك)",
+      "phone": "07876206262"
+    },
+    {
+      "id": "46",
+      "username": "harth",
+      "name": "حارث 1",
+      "phone": "07845688860"
+    },
+    {
+      "id": "660001",
+      "username": "jamal",
+      "name": "جمال محسن طوكان",
+      "phone": "07882136125"
+    },
+    {
+      "id": "660003",
+      "username": "aliabd",
+      "name": "علي عبد صوين",
+      "phone": "07804529456"
+    },
+    {
+      "id": "660004",
+      "username": "TEST",
+      "name": "TEST",
+      "phone": "NULL"
+    },
+    {
+      "id": "660006",
+      "username": "amam",
+      "name": "مندوب عامرية ",
+      "phone": "******"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\tphone\n26\tAhmed2\tاحمد وسام منادي\t07830115360\n27\tAbdu\tعبد الرحمن صفاء غازي\t07741699169\n28\tAmmar\tعمار احمد محسن\t07768527999\n29\tharth.2\tحارث 2 تريفة\t0784649566\n30\tSamer\tسمر محمد مهدي(ابراك)\t07876206262\n46\tharth\tحارث 1\t07845688860\n660001\tjamal\tجمال محسن طوكان\t07882136125\n660003\taliabd\tعلي عبد صوين\t07804529456\n660004\tTEST\tTEST\tNULL\n660006\tamam\tمندوب عامرية \t******\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

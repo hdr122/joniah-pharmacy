@@ -1,0 +1,91 @@
+{
+  "query": "SELECT u.id, u.username, u.name, u.role, u.branchId, b.name as branchName, u.isActive \nFROM users u \nLEFT JOIN branches b ON u.branchId = b.id \nWHERE u.role IN ('admin', 'branch_admin', 'branch_user') \nORDER BY u.branchId, u.id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT u.id, u.username, u.name, u.role, u.branchId, b.name as branchName, u.isActive \nFROM users u \nLEFT JOIN branches b ON u.branchId = b.id \nWHERE u.role IN ('admin', 'branch_admin', 'branch_user') \nORDER BY u.branchId, u.id;",
+  "rows": [
+    {
+      "id": "60003",
+      "username": "HarthHDR",
+      "name": "حساب المطور",
+      "role": "admin",
+      "branchId": "NULL",
+      "branchName": "NULL",
+      "isActive": "1"
+    },
+    {
+      "id": "210010",
+      "username": "test33",
+      "name": "test1 ",
+      "role": "admin",
+      "branchId": "NULL",
+      "branchName": "NULL",
+      "isActive": "1"
+    },
+    {
+      "id": "1",
+      "username": "NULL",
+      "name": "HIVE",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "57",
+      "username": "arif",
+      "name": "المدير الرئيسي",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "60001",
+      "username": "Mustafasalem",
+      "name": "مصطفى سليم",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "60002",
+      "username": "abody",
+      "name": "عبد المغيث",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "180010",
+      "username": "omer1",
+      "name": "omer",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "210020",
+      "username": "Ihsan",
+      "name": "احسان علي",
+      "role": "admin",
+      "branchId": "1",
+      "branchName": "صيدلية جونيا - العامرية",
+      "isActive": "1"
+    },
+    {
+      "id": "90002",
+      "username": "admin2",
+      "name": "مدير فرع السيدية",
+      "role": "admin",
+      "branchId": "2",
+      "branchName": "صيدلية جونيا - السيدية",
+      "isActive": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tbranchId\tbranchName\tisActive\n60003\tHarthHDR\tحساب المطور\tadmin\tNULL\tNULL\t1\n210010\ttest33\ttest1 \tadmin\tNULL\tNULL\t1\n1\tNULL\tHIVE\tadmin\t1\tصيدلية جونيا - العامرية\t1\n57\tarif\tالمدير الرئيسي\tadmin\t1\tصيدلية جونيا - العامرية\t1\n60001\tMustafasalem\tمصطفى سليم\tadmin\t1\tصيدلية جونيا - العامرية\t1\n60002\tabody\tعبد المغيث\tadmin\t1\tصيدلية جونيا - العامرية\t1\n180010\tomer1\tomer\tadmin\t1\tصيدلية جونيا - العامرية\t1\n210020\tIhsan\tاحسان علي\tadmin\t1\tصيدلية جونيا - العامرية\t1\n90002\tadmin2\tمدير فرع السيدية\tadmin\t2\tصيدلية جونيا - السيدية\t1\n",
+  "stderr": "",
+  "execution_time_ms": 68
+}

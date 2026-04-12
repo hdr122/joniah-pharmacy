@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `subscription_codes` (\n\t`id` int AUTO_INCREMENT NOT NULL PRIMARY KEY,\n\t`code` varchar(100) NOT NULL,\n\t`durationType` enum('daily','weekly','monthly','yearly','custom') NOT NULL,\n\t`durationDays` int NOT NULL,\n\t`isUsed` tinyint NOT NULL DEFAULT 0,\n\t`usedBy` int,\n\t`usedAt` timestamp,\n\t`createdBy` int NOT NULL,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`expiresAt` timestamp,\n\tINDEX `code_idx` (`code`),\n\tINDEX `is_used_idx` (`isUsed`)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute CREATE TABLE IF NOT EXISTS `subscription_codes` (\n\t`id` int AUTO_INCREMENT NOT NULL PRIMARY KEY,\n\t`code` varchar(100) NOT NULL,\n\t`durationType` enum('daily','weekly','monthly','yearly','custom') NOT NULL,\n\t`durationDays` int NOT NULL,\n\t`isUsed` tinyint NOT NULL DEFAULT 0,\n\t`usedBy` int,\n\t`usedAt` timestamp,\n\t`createdBy` int NOT NULL,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`expiresAt` timestamp,\n\tINDEX `code_idx` (`code`),\n\tINDEX `is_used_idx` (`isUsed`)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 189
+}

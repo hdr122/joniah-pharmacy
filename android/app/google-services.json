@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "627309906864",
+    "project_id": "joniah-delivery",
+    "storage_bucket": "joniah-delivery.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627309906864:android:9f2b0222a7a831a148e475",
+        "android_client_info": {
+          "package_name": "com.joniah.delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDosBl3xEtPRYhQz6xfCt7eVk6m_qjh2RQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

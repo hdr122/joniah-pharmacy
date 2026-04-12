@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, acceptedAt, deliveredAt, deliveryDuration, \n       CASE \n         WHEN acceptedAt IS NULL THEN 'acceptedAt is NULL'\n         WHEN deliveredAt IS NULL THEN 'deliveredAt is NULL'\n         ELSE 'Both dates exist'\n       END as issue\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, acceptedAt, deliveredAt, deliveryDuration, \n       CASE \n         WHEN acceptedAt IS NULL THEN 'acceptedAt is NULL'\n         WHEN deliveredAt IS NULL THEN 'deliveredAt is NULL'\n         ELSE 'Both dates exist'\n       END as issue\nFROM orders \nWHERE status = 'delivered' AND deliveryDuration IS NULL \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "90298",
+      "acceptedAt": "2026-01-01 01:36:44",
+      "deliveredAt": "2026-01-01 01:37:04",
+      "deliveryDuration": "NULL",
+      "issue": "Both dates exist"
+    },
+    {
+      "id": "120205",
+      "acceptedAt": "2026-01-01 18:27:49",
+      "deliveredAt": "2026-01-01 21:45:12",
+      "deliveryDuration": "NULL",
+      "issue": "Both dates exist"
+    },
+    {
+      "id": "150232",
+      "acceptedAt": "2026-01-02 17:34:56",
+      "deliveredAt": "2026-01-02 20:07:49",
+      "deliveryDuration": "NULL",
+      "issue": "Both dates exist"
+    },
+    {
+      "id": "210319",
+      "acceptedAt": "2026-01-04 20:38:10",
+      "deliveredAt": "2026-01-04 23:08:21",
+      "deliveryDuration": "NULL",
+      "issue": "Both dates exist"
+    },
+    {
+      "id": "240142",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 22:13:47",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    },
+    {
+      "id": "240183",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 17:49:40",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    },
+    {
+      "id": "240184",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 17:49:27",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    },
+    {
+      "id": "240185",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 17:49:17",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    },
+    {
+      "id": "240186",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 17:49:10",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    },
+    {
+      "id": "240187",
+      "acceptedAt": "NULL",
+      "deliveredAt": "2026-01-05 17:49:03",
+      "deliveryDuration": "NULL",
+      "issue": "acceptedAt is NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tacceptedAt\tdeliveredAt\tdeliveryDuration\tissue\n90298\t2026-01-01 01:36:44\t2026-01-01 01:37:04\tNULL\tBoth dates exist\n120205\t2026-01-01 18:27:49\t2026-01-01 21:45:12\tNULL\tBoth dates exist\n150232\t2026-01-02 17:34:56\t2026-01-02 20:07:49\tNULL\tBoth dates exist\n210319\t2026-01-04 20:38:10\t2026-01-04 23:08:21\tNULL\tBoth dates exist\n240142\tNULL\t2026-01-05 22:13:47\tNULL\tacceptedAt is NULL\n240183\tNULL\t2026-01-05 17:49:40\tNULL\tacceptedAt is NULL\n240184\tNULL\t2026-01-05 17:49:27\tNULL\tacceptedAt is NULL\n240185\tNULL\t2026-01-05 17:49:17\tNULL\tacceptedAt is NULL\n240186\tNULL\t2026-01-05 17:49:10\tNULL\tacceptedAt is NULL\n240187\tNULL\t2026-01-05 17:49:03\tNULL\tacceptedAt is NULL\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

@@ -1,0 +1,112 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "activity_logs"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "announcement_reads"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "announcements"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "branch_feature_subscriptions"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "branches"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "customers"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "dailyStats"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "delivery_locations"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "feature_purchase_codes"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "global_notifications"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "maintenance_mode"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "messages"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "notification_logs"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "notification_settings"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "notifications"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "order_form_settings"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "order_locations"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "order_route_tracking"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "orders"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "provinces"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "purchasable_features"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "push_subscriptions"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "regions"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "settings"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "site_settings"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "store_products"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "store_purchases"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "subscription_activations"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "subscription_codes"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "super_admin_users"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "updates"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "user_notification_dismissals"
+    },
+    {
+      "Tables_in_nuXmcfyGeo7bacZX3ZUfKS": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_nuXmcfyGeo7bacZX3ZUfKS\n__drizzle_migrations\nactivity_logs\nannouncement_reads\nannouncements\nbranch_feature_subscriptions\nbranches\ncustomers\ndailyStats\ndelivery_locations\nfeature_purchase_codes\nglobal_notifications\nmaintenance_mode\nmessages\nnotification_logs\nnotification_settings\nnotifications\norder_form_settings\norder_locations\norder_route_tracking\norders\nprovinces\npurchasable_features\npush_subscriptions\nregions\nsettings\nsite_settings\nstore_products\nstore_purchases\nsubscription_activations\nsubscription_codes\nsuper_admin_users\nupdates\nuser_notification_dismissals\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

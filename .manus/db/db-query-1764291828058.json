@@ -1,0 +1,31 @@
+{
+  "query": "SELECT * FROM regions;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT * FROM regions;",
+  "rows": [
+    {
+      "id": "30001",
+      "name": "العامرية",
+      "createdAt": "2025-11-27 16:26:25",
+      "updatedAt": "2025-11-27 16:26:25",
+      "provinceId": "1"
+    },
+    {
+      "id": "30002",
+      "name": "السيدية",
+      "createdAt": "2025-11-27 16:26:34",
+      "updatedAt": "2025-11-27 16:26:34",
+      "provinceId": "1"
+    },
+    {
+      "id": "60001",
+      "name": "الفلوجة",
+      "createdAt": "2025-11-27 23:26:24",
+      "updatedAt": "2025-11-27 23:26:24",
+      "provinceId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcreatedAt\tupdatedAt\tprovinceId\n30001\tالعامرية\t2025-11-27 16:26:25\t2025-11-27 16:26:25\t1\n30002\tالسيدية\t2025-11-27 16:26:34\t2025-11-27 16:26:34\t1\n60001\tالفلوجة\t2025-11-27 23:26:24\t2025-11-27 23:26:24\t1\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name, username, branchId FROM users WHERE role = 'delivery' AND branchId = 2 ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, branchId FROM users WHERE role = 'delivery' AND branchId = 2 ORDER BY name;",
+  "rows": [
+    {
+      "id": "660004",
+      "name": "TEST",
+      "username": "TEST",
+      "branchId": "2"
+    },
+    {
+      "id": "26",
+      "name": "احمد وسام منادي",
+      "username": "Ahmed2",
+      "branchId": "2"
+    },
+    {
+      "id": "660001",
+      "name": "جمال محسن طوكان",
+      "username": "jamal",
+      "branchId": "2"
+    },
+    {
+      "id": "46",
+      "name": "حارث 1",
+      "username": "harth",
+      "branchId": "2"
+    },
+    {
+      "id": "29",
+      "name": "حارث 2 تريفة",
+      "username": "harth.2",
+      "branchId": "2"
+    },
+    {
+      "id": "30",
+      "name": "سمر محمد مهدي(ابراك)",
+      "username": "Samer",
+      "branchId": "2"
+    },
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu",
+      "branchId": "2"
+    },
+    {
+      "id": "660003",
+      "name": "علي عبد صوين",
+      "username": "aliabd",
+      "branchId": "2"
+    },
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar",
+      "branchId": "2"
+    },
+    {
+      "id": "660006",
+      "name": "مندوب عامرية ",
+      "username": "amam",
+      "branchId": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\tbranchId\n660004\tTEST\tTEST\t2\n26\tاحمد وسام منادي\tAhmed2\t2\n660001\tجمال محسن طوكان\tjamal\t2\n46\tحارث 1\tharth\t2\n29\tحارث 2 تريفة\tharth.2\t2\n30\tسمر محمد مهدي(ابراك)\tSamer\t2\n27\tعبد الرحمن صفاء غازي\tAbdu\t2\n660003\tعلي عبد صوين\taliabd\t2\n28\tعمار احمد محسن\tAmmar\t2\n660006\tمندوب عامرية \tamam\t2\n",
+  "stderr": "",
+  "execution_time_ms": 358
+}

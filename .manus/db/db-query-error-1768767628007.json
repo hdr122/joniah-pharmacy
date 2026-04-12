@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE regions ADD COLUMN branchId INT NOT NULL DEFAULT 1 AFTER id;\nALTER TABLE regions ADD INDEX branch_idx (branchId);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute ALTER TABLE regions ADD COLUMN branchId INT NOT NULL DEFAULT 1 AFTER id;\nALTER TABLE regions ADD INDEX branch_idx (branchId);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1060 (42S21) at line 1: Duplicate column name 'branchId'"
+  ]
+}

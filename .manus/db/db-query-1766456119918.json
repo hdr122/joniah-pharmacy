@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, username, name, role FROM users WHERE role = 'delivery'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, username, name, role FROM users WHERE role = 'delivery'",
+  "rows": [
+    {
+      "id": "630001",
+      "username": "harth",
+      "name": "حارث 1",
+      "role": "delivery"
+    },
+    {
+      "id": "690001",
+      "username": "Aref",
+      "name": "Aref ali",
+      "role": "delivery"
+    },
+    {
+      "id": "720001",
+      "username": "Othman",
+      "name": "عثمان عبدالله رعد",
+      "role": "delivery"
+    },
+    {
+      "id": "720002",
+      "username": "Khatab",
+      "name": "خطاب مالك محسن",
+      "role": "delivery"
+    },
+    {
+      "id": "720003",
+      "username": "Ahmed",
+      "name": "احمد باسم كاضم",
+      "role": "delivery"
+    },
+    {
+      "id": "720004",
+      "username": "Ibrahim",
+      "name": "ابراهيم محمد ابراهيم",
+      "role": "delivery"
+    },
+    {
+      "id": "720006",
+      "username": "Belal",
+      "name": "بلال حسين علي",
+      "role": "delivery"
+    },
+    {
+      "id": "720007",
+      "username": "Humam",
+      "name": "همام سليم جواد",
+      "role": "delivery"
+    },
+    {
+      "id": "720008",
+      "username": "Abdulla",
+      "name": "عبدالله فضيل سليمان",
+      "role": "delivery"
+    },
+    {
+      "id": "720009",
+      "username": "Yousef r",
+      "name": "يوسف رعد ليلو",
+      "role": "delivery"
+    },
+    {
+      "id": "1170001",
+      "username": "Abbas",
+      "name": "عباس فاضل سلمان ",
+      "role": "delivery"
+    },
+    {
+      "id": "1170002",
+      "username": "Mohammed",
+      "name": "محمد عباس صالح (بريك)",
+      "role": "delivery"
+    },
+    {
+      "id": "2010001",
+      "username": "Bashar",
+      "name": "بشار احمد محسن",
+      "role": "delivery"
+    },
+    {
+      "id": "2040010",
+      "username": "Mustafa",
+      "name": "مصطفى محسن طوكان",
+      "role": "delivery"
+    },
+    {
+      "id": "2100001",
+      "username": "Hasan",
+      "name": "حسن زيد قصي تكسي",
+      "role": "delivery"
+    },
+    {
+      "id": "2280001",
+      "username": "Salam",
+      "name": "سلام محسن طوكان",
+      "role": "delivery"
+    },
+    {
+      "id": "2430001",
+      "username": "Hassn",
+      "name": "حسن رحيم سماري",
+      "role": "delivery"
+    },
+    {
+      "id": "2580031",
+      "username": "Samer",
+      "name": "سمير محمد مهيدي(بريك)",
+      "role": "delivery"
+    },
+    {
+      "id": "2610367",
+      "username": "harth2",
+      "name": "حارث 2 تجربة",
+      "role": "delivery"
+    },
+    {
+      "id": "2640001",
+      "username": "Ammar",
+      "name": "عمار احمد محسن",
+      "role": "delivery"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\n630001\tharth\tحارث 1\tdelivery\n690001\tAref\tAref ali\tdelivery\n720001\tOthman\tعثمان عبدالله رعد\tdelivery\n720002\tKhatab\tخطاب مالك محسن\tdelivery\n720003\tAhmed\tاحمد باسم كاضم\tdelivery\n720004\tIbrahim\tابراهيم محمد ابراهيم\tdelivery\n720006\tBelal\tبلال حسين علي\tdelivery\n720007\tHumam\tهمام سليم جواد\tdelivery\n720008\tAbdulla\tعبدالله فضيل سليمان\tdelivery\n720009\tYousef r\tيوسف رعد ليلو\tdelivery\n1170001\tAbbas\tعباس فاضل سلمان \tdelivery\n1170002\tMohammed\tمحمد عباس صالح (بريك)\tdelivery\n2010001\tBashar\tبشار احمد محسن\tdelivery\n2040010\tMustafa\tمصطفى محسن طوكان\tdelivery\n2100001\tHasan\tحسن زيد قصي تكسي\tdelivery\n2280001\tSalam\tسلام محسن طوكان\tdelivery\n2430001\tHassn\tحسن رحيم سماري\tdelivery\n2580031\tSamer\tسمير محمد مهيدي(بريك)\tdelivery\n2610367\tharth2\tحارث 2 تجربة\tdelivery\n2640001\tAmmar\tعمار احمد محسن\tdelivery\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

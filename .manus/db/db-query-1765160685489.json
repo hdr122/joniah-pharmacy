@@ -1,0 +1,9 @@
+{
+  "query": "SELECT latitude, longitude, timestamp FROM delivery_locations WHERE deliveryPersonId = 3 ORDER BY timestamp DESC LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT latitude, longitude, timestamp FROM delivery_locations WHERE deliveryPersonId = 3 ORDER BY timestamp DESC LIMIT 10",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 72
+}

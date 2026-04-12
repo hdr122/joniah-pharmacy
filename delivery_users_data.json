@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Other Delivery",
+    "username": "other_delivery_gps@",
+    "phone": "9876543210",
+    "isActive": true
+  },
+  {
+    "name": "Test Delivery Person",
+    "username": "test_delivery_gps@",
+    "phone": "1234567890",
+    "isActive": false
+  },
+  {
+    "name": "احمد وسام ملاكي",
+    "username": "Ahmed.2@",
+    "phone": "07830115360",
+    "isActive": true
+  },
+  {
+    "name": "عبد الرحمن صفاء غازي",
+    "username": "Abdu@",
+    "phone": "07741699169",
+    "isActive": true
+  },
+  {
+    "name": "عمار احمد محسن",
+    "username": "Ammar@",
+    "phone": "07768527999",
+    "isActive": true
+  },
+  {
+    "name": "حارث 2 تريفة",
+    "username": "harth.2@",
+    "phone": "0784649566",
+    "isActive": false
+  },
+  {
+    "name": "سمر محمد مهدي(ابراك)",
+    "username": "Samer@",
+    "phone": "07876206262",
+    "isActive": false
+  },
+  {
+    "name": "حسن رحيم سماري",
+    "username": "Hasan@",
+    "phone": "07814867895",
+    "isActive": false
+  },
+  {
+    "name": "سلام محسن طوقان",
+    "username": "Salam@",
+    "phone": "07845347513",
+    "isActive": true
+  },
+  {
+    "name": "حسن زيد فتحي تخلي",
+    "username": "Hasan@",
+    "phone": "07712020093",
+    "isActive": true
+  },
+  {
+    "name": "مصطفى محسن طوقان",
+    "username": "Mustafa@",
+    "phone": "07834343451",
+    "isActive": false
+  },
+  {
+    "name": "بشار احمد محسن",
+    "username": "Bashar@",
+    "phone": "07827289509",
+    "isActive": true
+  },
+  {
+    "name": "محمد عباس صالح (ابراك)",
+    "username": "Mohammed@",
+    "phone": "07870131177",
+    "isActive": false
+  },
+  {
+    "name": "عباس فاضل سلمان",
+    "username": "Abbas@",
+    "phone": "07842115607",
+    "isActive": true
+  },
+  {
+    "name": "يوسف رعد لؤلو",
+    "username": "Yousef.r@",
+    "phone": "07813141950",
+    "isActive": true
+  },
+  {
+    "name": "عبدالله فضيل سليمان",
+    "username": "Abdulla@",
+    "phone": "07821149194",
+    "isActive": false
+  },
+  {
+    "name": "همام سليم جواد",
+    "username": "Humam@",
+    "phone": "07838741456",
+    "isActive": true
+  },
+  {
+    "name": "بلال حسن علي",
+    "username": "Belal@",
+    "phone": "07856220067",
+    "isActive": false
+  },
+  {
+    "name": "ابراهيم محمد ابراهيم",
+    "username": "Ibrahim@",
+    "phone": "07838802135",
+    "isActive": true
+  },
+  {
+    "name": "احمد باسم كاظم",
+    "username": "Ahmed@",
+    "phone": "07736122003",
+    "isActive": false
+  },
+  {
+    "name": "حطاب مالك محسن",
+    "username": "khatab@",
+    "phone": "07887015525",
+    "isActive": true
+  },
+  {
+    "name": "عثمان عبدالله رعد",
+    "username": "Othman@",
+    "phone": "07877813984",
+    "isActive": true
+  },
+  {
+    "name": "Aref ali",
+    "username": "Aref@",
+    "phone": "07838054044",
+    "isActive": true
+  },
+  {
+    "name": "حارث 1",
+    "username": "harth@",
+    "phone": "07845688860",
+    "isActive": true
+  }
+]

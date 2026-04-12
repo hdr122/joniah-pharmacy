@@ -1,0 +1,9 @@
+{
+  "query": "DROP TABLE IF EXISTS `update_reads`;\nDROP TABLE IF EXISTS `update_images`;\nDROP TABLE IF EXISTS `updates`;\nDROP TABLE IF EXISTS `announcement_reads`;\nDROP TABLE IF EXISTS `announcements`;\nDROP TABLE IF EXISTS `site_settings`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute DROP TABLE IF EXISTS `update_reads`;\nDROP TABLE IF EXISTS `update_images`;\nDROP TABLE IF EXISTS `updates`;\nDROP TABLE IF EXISTS `announcement_reads`;\nDROP TABLE IF EXISTS `announcements`;\nDROP TABLE IF EXISTS `site_settings`;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2019
+}

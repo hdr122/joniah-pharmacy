@@ -1,0 +1,234 @@
+{
+  "query": "DESCRIBE orders",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute DESCRIBE orders",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customerId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customer_name",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customer_phone",
+      "Type": "varchar(20)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customer_address",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customerAddress1",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "customerAddress2",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "locationId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "prescription_image_url",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "medication_name",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "medication_dosage",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "quantity",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "notes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "total_price",
+      "Type": "decimal(10,2)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "delivery_method",
+      "Type": "enum('delivery','pickup')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "delivery",
+      "Extra": ""
+    },
+    {
+      "Field": "payment_method",
+      "Type": "enum('cash','card','online')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "cash",
+      "Extra": ""
+    },
+    {
+      "Field": "payment_status",
+      "Type": "enum('pending','paid','refunded')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('pending','accepted','in_delivery','delivered','postponed','returned','cancelled')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "estimated_ready_time",
+      "Type": "bigint(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "acceptedAt",
+      "Type": "bigint(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "delivered_at",
+      "Type": "bigint(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "deliveryPersonId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "created_by",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "created_at",
+      "Type": "bigint(20)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "updated_at",
+      "Type": "bigint(20)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "isDeleted",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "deletedAt",
+      "Type": "bigint(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "deletedBy",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tvarchar(255)\tNO\tPRI\tNULL\t\ncustomerId\tvarchar(255)\tYES\t\tNULL\t\ncustomer_name\tvarchar(255)\tNO\t\tNULL\t\ncustomer_phone\tvarchar(20)\tNO\t\tNULL\t\ncustomer_address\ttext\tYES\t\tNULL\t\ncustomerAddress1\ttext\tYES\t\tNULL\t\ncustomerAddress2\ttext\tYES\t\tNULL\t\nlocationId\tvarchar(255)\tYES\t\tNULL\t\nprescription_image_url\ttext\tYES\t\tNULL\t\nmedication_name\ttext\tYES\t\tNULL\t\nmedication_dosage\ttext\tYES\t\tNULL\t\nquantity\tint(11)\tYES\t\tNULL\t\nnotes\ttext\tYES\t\tNULL\t\ntotal_price\tdecimal(10,2)\tYES\t\tNULL\t\ndelivery_method\tenum('delivery','pickup')\tNO\t\tdelivery\t\npayment_method\tenum('cash','card','online')\tNO\t\tcash\t\npayment_status\tenum('pending','paid','refunded')\tNO\t\tpending\t\nstatus\tenum('pending','accepted','in_delivery','delivered','postponed','returned','cancelled')\tNO\t\tpending\t\nestimated_ready_time\tbigint(20)\tYES\t\tNULL\t\nacceptedAt\tbigint(20)\tYES\t\tNULL\t\ndelivered_at\tbigint(20)\tYES\t\tNULL\t\ndeliveryPersonId\tvarchar(255)\tYES\t\tNULL\t\ncreated_by\tvarchar(255)\tYES\t\tNULL\t\ncreated_at\tbigint(20)\tNO\t\tNULL\t\nupdated_at\tbigint(20)\tNO\t\tNULL\t\nisDeleted\ttinyint(1)\tNO\t\t0\t\ndeletedAt\tbigint(20)\tYES\t\tNULL\t\ndeletedBy\tvarchar(255)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

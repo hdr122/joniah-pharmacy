@@ -1,0 +1,66 @@
+{
+  "query": "SELECT id, name, username, role, branchId FROM users WHERE branchId = 1 AND role IN ('admin', 'super_admin', 'superadmin') ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, role, branchId FROM users WHERE branchId = 1 AND role IN ('admin', 'super_admin', 'superadmin') ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "HIVE",
+      "username": "NULL",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "57",
+      "name": "المدير الرئيسي",
+      "username": "arif",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60001",
+      "name": "مصطفى سليم",
+      "username": "Mustafasalem",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60002",
+      "name": "عبد المغيث",
+      "username": "abody",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "60003",
+      "name": "حساب المطور",
+      "username": "HarthHDR",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "90005",
+      "name": "Harth - المدير العام",
+      "username": "HarthHDR1",
+      "role": "superadmin",
+      "branchId": "1"
+    },
+    {
+      "id": "180010",
+      "name": "omer",
+      "username": "omer1",
+      "role": "admin",
+      "branchId": "1"
+    },
+    {
+      "id": "210020",
+      "name": "احسان علي",
+      "username": "Ihsan",
+      "role": "admin",
+      "branchId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\trole\tbranchId\n1\tHIVE\tNULL\tadmin\t1\n57\tالمدير الرئيسي\tarif\tadmin\t1\n60001\tمصطفى سليم\tMustafasalem\tadmin\t1\n60002\tعبد المغيث\tabody\tadmin\t1\n60003\tحساب المطور\tHarthHDR\tadmin\t1\n90005\tHarth - المدير العام\tHarthHDR1\tsuperadmin\t1\n180010\tomer\tomer1\tadmin\t1\n210020\tاحسان علي\tIhsan\tadmin\t1\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

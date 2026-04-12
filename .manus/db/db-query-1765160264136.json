@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, deliveryPersonId, status, deliveredAt FROM orders WHERE status = 'delivered' LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, deliveryPersonId, status, deliveredAt FROM orders WHERE status = 'delivered' LIMIT 10",
+  "rows": [
+    {
+      "id": "270001",
+      "deliveryPersonId": "630001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-28 10:15:40"
+    },
+    {
+      "id": "300001",
+      "deliveryPersonId": "630001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "300002",
+      "deliveryPersonId": "630001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-28 10:51:24"
+    },
+    {
+      "id": "330003",
+      "deliveryPersonId": "690001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360001",
+      "deliveryPersonId": "720001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360002",
+      "deliveryPersonId": "720001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360003",
+      "deliveryPersonId": "720001",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360004",
+      "deliveryPersonId": "720002",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360005",
+      "deliveryPersonId": "720002",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    },
+    {
+      "id": "360006",
+      "deliveryPersonId": "720002",
+      "status": "delivered",
+      "deliveredAt": "2025-11-29 23:45:00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tstatus\tdeliveredAt\n270001\t630001\tdelivered\t2025-11-28 10:15:40\n300001\t630001\tdelivered\t2025-11-29 23:45:00\n300002\t630001\tdelivered\t2025-11-28 10:51:24\n330003\t690001\tdelivered\t2025-11-29 23:45:00\n360001\t720001\tdelivered\t2025-11-29 23:45:00\n360002\t720001\tdelivered\t2025-11-29 23:45:00\n360003\t720001\tdelivered\t2025-11-29 23:45:00\n360004\t720002\tdelivered\t2025-11-29 23:45:00\n360005\t720002\tdelivered\t2025-11-29 23:45:00\n360006\t720002\tdelivered\t2025-11-29 23:45:00\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

@@ -1,0 +1,90 @@
+{
+  "query": "SELECT o.deliveryPersonId, u.name, COUNT(*) as orderCount FROM orders o LEFT JOIN users u ON o.deliveryPersonId = u.id WHERE o.status = 'delivered' GROUP BY o.deliveryPersonId, u.name",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT o.deliveryPersonId, u.name, COUNT(*) as orderCount FROM orders o LEFT JOIN users u ON o.deliveryPersonId = u.id WHERE o.status = 'delivered' GROUP BY o.deliveryPersonId, u.name",
+  "rows": [
+    {
+      "deliveryPersonId": "720007",
+      "name": "همام سليم جواد",
+      "orderCount": "58"
+    },
+    {
+      "deliveryPersonId": "2010001",
+      "name": "بشار احمد محسن",
+      "orderCount": "46"
+    },
+    {
+      "deliveryPersonId": "690001",
+      "name": "Aref ali",
+      "orderCount": "1"
+    },
+    {
+      "deliveryPersonId": "1170002",
+      "name": "محمد عباس صالح",
+      "orderCount": "76"
+    },
+    {
+      "deliveryPersonId": "720001",
+      "name": "عثمان عبدالله رعد",
+      "orderCount": "56"
+    },
+    {
+      "deliveryPersonId": "720004",
+      "name": "ابراهيم محمد ابراهيم",
+      "orderCount": "147"
+    },
+    {
+      "deliveryPersonId": "720009",
+      "name": "يوسف رعد ليلو",
+      "orderCount": "97"
+    },
+    {
+      "deliveryPersonId": "720005",
+      "name": "NULL",
+      "orderCount": "31"
+    },
+    {
+      "deliveryPersonId": "720006",
+      "name": "بلال حسين علي",
+      "orderCount": "116"
+    },
+    {
+      "deliveryPersonId": "2040010",
+      "name": "مصطفى محسن طوكان",
+      "orderCount": "10"
+    },
+    {
+      "deliveryPersonId": "720003",
+      "name": "احمد باسم كاضم",
+      "orderCount": "52"
+    },
+    {
+      "deliveryPersonId": "630001",
+      "name": "حارث 1",
+      "orderCount": "9"
+    },
+    {
+      "deliveryPersonId": "720002",
+      "name": "خطاب مالك محسن",
+      "orderCount": "66"
+    },
+    {
+      "deliveryPersonId": "2100001",
+      "name": "حسن زيد قصي تكسي",
+      "orderCount": "5"
+    },
+    {
+      "deliveryPersonId": "720008",
+      "name": "عبدالله فضيل سليمان",
+      "orderCount": "108"
+    },
+    {
+      "deliveryPersonId": "1170001",
+      "name": "عباس فاضل سلمان ",
+      "orderCount": "67"
+    }
+  ],
+  "messages": [],
+  "stdout": "deliveryPersonId\tname\torderCount\n720007\tهمام سليم جواد\t58\n2010001\tبشار احمد محسن\t46\n690001\tAref ali\t1\n1170002\tمحمد عباس صالح\t76\n720001\tعثمان عبدالله رعد\t56\n720004\tابراهيم محمد ابراهيم\t147\n720009\tيوسف رعد ليلو\t97\n720005\tNULL\t31\n720006\tبلال حسين علي\t116\n2040010\tمصطفى محسن طوكان\t10\n720003\tاحمد باسم كاضم\t52\n630001\tحارث 1\t9\n720002\tخطاب مالك محسن\t66\n2100001\tحسن زيد قصي تكسي\t5\n720008\tعبدالله فضيل سليمان\t108\n1170001\tعباس فاضل سلمان \t67\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

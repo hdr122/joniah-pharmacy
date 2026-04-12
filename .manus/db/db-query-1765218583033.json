@@ -1,0 +1,55 @@
+{
+  "query": "SELECT dl.*, u.name, u.username,\n  TIMESTAMPDIFF(SECOND, dl.timestamp, NOW()) as seconds_ago\nFROM delivery_locations dl\nLEFT JOIN users u ON dl.deliveryPersonId = u.id\nWHERE u.username = 'harth'\nORDER BY dl.timestamp DESC\nLIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT dl.*, u.name, u.username,\n  TIMESTAMPDIFF(SECOND, dl.timestamp, NOW()) as seconds_ago\nFROM delivery_locations dl\nLEFT JOIN users u ON dl.deliveryPersonId = u.id\nWHERE u.username = 'harth'\nORDER BY dl.timestamp DESC\nLIMIT 3;",
+  "rows": [
+    {
+      "id": "2101340",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3152",
+      "longitude": "44.3661",
+      "accuracy": "10",
+      "timestamp": "2025-12-08 18:29:25",
+      "speed": "50",
+      "heading": "180",
+      "battery": "85",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth",
+      "seconds_ago": "18"
+    },
+    {
+      "id": "2101204",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3667528",
+      "longitude": "43.7631969",
+      "accuracy": "3.069999933242798",
+      "timestamp": "2025-12-08 18:06:11",
+      "speed": "0.05775601789355278",
+      "heading": "NULL",
+      "battery": "31",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth",
+      "seconds_ago": "1412"
+    },
+    {
+      "id": "2101200",
+      "deliveryPersonId": "630001",
+      "latitude": "33.3667523",
+      "longitude": "43.7631957",
+      "accuracy": "3.6640000343322754",
+      "timestamp": "2025-12-08 18:05:53",
+      "speed": "0.0383857898414135",
+      "heading": "NULL",
+      "battery": "31",
+      "deviceId": "NULL",
+      "name": "حارث 1",
+      "username": "harth",
+      "seconds_ago": "1430"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tdeliveryPersonId\tlatitude\tlongitude\taccuracy\ttimestamp\tspeed\theading\tbattery\tdeviceId\tname\tusername\tseconds_ago\n2101340\t630001\t33.3152\t44.3661\t10\t2025-12-08 18:29:25\t50\t180\t85\tNULL\tحارث 1\tharth\t18\n2101204\t630001\t33.3667528\t43.7631969\t3.069999933242798\t2025-12-08 18:06:11\t0.05775601789355278\tNULL\t31\tNULL\tحارث 1\tharth\t1412\n2101200\t630001\t33.3667523\t43.7631957\t3.6640000343322754\t2025-12-08 18:05:53\t0.0383857898414135\tNULL\t31\tNULL\tحارث 1\tharth\t1430\n",
+  "stderr": "",
+  "execution_time_ms": 150
+}

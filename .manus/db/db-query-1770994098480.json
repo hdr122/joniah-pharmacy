@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, name, username, branchId, role FROM users WHERE (name LIKE '%عبد الرحمن%' OR name LIKE '%صفاء%' OR name LIKE '%غازي%' OR name LIKE '%عمار%' OR name LIKE '%احمد%') AND role = 'delivery' AND branchId = 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, branchId, role FROM users WHERE (name LIKE '%عبد الرحمن%' OR name LIKE '%صفاء%' OR name LIKE '%غازي%' OR name LIKE '%عمار%' OR name LIKE '%احمد%') AND role = 'delivery' AND branchId = 2;",
+  "rows": [
+    {
+      "id": "26",
+      "name": "احمد وسام منادي",
+      "username": "Ahmed2",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar",
+      "branchId": "2",
+      "role": "delivery"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\tbranchId\trole\n26\tاحمد وسام منادي\tAhmed2\t2\tdelivery\n27\tعبد الرحمن صفاء غازي\tAbdu\t2\tdelivery\n28\tعمار احمد محسن\tAmmar\t2\tdelivery\n",
+  "stderr": "",
+  "execution_time_ms": 389
+}

@@ -1,0 +1,26 @@
+{
+  "query": "SELECT status, COUNT(*) as count FROM orders WHERE isDeleted = 0 GROUP BY status",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT status, COUNT(*) as count FROM orders WHERE isDeleted = 0 GROUP BY status",
+  "rows": [
+    {
+      "status": "returned",
+      "count": "5"
+    },
+    {
+      "status": "pending",
+      "count": "3"
+    },
+    {
+      "status": "delivered",
+      "count": "98"
+    },
+    {
+      "status": "pending_approval",
+      "count": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "status\tcount\nreturned\t5\npending\t3\ndelivered\t98\npending_approval\t3\n",
+  "stderr": "",
+  "execution_time_ms": 65
+}

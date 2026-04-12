@@ -1,0 +1,120 @@
+{
+  "query": "SELECT id, username, name FROM users WHERE role = 'delivery' ORDER BY username",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, username, name FROM users WHERE role = 'delivery' ORDER BY username",
+  "rows": [
+    {
+      "id": "36",
+      "username": "Abbas@",
+      "name": "عباس فاضل سلمان"
+    },
+    {
+      "id": "27",
+      "username": "Abdu@",
+      "name": "عبد الرحمن صفاء غازي"
+    },
+    {
+      "id": "38",
+      "username": "Abdulla@",
+      "name": "عبدالله فضيل سليمان"
+    },
+    {
+      "id": "59",
+      "username": "Ahmed.2",
+      "name": "احمد وسام ملاكي"
+    },
+    {
+      "id": "26",
+      "username": "Ahmed.2@",
+      "name": "احمد وسام ملاكي"
+    },
+    {
+      "id": "42",
+      "username": "Ahmed@",
+      "name": "احمد باسم كاظم"
+    },
+    {
+      "id": "28",
+      "username": "Ammar@",
+      "name": "عمار احمد محسن"
+    },
+    {
+      "id": "45",
+      "username": "Aref@",
+      "name": "Aref ali"
+    },
+    {
+      "id": "34",
+      "username": "Bashar@",
+      "name": "بشار احمد محسن"
+    },
+    {
+      "id": "40",
+      "username": "Belal@",
+      "name": "بلال حسن علي"
+    },
+    {
+      "id": "29",
+      "username": "harth.2@",
+      "name": "حارث 2 تريفة"
+    },
+    {
+      "id": "46",
+      "username": "harth@",
+      "name": "حارث 1"
+    },
+    {
+      "id": "31",
+      "username": "Hasan@",
+      "name": "حسن رحيم سماري"
+    },
+    {
+      "id": "39",
+      "username": "Humam@",
+      "name": "همام سليم جواد"
+    },
+    {
+      "id": "41",
+      "username": "Ibrahim@",
+      "name": "ابراهيم محمد ابراهيم"
+    },
+    {
+      "id": "43",
+      "username": "khatab@",
+      "name": "حطاب مالك محسن"
+    },
+    {
+      "id": "35",
+      "username": "Mohammed@",
+      "name": "محمد عباس صالح (ابراك)"
+    },
+    {
+      "id": "33",
+      "username": "Mustafa@",
+      "name": "مصطفى محسن طوقان"
+    },
+    {
+      "id": "44",
+      "username": "Othman@",
+      "name": "عثمان عبدالله رعد"
+    },
+    {
+      "id": "32",
+      "username": "Salam@",
+      "name": "سلام محسن طوقان"
+    },
+    {
+      "id": "30",
+      "username": "Samer@",
+      "name": "سمر محمد مهدي(ابراك)"
+    },
+    {
+      "id": "37",
+      "username": "Yousef.r@",
+      "name": "يوسف رعد لؤلو"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\n36\tAbbas@\tعباس فاضل سلمان\n27\tAbdu@\tعبد الرحمن صفاء غازي\n38\tAbdulla@\tعبدالله فضيل سليمان\n59\tAhmed.2\tاحمد وسام ملاكي\n26\tAhmed.2@\tاحمد وسام ملاكي\n42\tAhmed@\tاحمد باسم كاظم\n28\tAmmar@\tعمار احمد محسن\n45\tAref@\tAref ali\n34\tBashar@\tبشار احمد محسن\n40\tBelal@\tبلال حسن علي\n29\tharth.2@\tحارث 2 تريفة\n46\tharth@\tحارث 1\n31\tHasan@\tحسن رحيم سماري\n39\tHumam@\tهمام سليم جواد\n41\tIbrahim@\tابراهيم محمد ابراهيم\n43\tkhatab@\tحطاب مالك محسن\n35\tMohammed@\tمحمد عباس صالح (ابراك)\n33\tMustafa@\tمصطفى محسن طوقان\n44\tOthman@\tعثمان عبدالله رعد\n32\tSalam@\tسلام محسن طوقان\n30\tSamer@\tسمر محمد مهدي(ابراك)\n37\tYousef.r@\tيوسف رعد لؤلو\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

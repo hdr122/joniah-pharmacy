@@ -1,0 +1,276 @@
+{
+  "query": "SELECT id, name, username, branchId, role FROM users WHERE role = 'delivery' ORDER BY branchId, id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, username, branchId, role FROM users WHERE role = 'delivery' ORDER BY branchId, id;",
+  "rows": [
+    {
+      "id": "31",
+      "name": "حسن رحيم سماري",
+      "username": "Hasan",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "32",
+      "name": "سلام محسن طوقان",
+      "username": "Salam",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "33",
+      "name": "مصطفى محسن طوقان",
+      "username": "Mustafa",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "34",
+      "name": "بشار احمد محسن",
+      "username": "Bashar",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "35",
+      "name": "محمد عباس صالح (ابراك)",
+      "username": "Mohammed",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "36",
+      "name": "عباس فاضل سلمان",
+      "username": "Abbas",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "37",
+      "name": "يوسف رعد ليلو",
+      "username": "Yousef.r",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "38",
+      "name": "عبدالله فضيل سليمان",
+      "username": "Abdulla",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "39",
+      "name": "همام سليم جواد",
+      "username": "Humam",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "40",
+      "name": "بلال حسن علي",
+      "username": "Belal",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "41",
+      "name": "ابراهيم محمد ابراهيم",
+      "username": "Ibrahim",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "42",
+      "name": "احمد باسم كاظم",
+      "username": "Ahmed",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "43",
+      "name": "خطاب مالك محسن",
+      "username": "khatab",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "44",
+      "name": "عثمان عبدالله رعد",
+      "username": "Othman",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "45",
+      "name": "Aref ali",
+      "username": "Aref",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "30001",
+      "name": "طلبات حي الجهاد",
+      "username": "طلبات حي الجهاد",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "30002",
+      "name": "طلبات المضيف",
+      "username": "طلبات المضيف",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "30003",
+      "name": "طلبات المنظمه",
+      "username": "طلبات المنظمه",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "30004",
+      "name": "طلبات الغزاليه",
+      "username": "طلبات الغزاليه",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "30005",
+      "name": "طلبات ابو غريب",
+      "username": "طلبات ابو غريب",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "90001",
+      "name": "مالك صلاح جاسم",
+      "username": "Malek",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "420003",
+      "name": "عبد الوهاب عدي لطيف ",
+      "username": "Abdal",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "540001",
+      "name": "محمد رائد حوام",
+      "username": "Mhamed",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "540003",
+      "name": "محمد اسماعيل حيدر",
+      "username": "Mohamed",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "570001",
+      "name": "علي ضياء قاسم",
+      "username": "Ali",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "600002",
+      "name": "علي محمد قاسم",
+      "username": "Ali Mhamed",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "600003",
+      "name": "مخلص مهدي كاظم",
+      "username": "Muklis",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "780001",
+      "name": "اسامه ضياء جاسم ",
+      "username": "Usama",
+      "branchId": "1",
+      "role": "delivery"
+    },
+    {
+      "id": "26",
+      "name": "احمد وسام منادي",
+      "username": "Ahmed2",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "27",
+      "name": "عبد الرحمن صفاء غازي",
+      "username": "Abdu",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "28",
+      "name": "عمار احمد محسن",
+      "username": "Ammar",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "29",
+      "name": "حارث 2 تريفة",
+      "username": "harth.2",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "30",
+      "name": "سمر محمد مهدي(ابراك)",
+      "username": "Samer",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "46",
+      "name": "حارث 1",
+      "username": "harth",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "660001",
+      "name": "جمال محسن طوكان",
+      "username": "jamal",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "660003",
+      "name": "علي عبد صوين",
+      "username": "aliabd",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "660004",
+      "name": "TEST",
+      "username": "TEST",
+      "branchId": "2",
+      "role": "delivery"
+    },
+    {
+      "id": "660006",
+      "name": "مندوب عامرية ",
+      "username": "amam",
+      "branchId": "2",
+      "role": "delivery"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tusername\tbranchId\trole\n31\tحسن رحيم سماري\tHasan\t1\tdelivery\n32\tسلام محسن طوقان\tSalam\t1\tdelivery\n33\tمصطفى محسن طوقان\tMustafa\t1\tdelivery\n34\tبشار احمد محسن\tBashar\t1\tdelivery\n35\tمحمد عباس صالح (ابراك)\tMohammed\t1\tdelivery\n36\tعباس فاضل سلمان\tAbbas\t1\tdelivery\n37\tيوسف رعد ليلو\tYousef.r\t1\tdelivery\n38\tعبدالله فضيل سليمان\tAbdulla\t1\tdelivery\n39\tهمام سليم جواد\tHumam\t1\tdelivery\n40\tبلال حسن علي\tBelal\t1\tdelivery\n41\tابراهيم محمد ابراهيم\tIbrahim\t1\tdelivery\n42\tاحمد باسم كاظم\tAhmed\t1\tdelivery\n43\tخطاب مالك محسن\tkhatab\t1\tdelivery\n44\tعثمان عبدالله رعد\tOthman\t1\tdelivery\n45\tAref ali\tAref\t1\tdelivery\n30001\tطلبات حي الجهاد\tطلبات حي الجهاد\t1\tdelivery\n30002\tطلبات المضيف\tطلبات المضيف\t1\tdelivery\n30003\tطلبات المنظمه\tطلبات المنظمه\t1\tdelivery\n30004\tطلبات الغزاليه\tطلبات الغزاليه\t1\tdelivery\n30005\tطلبات ابو غريب\tطلبات ابو غريب\t1\tdelivery\n90001\tمالك صلاح جاسم\tMalek\t1\tdelivery\n420003\tعبد الوهاب عدي لطيف \tAbdal\t1\tdelivery\n540001\tمحمد رائد حوام\tMhamed\t1\tdelivery\n540003\tمحمد اسماعيل حيدر\tMohamed\t1\tdelivery\n570001\tعلي ضياء قاسم\tAli\t1\tdelivery\n600002\tعلي محمد قاسم\tAli Mhamed\t1\tdelivery\n600003\tمخلص مهدي كاظم\tMuklis\t1\tdelivery\n780001\tاسامه ضياء جاسم \tUsama\t1\tdelivery\n26\tاحمد وسام منادي\tAhmed2\t2\tdelivery\n27\tعبد الرحمن صفاء غازي\tAbdu\t2\tdelivery\n28\tعمار احمد محسن\tAmmar\t2\tdelivery\n29\tحارث 2 تريفة\tharth.2\t2\tdelivery\n30\tسمر محمد مهدي(ابراك)\tSamer\t2\tdelivery\n46\tحارث 1\tharth\t2\tdelivery\n660001\tجمال محسن طوكان\tjamal\t2\tdelivery\n660003\tعلي عبد صوين\taliabd\t2\tdelivery\n660004\tTEST\tTEST\t2\tdelivery\n660006\tمندوب عامرية \tamam\t2\tdelivery\n",
+  "stderr": "",
+  "execution_time_ms": 359
+}

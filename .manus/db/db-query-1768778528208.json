@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, name, provinceId, branchId FROM regions WHERE branchId = 1 ORDER BY id LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, name, provinceId, branchId FROM regions WHERE branchId = 1 ORDER BY id LIMIT 20;",
+  "rows": [
+    {
+      "id": "3",
+      "name": "تجريبي",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30001",
+      "name": "العامريه",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30002",
+      "name": "الغزاليه",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30003",
+      "name": "الخضراء",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30004",
+      "name": "الجهاد",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30005",
+      "name": "الفرات",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30006",
+      "name": "ابو غريب",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30007",
+      "name": "الجامعة",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30008",
+      "name": "البكرية",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30009",
+      "name": "حي الحسين",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30010",
+      "name": " حي الاطباء",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30011",
+      "name": "حي حطين",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30012",
+      "name": "السيدية",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30013",
+      "name": "المنصور",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30014",
+      "name": "اليرموك",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30015",
+      "name": "النسيم",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30016",
+      "name": "حي صدام",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30017",
+      "name": "الشعلة",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30018",
+      "name": "الاساتذه",
+      "provinceId": "1",
+      "branchId": "1"
+    },
+    {
+      "id": "30019",
+      "name": "الكرادة",
+      "provinceId": "1",
+      "branchId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprovinceId\tbranchId\n3\tتجريبي\t1\t1\n30001\tالعامريه\t1\t1\n30002\tالغزاليه\t1\t1\n30003\tالخضراء\t1\t1\n30004\tالجهاد\t1\t1\n30005\tالفرات\t1\t1\n30006\tابو غريب\t1\t1\n30007\tالجامعة\t1\t1\n30008\tالبكرية\t1\t1\n30009\tحي الحسين\t1\t1\n30010\t حي الاطباء\t1\t1\n30011\tحي حطين\t1\t1\n30012\tالسيدية\t1\t1\n30013\tالمنصور\t1\t1\n30014\tاليرموك\t1\t1\n30015\tالنسيم\t1\t1\n30016\tحي صدام\t1\t1\n30017\tالشعلة\t1\t1\n30018\tالاساتذه\t1\t1\n30019\tالكرادة\t1\t1\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

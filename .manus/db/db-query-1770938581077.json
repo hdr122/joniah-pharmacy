@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as count FROM users WHERE role = 'delivery' AND branchId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT COUNT(*) as count FROM users WHERE role = 'delivery' AND branchId = 1;",
+  "rows": [
+    {
+      "count": "28"
+    }
+  ],
+  "messages": [],
+  "stdout": "count\n28\n",
+  "stderr": "",
+  "execution_time_ms": 354
+}

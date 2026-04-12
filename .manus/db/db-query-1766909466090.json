@@ -1,0 +1,50 @@
+{
+  "query": "SELECT * FROM push_subscriptions LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT * FROM push_subscriptions LIMIT 5",
+  "rows": [
+    {
+      "id": "1",
+      "userId": "720004",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/e1jz1FGACTY:APA91bHTlhDxPdsMQX9XcG3h8c1JgfC9IeutUDZdMz9SZ5EVZtWRYYqO-mCo47imTiHVhyXsrCiWfOEeg2fpZ12_3M6c2yx0d1o3HXi18wJbv04ZqnBpHkNRjeIPZDp5KXFqlfYtsRYi",
+      "p256dh": "BKS-ORo_Skobwm0Bikp4Cq0grvmz3jEj8RvMDod-1SX2cOjc5PWwiQ63NJ33tlpJUX_Em3J7wjqQB3uSlk1a7mQ",
+      "auth": "ZBb3sGdWpidaXIrMkq3EKA",
+      "createdAt": "2025-12-01 11:13:45"
+    },
+    {
+      "id": "2",
+      "userId": "1170001",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/f-pYvSA4z5Y:APA91bG1h9M3MJUBZSD-kjJ68ho1-2OpcVgfukDH7r5DIre4XLW744UzPPGZmTblmfKQd5kr04j7aH47ipfGqRlpzd-7wA2zx9woi5gv2PiHeMs7Qs_kgjbFrzz1xlABg6u2wEnrfBsm",
+      "p256dh": "BPJ3dtWV2N-AMCLg47TAbqk49YX29jaseVRwYZDLnWw2Mak8tbU8UnA0bLaqac0shzB-7crs3UmZLYtObOdJhFg",
+      "auth": "QBN_BFkc0FLJcsgLE_zZQQ",
+      "createdAt": "2025-12-01 11:13:52"
+    },
+    {
+      "id": "3",
+      "userId": "720006",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/f_WJ4PkxJcM:APA91bGHb4VsrHEjI3DnMIIRwGdSCzAEShp2IACFzSwztjFJ1Fj982auTA8pSedkdTNUGcpFaEbzaUSrmKX0wDzlyaLVV40HDUPm_dCIfbCQk508jprrbQxEGbLs4-CCfbG3_Xz4iINI",
+      "p256dh": "BN5gFPRJeZwrGUwy5MbsPnEA-Qy4pURX9gXUtHjR9bk5l3gB1ZWT7ssiBnsAvIDrl5PbWW0u1jaqeGiBaiUdXKM",
+      "auth": "EqHRMjnzrsHekmIae6u7_Q",
+      "createdAt": "2025-12-01 11:24:24"
+    },
+    {
+      "id": "30001",
+      "userId": "720001",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/cZxzSYYZcMk:APA91bGrddTdfnim0XQ_cO1hVGnymYrBgztMJpFUDteDeHPdOvOYGHhCfDSL4rpvIXZiCYDZSzFGrGdNSBTyV9bvK_ykEBt4cL_DeqqNpqv_M9dwS-tmxdVu8JfNFVoHaUTvZoUEAu51",
+      "p256dh": "BG1z7-0K65iWAO0mnNqcTA3E4PkTUIVCd3UXStIDMQsIwr1nR9mCZ0AmY9XjmrKgd3_h303rfaCByHZIpU4aYb8",
+      "auth": "JwMGfSZorDSarB_UeWOCig",
+      "createdAt": "2025-12-01 11:48:38"
+    },
+    {
+      "id": "30002",
+      "userId": "720002",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/ctw6jtXyN7k:APA91bF2nyiy6-ftUI6OL60EI433WG2GqbtmEJh5WE5Um00ICajve9FCbo1eZjfec7MDNARqt9qXhAD2twYJyC2bL5RBSpVhrIllPG4CdUAdwq9mJSrDHgv8D40nGpUA_q1096LBDglD",
+      "p256dh": "BP88fpmhPNAgmIHuR03SG2-ymNVeOwtWudsXCxvYSo9LeYkqcBD6G8sFNYqqCFH2yuRsaL-ZukQSJ-dpA7b0V2o",
+      "auth": "oV2K5M0fI4931yoqP3lMxA",
+      "createdAt": "2025-12-01 11:53:52"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\tendpoint\tp256dh\tauth\tcreatedAt\n1\t720004\thttps://fcm.googleapis.com/fcm/send/e1jz1FGACTY:APA91bHTlhDxPdsMQX9XcG3h8c1JgfC9IeutUDZdMz9SZ5EVZtWRYYqO-mCo47imTiHVhyXsrCiWfOEeg2fpZ12_3M6c2yx0d1o3HXi18wJbv04ZqnBpHkNRjeIPZDp5KXFqlfYtsRYi\tBKS-ORo_Skobwm0Bikp4Cq0grvmz3jEj8RvMDod-1SX2cOjc5PWwiQ63NJ33tlpJUX_Em3J7wjqQB3uSlk1a7mQ\tZBb3sGdWpidaXIrMkq3EKA\t2025-12-01 11:13:45\n2\t1170001\thttps://fcm.googleapis.com/fcm/send/f-pYvSA4z5Y:APA91bG1h9M3MJUBZSD-kjJ68ho1-2OpcVgfukDH7r5DIre4XLW744UzPPGZmTblmfKQd5kr04j7aH47ipfGqRlpzd-7wA2zx9woi5gv2PiHeMs7Qs_kgjbFrzz1xlABg6u2wEnrfBsm\tBPJ3dtWV2N-AMCLg47TAbqk49YX29jaseVRwYZDLnWw2Mak8tbU8UnA0bLaqac0shzB-7crs3UmZLYtObOdJhFg\tQBN_BFkc0FLJcsgLE_zZQQ\t2025-12-01 11:13:52\n3\t720006\thttps://fcm.googleapis.com/fcm/send/f_WJ4PkxJcM:APA91bGHb4VsrHEjI3DnMIIRwGdSCzAEShp2IACFzSwztjFJ1Fj982auTA8pSedkdTNUGcpFaEbzaUSrmKX0wDzlyaLVV40HDUPm_dCIfbCQk508jprrbQxEGbLs4-CCfbG3_Xz4iINI\tBN5gFPRJeZwrGUwy5MbsPnEA-Qy4pURX9gXUtHjR9bk5l3gB1ZWT7ssiBnsAvIDrl5PbWW0u1jaqeGiBaiUdXKM\tEqHRMjnzrsHekmIae6u7_Q\t2025-12-01 11:24:24\n30001\t720001\thttps://fcm.googleapis.com/fcm/send/cZxzSYYZcMk:APA91bGrddTdfnim0XQ_cO1hVGnymYrBgztMJpFUDteDeHPdOvOYGHhCfDSL4rpvIXZiCYDZSzFGrGdNSBTyV9bvK_ykEBt4cL_DeqqNpqv_M9dwS-tmxdVu8JfNFVoHaUTvZoUEAu51\tBG1z7-0K65iWAO0mnNqcTA3E4PkTUIVCd3UXStIDMQsIwr1nR9mCZ0AmY9XjmrKgd3_h303rfaCByHZIpU4aYb8\tJwMGfSZorDSarB_UeWOCig\t2025-12-01 11:48:38\n30002\t720002\thttps://fcm.googleapis.com/fcm/send/ctw6jtXyN7k:APA91bF2nyiy6-ftUI6OL60EI433WG2GqbtmEJh5WE5Um00ICajve9FCbo1eZjfec7MDNARqt9qXhAD2twYJyC2bL5RBSpVhrIllPG4CdUAdwq9mJSrDHgv8D40nGpUA_q1096LBDglD\tBP88fpmhPNAgmIHuR03SG2-ymNVeOwtWudsXCxvYSo9LeYkqcBD6G8sFNYqqCFH2yuRsaL-ZukQSJ-dpA7b0V2o\toV2K5M0fI4931yoqP3lMxA\t2025-12-01 11:53:52\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

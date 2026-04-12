@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, customerId, price, status FROM orders WHERE status = 'delivered' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3Kz4ErUoqpGjgNg.dff2f62e1b6f --database nuXmcfyGeo7bacZX3ZUfKS --execute SELECT id, customerId, price, status FROM orders WHERE status = 'delivered' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "customerId": "7745",
+      "price": "1000",
+      "status": "delivered"
+    },
+    {
+      "id": "30001",
+      "customerId": "456",
+      "price": "12000",
+      "status": "delivered"
+    },
+    {
+      "id": "30002",
+      "customerId": "2793",
+      "price": "9000",
+      "status": "delivered"
+    },
+    {
+      "id": "30003",
+      "customerId": "4026",
+      "price": "13500",
+      "status": "delivered"
+    },
+    {
+      "id": "30004",
+      "customerId": "30001",
+      "price": "36000",
+      "status": "delivered"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcustomerId\tprice\tstatus\n1\t7745\t1000\tdelivered\n30001\t456\t12000\tdelivered\n30002\t2793\t9000\tdelivered\n30003\t4026\t13500\tdelivered\n30004\t30001\t36000\tdelivered\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}
