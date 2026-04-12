@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "627309906864",
-    "project_id": "joniah-delivery",
-    "storage_bucket": "joniah-delivery.firebasestorage.app"
+    "project_number": "970041223254",
+    "project_id": "joniah-pharmacy",
+    "storage_bucket": "joniah-pharmacy.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:627309906864:android:9f2b0222a7a831a148e475",
+        "mobilesdk_app_id": "1:970041223254:android:b73f8a3356abed0b1873f7",
         "android_client_info": {
-          "package_name": "com.joniah.delivery"
+          "package_name": "com.joniah.pharmacy.delivery"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDosBl3xEtPRYhQz6xfCt7eVk6m_qjh2RQ"
+          "current_key": "AIzaSyARufwF1F55oRv7h9ggBDzzKb4vP5vhM5o"
         }
       ],
       "services": {
