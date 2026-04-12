@@ -1673,65 +1673,6 @@ export async function getEnhancedDeliveryPerformance(deliveryPersonId: number) {
  */
 
 /**
- * Save delivery person location
- */
-export async function saveDeliveryLocation(data: InsertDeliveryLocation) {
-  const db = await getDb();
-  if (!db) return null;
-  
-  await db.insert(deliveryLocations).values(data);
-  return true;
-}
-
-/**
- * Get active delivery persons with their latest locations
- */
-export async function getActiveDeliveryLocations() {
-  const db = await getDb();
-  if (!db) return [];
-  
-  // Get all active delivery persons with their latest locations (even if old)
-  const result = await db.execute(sql`
-    SELECT 
-      u.id as deliveryPersonId,
-      dl.latitude,
-      dl.longitude,
-      dl.accuracy,
-      dl.createdAt as timestamp,
-      u.name as deliveryPersonName,
-      u.profileImage,
-      u.isActive,
-      CASE 
-        WHEN dl.createdAt >= DATE_SUB(NOW(), INTERVAL 5 MINUTE) THEN 'online'
-        WHEN dl.createdAt >= DATE_SUB(NOW(), INTERVAL 30 MINUTE) THEN 'recent'
-        ELSE 'offline'
-      END as status,
-      COUNT(CASE WHEN o.status IN ('pending', 'in_transit') THEN 1 END) as activeOrders
-    FROM users u
-    LEFT JOIN (
-      SELECT 
-        deliveryPersonId,
-        latitude,
-        longitude,
-        accuracy,
-        timestamp
-      FROM deliveryLocations dl1
-      WHERE dl1.id IN (
-        SELECT MAX(id) 
-        FROM deliveryLocations 
-        GROUP BY deliveryPersonId
-      )
-    ) dl ON u.id = dl.deliveryPersonId
-    LEFT JOIN orders o ON o.deliveryPersonId = u.id AND o.isDeleted = 0
-    WHERE u.role = 'delivery' 
-      AND u.isActive = 1
-    GROUP BY u.id, dl.latitude, dl.longitude, dl.accuracy, dl.createdAt, u.name, u.profileImage, u.isActive
-  `);
-  
-  return (result[0] as unknown as any[]) || [];
-}
-
-/**
  * Get location history for a specific delivery person
  */
 export async function getDeliveryLocationHistory(deliveryPersonId: number, hours: number = 24) {
