@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "جونيا للتوصيل",
+    "slug": "joniah-delivery",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./client/public/icon-192.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./client/public/icon-192.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.joniah.delivery",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "نحتاج موقعك لتتبع التوصيلات",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "نحتاج موقعك لتتبع التوصيلات دائماً",
+        "NSCameraUsageDescription": "نحتاج الكاميرا للصور",
+        "NSPhotoLibraryUsageDescription": "نحتاج مكتبة الصور",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./client/public/logo192.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.joniah.delivery",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./client/public/favicon.ico"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "السماح لجونيا بالوصول إلى موقعك"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "sounds": ["default"]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ef53b29-08ea-4d4d-ba5f-8705e9425a1d"
+      }
+    }
+  }
+}
