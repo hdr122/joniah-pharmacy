@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
 
   server: {
     androidScheme: 'https',
-    url: process.env.VITE_API_URL || 'https://joniah.xyz',
+    url: process.env.VITE_API_URL || 'https://joniah-pharmacy-production-1fbf.up.railway.app',
     cleartext: process.env.NODE_ENV === 'development',
     errorPath: '/offline.html',
   },
