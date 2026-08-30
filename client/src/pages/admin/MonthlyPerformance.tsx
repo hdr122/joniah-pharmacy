@@ -33,7 +33,7 @@ export default function MonthlyPerformance() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -64,8 +64,8 @@ export default function MonthlyPerformance() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-violet-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">إجمالي الإيرادات</p>
@@ -108,7 +108,7 @@ export default function MonthlyPerformance() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-emerald-600" />
+            <BarChart3 className="w-5 h-5 text-violet-600" />
             البيانات الشهرية - {selectedYear}
           </CardTitle>
           <CardDescription>تفاصيل الأداء لكل شهر</CardDescription>

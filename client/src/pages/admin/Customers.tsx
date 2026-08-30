@@ -185,7 +185,7 @@ export default function Customers() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -199,7 +199,7 @@ export default function Customers() {
         </div>
         <Button
           onClick={exportToCSV}
-          className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+          className="bg-violet-600 hover:bg-violet-700 gap-2"
         >
           <Download className="w-4 h-4" />
           تصدير Excel
@@ -210,7 +210,7 @@ export default function Customers() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-emerald-600" />
+            <Filter className="w-5 h-5 text-violet-600" />
             فلاتر الزبائن
           </CardTitle>
           <CardDescription>اختر الفلاتر المطلوبة لعرض الزبائن</CardDescription>
@@ -222,7 +222,7 @@ export default function Customers() {
               <Button
                 variant={filterMode === 'all' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('all')}
-                className={filterMode === 'all' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'all' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 <Users className="w-4 h-4 ml-2" />
                 جميع الزبائن
@@ -230,35 +230,35 @@ export default function Customers() {
               <Button
                 variant={filterMode === 'orderCount' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('orderCount')}
-                className={filterMode === 'orderCount' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'orderCount' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 حسب عدد الطلبات
               </Button>
               <Button
                 variant={filterMode === 'inactive' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('inactive')}
-                className={filterMode === 'inactive' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'inactive' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 زبائن غير نشطين
               </Button>
               <Button
                 variant={filterMode === 'advanced' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('advanced')}
-                className={filterMode === 'advanced' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'advanced' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 فلاتر متقدمة
               </Button>
               <Button
                 variant={filterMode === 'orderStatus' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('orderStatus')}
-                className={filterMode === 'orderStatus' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'orderStatus' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 حسب حالة الطلبات
               </Button>
               <Button
                 variant={filterMode === 'spentRange' ? 'default' : 'outline'}
                 onClick={() => setFilterMode('spentRange')}
-                className={filterMode === 'spentRange' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                className={filterMode === 'spentRange' ? 'bg-violet-600 hover:bg-violet-700' : ''}
               >
                 حسب إجمالي المشتريات
               </Button>
@@ -485,7 +485,7 @@ export default function Customers() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-emerald-600" />
+              <Users className="w-5 h-5 text-violet-600" />
               الزبائن ({filteredCustomers?.length || 0})
             </CardTitle>
             <Badge variant="outline" className="text-sm">
@@ -550,7 +550,7 @@ export default function Customers() {
                       </TableCell>
                       <TableCell>
                         {customer.totalSpent !== undefined ? (
-                          <div className="font-medium text-emerald-600">
+                          <div className="font-medium text-violet-600">
                             {new Intl.NumberFormat('en-US').format(customer.totalSpent)} دينار
                           </div>
                         ) : (

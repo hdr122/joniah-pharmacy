@@ -30,15 +30,22 @@ describe('Order Update - Customer Phone', () => {
     }
     testDeliveryPersonId = deliveryPersons[0].id;
 
-    // الحصول على منطقة للاختبار
-    const regions = await db.getAllRegions();
+    // الحصول على منطقة للاختبار (إنشاؤها إن لم توجد)
+    let regions = await db.getAllRegions(1);
     if (!regions || regions.length === 0) {
-      throw new Error('No regions found');
+      let provinces = await db.getAllProvinces(1);
+      if (!provinces || provinces.length === 0) {
+        await db.createProvince('محافظة اختبار', 1);
+        provinces = await db.getAllProvinces(1);
+      }
+      await db.createRegion('منطقة اختبار', provinces[0].id, 1);
+      regions = await db.getAllRegions(1);
     }
     testRegionId = regions[0].id;
 
     // إنشاء زبون اختباري
     const customer = await db.createCustomer({
+      branchId: 1,
       name: 'اختبار الزبون',
       phone: '07701234567',
       address1: 'عنوان اختباري',
@@ -47,6 +54,7 @@ describe('Order Update - Customer Phone', () => {
 
     // إنشاء طلب اختباري مرتبط بالزبون
     const order = await db.createOrder({
+      branchId: 1,
       deliveryPersonId: testDeliveryPersonId,
       price: 10000,
       regionId: testRegionId,
@@ -74,7 +82,7 @@ describe('Order Update - Customer Phone', () => {
     });
 
     // التحقق من التحديث في جدول customers
-    const updatedCustomer = await db.getCustomerById(testCustomerId);
+    const updatedCustomer = await db.getCustomerById(testCustomerId, 1);
     expect(updatedCustomer).toBeDefined();
     expect(updatedCustomer?.phone).toBe(newPhone);
   });
@@ -93,7 +101,7 @@ describe('Order Update - Customer Phone', () => {
     });
 
     // التحقق من التحديث في جدول customers
-    const updatedCustomer = await db.getCustomerById(testCustomerId);
+    const updatedCustomer = await db.getCustomerById(testCustomerId, 1);
     expect(updatedCustomer).toBeDefined();
     expect(updatedCustomer?.name).toBe(newName);
   });
@@ -138,7 +146,7 @@ describe('Order Update - Customer Phone', () => {
     await caller.orders.update(updates);
 
     // التحقق من تحديث بيانات الزبون
-    const updatedCustomer = await db.getCustomerById(testCustomerId);
+    const updatedCustomer = await db.getCustomerById(testCustomerId, 1);
     expect(updatedCustomer).toBeDefined();
     expect(updatedCustomer?.phone).toBe(updates.customerPhone);
     expect(updatedCustomer?.name).toBe(updates.customerName);

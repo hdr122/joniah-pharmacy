@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { notificationService } from '@/services/notificationService';
 import { backgroundGeolocationService } from '@/services/backgroundGeolocationService';
 import { realtimeService } from '@/services/realtimeService';
@@ -16,14 +17,18 @@ export function AppInitializer() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // Capacitor plugins (push notifications, background geolocation)
+        // only exist inside the native mobile app
+        const isNative = Capacitor.isNativePlatform();
+
         // Initialize push notifications for all users
-        if (user) {
+        if (user && isNative) {
           console.log('[AppInit] Initializing notifications...');
           await notificationService.initialize();
         }
 
         // For delivery persons: start background location tracking
-        if (user && isDelivery) {
+        if (user && isDelivery && isNative) {
           console.log('[AppInit] Starting background location tracking...');
           // Don't wait for this, let it initialize in background
           backgroundGeolocationService.startTracking();

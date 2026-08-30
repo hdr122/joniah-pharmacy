@@ -136,7 +136,7 @@ export default function AdvancedStatistics() {
 
     // إعداد بيانات التقرير الشامل
     const worksheetData = [
-      ["صيدلية جونيا - تقرير الإحصائيات المتقدم"],
+      ["Xenon - تقرير الإحصائيات المتقدم"],
       ["التاريخ: " + today],
       [],
       ["ملخص الإحصائيات العامة"],
@@ -327,7 +327,7 @@ export default function AdvancedStatistics() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border-2 border-emerald-200 p-4 rounded-xl shadow-2xl">
+        <div className="bg-white border-2 border-violet-200 p-4 rounded-xl shadow-2xl">
           <p className="font-bold text-gray-900 mb-2 text-base">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm font-medium" style={{ color: entry.color }}>
@@ -347,12 +347,12 @@ export default function AdvancedStatistics() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-blue-50 p-6">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="relative">
-              <div className="animate-spin rounded-full h-20 w-20 border-8 border-emerald-200 border-t-emerald-600 mx-auto"></div>
-              <Activity className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-emerald-600" />
+              <div className="animate-spin rounded-full h-20 w-20 border-8 border-violet-200 border-t-violet-600 mx-auto"></div>
+              <Activity className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-violet-600" />
             </div>
             <p className="mt-6 text-lg font-semibold text-gray-700">جاري تحميل الإحصائيات المتقدمة...</p>
           </div>
@@ -363,7 +363,7 @@ export default function AdvancedStatistics() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-blue-50 p-6">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <Package className="h-20 w-20 text-gray-400 mx-auto mb-4" />
@@ -380,10 +380,10 @@ export default function AdvancedStatistics() {
   const cancelRate = ((stats.byStatus.cancelled / stats.totalOrders) * 100).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-blue-50">
       <div className="container mx-auto p-6 space-y-8" id="stats-content">
         {/* Header with Gradient */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 p-8 shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-violet-500 to-fuchsia-500 p-8 shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
           
@@ -394,19 +394,19 @@ export default function AdvancedStatistics() {
                   <BarChart3 className="h-10 w-10 text-white" />
                   <h1 className="text-4xl font-bold text-white">الإحصائيات المتقدمة</h1>
                 </div>
-                <p className="text-emerald-50 text-lg">تحليل شامل ومتقدم لأداء الطلبات والمندوبين والمناطق</p>
+                <p className="text-violet-50 text-lg">تحليل شامل ومتقدم لأداء الطلبات والمندوبين والمناطق</p>
               </div>
               <div className="flex gap-3">
                 <Button 
                   onClick={handleExportExcel} 
-                  className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold shadow-lg"
+                  className="bg-white text-violet-600 hover:bg-violet-50 font-semibold shadow-lg"
                 >
                   <FileDown className="h-5 w-5 ml-2" />
                   تصدير Excel
                 </Button>
                 <Button 
                   onClick={handleExportPDF} 
-                  className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold shadow-lg"
+                  className="bg-white text-violet-600 hover:bg-violet-50 font-semibold shadow-lg"
                 >
                   <FileDown className="h-5 w-5 ml-2" />
                   تصدير PDF
@@ -417,12 +417,12 @@ export default function AdvancedStatistics() {
         </div>
 
         {/* Filters Section with Modern Design */}
-        <Card className="border-2 border-emerald-100 shadow-xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b-2 border-emerald-100">
+        <Card className="border-2 border-violet-100 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-accent/50 border-b-2 border-violet-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <Filter className="h-5 w-5 text-emerald-600" />
+                <div className="p-2 bg-violet-100 rounded-lg">
+                  <Filter className="h-5 w-5 text-violet-600" />
                 </div>
                 <div>
                   <CardTitle className="text-2xl text-gray-900">الفلاتر المتقدمة</CardTitle>
@@ -446,7 +446,7 @@ export default function AdvancedStatistics() {
               {/* فلتر التاريخ */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-emerald-600" />
+                  <Clock className="h-4 w-4 text-violet-600" />
                   الفترة الزمنية
                 </label>
                 <DateFilterDropdown value={dateFilter} onChange={setDateFilter} />
@@ -455,14 +455,14 @@ export default function AdvancedStatistics() {
               {/* فلتر المناطق */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-emerald-600" />
+                  <MapPin className="h-4 w-4 text-violet-600" />
                   المناطق ({selectedRegions.length.toLocaleString()})
                 </label>
                 <Select
                   value=""
                   onValueChange={(value) => toggleRegion(parseInt(value))}
                 >
-                  <SelectTrigger className="border-2 border-gray-200 focus:border-emerald-400">
+                  <SelectTrigger className="border-2 border-gray-200 focus:border-violet-400">
                     <SelectValue placeholder="اختر منطقة..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -479,7 +479,7 @@ export default function AdvancedStatistics() {
                     return (
                       <Badge
                         key={regionId}
-                        className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 cursor-pointer px-3 py-1"
+                        className="bg-violet-100 text-violet-700 hover:bg-violet-200 cursor-pointer px-3 py-1"
                         onClick={() => toggleRegion(regionId)}
                       >
                         {region?.name}
@@ -493,14 +493,14 @@ export default function AdvancedStatistics() {
               {/* فلتر المندوبين */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-emerald-600" />
+                  <Users className="h-4 w-4 text-violet-600" />
                   المندوبين ({selectedDeliveryPersons.length.toLocaleString()})
                 </label>
                 <Select
                   value=""
                   onValueChange={(value) => toggleDeliveryPerson(parseInt(value))}
                 >
-                  <SelectTrigger className="border-2 border-gray-200 focus:border-emerald-400">
+                  <SelectTrigger className="border-2 border-gray-200 focus:border-violet-400">
                     <SelectValue placeholder="اختر مندوب..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -533,11 +533,11 @@ export default function AdvancedStatistics() {
 
         {/* KPI Cards with Modern Gradient Design */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 text-white transform hover:scale-105 transition-transform duration-300">
+          <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-violet-500 to-violet-600 text-white transform hover:scale-105 transition-transform duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-emerald-100 text-sm font-medium mb-1">إجمالي الطلبات</p>
+                  <p className="text-violet-100 text-sm font-medium mb-1">إجمالي الطلبات</p>
                   <p className="text-4xl font-bold">{stats.totalOrders.toLocaleString()}</p>
                 </div>
                 <div className="p-4 bg-white bg-opacity-20 rounded-2xl">
@@ -659,11 +659,11 @@ export default function AdvancedStatistics() {
         {/* Charts Grid - Row 1: Status Distribution & Performance Radar */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart - Status Distribution */}
-          <Card className="border-2 border-emerald-100 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b-2 border-emerald-100">
+          <Card className="border-2 border-violet-100 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="bg-accent/50 border-b-2 border-violet-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <Activity className="h-5 w-5 text-emerald-600" />
+                <div className="p-2 bg-violet-100 rounded-lg">
+                  <Activity className="h-5 w-5 text-violet-600" />
                 </div>
                 <div>
                   <CardTitle className="text-xl">توزيع الطلبات حسب الحالة</CardTitle>
@@ -717,7 +717,7 @@ export default function AdvancedStatistics() {
 
           {/* Radar Chart - Performance Metrics */}
           <Card className="border-2 border-blue-100 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-100">
+            <CardHeader className="bg-accent/50 border-b-2 border-blue-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Award className="h-5 w-5 text-blue-600" />
@@ -772,7 +772,7 @@ export default function AdvancedStatistics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Bar Chart - Top Regions */}
           <Card className="border-2 border-purple-100 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b-2 border-purple-100">
+            <CardHeader className="bg-accent/50 border-b-2 border-purple-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <MapPin className="h-5 w-5 text-purple-600" />
@@ -809,11 +809,11 @@ export default function AdvancedStatistics() {
           </Card>
 
           {/* Area Chart - Top Delivery Persons */}
-          <Card className="border-2 border-teal-100 shadow-xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-50 border-b-2 border-teal-100">
+          <Card className="border-2 border-fuchsia-100 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="bg-accent/50 border-b-2 border-fuchsia-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-100 rounded-lg">
-                  <Users className="h-5 w-5 text-teal-600" />
+                <div className="p-2 bg-fuchsia-100 rounded-lg">
+                  <Users className="h-5 w-5 text-fuchsia-600" />
                 </div>
                 <div>
                   <CardTitle className="text-xl">أفضل 8 مندوبين</CardTitle>
@@ -850,7 +850,7 @@ export default function AdvancedStatistics() {
 
         {/* Revenue Comparison Chart */}
         <Card className="border-2 border-amber-100 shadow-xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b-2 border-amber-100">
+          <CardHeader className="bg-accent/50 border-b-2 border-amber-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-amber-100 rounded-lg">
                 <DollarSign className="h-5 w-5 text-amber-600" />
@@ -932,10 +932,10 @@ export default function AdvancedStatistics() {
         </Card>
 
         {/* Footer Note */}
-        <Card className="border-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 shadow-lg rounded-2xl">
+        <Card className="border-2 border-gray-200 bg-muted/60 shadow-lg rounded-2xl">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 text-gray-600">
-              <Zap className="h-5 w-5 text-emerald-600" />
+              <Zap className="h-5 w-5 text-violet-600" />
               <p className="text-sm">
                 <span className="font-semibold text-gray-900">ملاحظة:</span> جميع البيانات محدثة في الوقت الفعلي. 
                 استخدم الفلاتر أعلاه لتخصيص التقرير حسب احتياجاتك.

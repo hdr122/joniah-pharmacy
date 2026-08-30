@@ -191,7 +191,7 @@ export default function Deliveries() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -212,7 +212,7 @@ export default function Deliveries() {
         }}>
           <DialogTrigger asChild>
             <Button
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+              className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
               onClick={() => setIsAddOpen(true)}
             >
               <Plus className="w-5 h-5 ml-2" />
@@ -291,7 +291,7 @@ export default function Deliveries() {
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                  className="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600"
                   disabled={createMutation.isPending || updateMutation.isPending || uploading}
                 >
                   {(createMutation.isPending || updateMutation.isPending || uploading) ? (

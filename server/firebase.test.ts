@@ -3,17 +3,20 @@ import { initializeFirebase } from './_core/firebase';
 
 describe('Firebase Integration', () => {
   it('should initialize Firebase with valid credentials', async () => {
-    // Check if required environment variables are set
-    const requiredEnvVars = [
-      'FIREBASE_PROJECT_ID',
-      'FIREBASE_PRIVATE_KEY',
-      'FIREBASE_CLIENT_EMAIL',
-    ];
-    
-    for (const envVar of requiredEnvVars) {
-      expect(process.env[envVar], `${envVar} should be set`).toBeDefined();
+    // Credentials come either as one FIREBASE_SERVICE_ACCOUNT JSON blob
+    // or as individual FIREBASE_* variables
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const requiredEnvVars = [
+        'FIREBASE_PROJECT_ID',
+        'FIREBASE_PRIVATE_KEY',
+        'FIREBASE_CLIENT_EMAIL',
+      ];
+
+      for (const envVar of requiredEnvVars) {
+        expect(process.env[envVar], `${envVar} should be set`).toBeDefined();
+      }
     }
-    
+
     // Try to initialize Firebase
     const app = initializeFirebase();
     

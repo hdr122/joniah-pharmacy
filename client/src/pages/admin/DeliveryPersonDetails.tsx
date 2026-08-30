@@ -90,7 +90,7 @@ export default function DeliveryPersonDetails() {
   if (loadingPerson || loadingOrders) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     );
   }
@@ -358,7 +358,7 @@ export default function DeliveryPersonDetails() {
               
               {loadingRoute ? (
                 <div className="h-[500px] bg-muted rounded-lg flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
                 </div>
               ) : routeData && routeData.locations ? (
                 <OrderRouteMap

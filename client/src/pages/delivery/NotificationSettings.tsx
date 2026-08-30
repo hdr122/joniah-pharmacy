@@ -21,7 +21,7 @@ export default function NotificationSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-fuchsia-50 to-cyan-50 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -47,7 +47,7 @@ export default function NotificationSettings() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Volume2 className="w-5 h-5 text-emerald-600" />
+                <Volume2 className="w-5 h-5 text-violet-600" />
                 <CardTitle>صوت التنبيه</CardTitle>
               </div>
               <CardDescription>
@@ -72,7 +72,7 @@ export default function NotificationSettings() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-emerald-600" />
+                <Bell className="w-5 h-5 text-violet-600" />
                 <CardTitle>أنواع الإشعارات</CardTitle>
               </div>
               <CardDescription>

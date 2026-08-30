@@ -947,7 +947,7 @@ export default function AdvancedTracking() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-emerald-600" />
+              <Target className="h-5 w-5 text-violet-600" />
               تتبع الطلبات النشطة في الوقت الفعلي
             </CardTitle>
             <CardDescription>
@@ -971,7 +971,7 @@ export default function AdvancedTracking() {
                 <div
                   key={order.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                    selectedOrderId === order.id ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950' : ''
+                    selectedOrderId === order.id ? 'border-violet-500 bg-violet-50 dark:bg-violet-950' : ''
                   }`}
                   onClick={() => {
                     setSelectedOrderId(order.id);
@@ -988,7 +988,7 @@ export default function AdvancedTracking() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Package className="h-5 w-5 text-emerald-600" />
+                      <Package className="h-5 w-5 text-violet-600" />
                       <span className="font-bold">طلب #{order.id}</span>
                     </div>
                     {order.isTracking ? (
@@ -1097,7 +1097,7 @@ export default function AdvancedTracking() {
                     <div className="text-xs text-muted-foreground">نقطة تتبع</div>
                   </div>
                   <div className="p-3 bg-muted rounded-lg text-center">
-                    <div className="text-2xl font-bold text-emerald-600">
+                    <div className="text-2xl font-bold text-violet-600">
                       {selectedOrderLiveTracking.stats.distanceCovered} كم
                     </div>
                     <div className="text-xs text-muted-foreground">المسافة المقطوعة</div>

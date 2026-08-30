@@ -26,18 +26,17 @@ export const locationRouter = router({
 
         // Save location to database
         const location = await db.saveDeliveryLocation({
-          userId: ctx.user.id,
-          latitude: input.latitude,
-          longitude: input.longitude,
-          accuracy: input.accuracy,
-          altitude: input.altitude,
-          heading: input.heading,
-          speed: input.speed,
-          createdAt: new Date(input.timestamp || Date.now()),
+          branchId: ctx.user.branchId ?? undefined,
+          deliveryPersonId: ctx.user.id,
+          latitude: String(input.latitude),
+          longitude: String(input.longitude),
+          accuracy: input.accuracy != null ? String(input.accuracy) : undefined,
+          heading: input.heading != null ? String(input.heading) : undefined,
+          speed: input.speed != null ? String(input.speed) : undefined,
         });
 
         // Broadcast to WebSocket clients in real-time
-        if (global.websocketManager) {
+        if ((global as any).websocketManager) {
           (global as any).websocketManager.broadcastLocationUpdate({
             userId: ctx.user.id,
             latitude: input.latitude,
@@ -133,7 +132,7 @@ export const locationRouter = router({
         }
 
         const locations = await db.getActiveDeliveryLocations(
-          ctx.user.branchId,
+          ctx.user.branchId ?? undefined,
           input.withinMinutes
         );
 

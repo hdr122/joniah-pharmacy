@@ -158,13 +158,13 @@ export default function DeliveryProfile() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 p-4" dir="rtl">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -185,7 +185,7 @@ export default function DeliveryProfile() {
             <div className="flex items-center gap-6">
               <Avatar className="w-24 h-24">
                 <AvatarImage src={previewUrl || user.profileImage || ""} />
-                <AvatarFallback className="text-2xl bg-emerald-100 text-emerald-700">
+                <AvatarFallback className="text-2xl bg-violet-100 text-violet-700">
                   {user.name?.charAt(0) || "م"}
                 </AvatarFallback>
               </Avatar>
@@ -202,7 +202,7 @@ export default function DeliveryProfile() {
                   <Button
                     onClick={handleImageUpload}
                     disabled={uploading}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full bg-violet-600 hover:bg-violet-700"
                   >
                     {uploading ? (
                       <>
@@ -249,7 +249,7 @@ export default function DeliveryProfile() {
                 <Button
                   onClick={handleNameUpdate}
                   disabled={updateUserMutation.isPending}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-violet-600 hover:bg-violet-700"
                 >
                   {updateUserMutation.isPending ? (
                     <>
@@ -318,7 +318,7 @@ export default function DeliveryProfile() {
             <Button
               onClick={handlePasswordChange}
               disabled={changePasswordMutation.isPending}
-              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              className="w-full bg-violet-600 hover:bg-violet-700"
             >
               {changePasswordMutation.isPending ? (
                 <>

@@ -73,7 +73,7 @@ export default function DeletedOrders() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -158,7 +158,7 @@ export default function DeletedOrders() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleRestoreClick(order)}
-                        className="gap-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        className="gap-2 text-violet-600 hover:text-violet-700 hover:bg-violet-50"
                       >
                         <RotateCcw className="w-4 h-4" />
                         استعادة
@@ -190,7 +190,7 @@ export default function DeletedOrders() {
               إلغاء
             </Button>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-violet-600 hover:bg-violet-700"
               onClick={confirmRestore}
               disabled={restoreOrderMutation.isPending}
             >

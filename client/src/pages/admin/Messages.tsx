@@ -54,7 +54,7 @@ export default function Messages() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-violet-600 hover:bg-violet-700">
               <Send className="w-4 h-4 ml-2" />
               رسالة جديدة
             </Button>
@@ -118,7 +118,7 @@ export default function Messages() {
 
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-violet-600 hover:bg-violet-700"
                   onClick={handleSend}
                   disabled={sendMutation.isPending}
                 >
@@ -155,8 +155,8 @@ export default function Messages() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-              <Users className="w-4 h-4 text-emerald-600" />
+            <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 text-violet-600" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">إرسال لجميع المندوبين</h3>

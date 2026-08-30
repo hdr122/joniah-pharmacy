@@ -1,19 +1,37 @@
 import * as admin from 'firebase-admin';
 
-// Firebase Service Account credentials from environment
-const serviceAccount = {
-  type: "service_account",
-  project_id: process.env.FIREBASE_PROJECT_ID || "joniah-delivery",
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_CLIENT_ID,
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: process.env.FIREBASE_CERT_URL,
-  universe_domain: "googleapis.com"
-};
+// Firebase Service Account credentials from environment.
+// Preferred: FIREBASE_SERVICE_ACCOUNT holding the full service-account JSON.
+// Fallback: individual FIREBASE_* variables.
+function loadServiceAccount(): Record<string, string | undefined> {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      const parsed = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      if (parsed.private_key) {
+        parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+      }
+      return parsed;
+    } catch (error) {
+      console.error('[Firebase] Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:', error);
+    }
+  }
+
+  return {
+    type: "service_account",
+    project_id: process.env.FIREBASE_PROJECT_ID || "joniah-delivery",
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+    token_uri: "https://oauth2.googleapis.com/token",
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+    client_x509_cert_url: process.env.FIREBASE_CERT_URL,
+    universe_domain: "googleapis.com"
+  };
+}
+
+const serviceAccount = loadServiceAccount();
 
 // Initialize Firebase Admin SDK
 let firebaseApp: admin.app.App | null = null;

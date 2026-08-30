@@ -117,7 +117,7 @@ export default function SiteSettings() {
                 id="siteName"
                 value={siteName}
                 onChange={(e) => setSiteName(e.target.value)}
-                placeholder="مثال: صيدلية جونيا"
+                placeholder="مثال: Xenon"
               />
             </div>
             <Button onClick={handleSaveName} disabled={updateMutation.isPending}>

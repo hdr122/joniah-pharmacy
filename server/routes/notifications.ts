@@ -56,7 +56,7 @@ export const notificationsRouter = router({
         title: z.string(),
         message: z.string(),
         type: z.enum(['new_order', 'order_updated', 'order_cancelled', 'assignment']),
-        data: z.record(z.any()).optional(),
+        data: z.record(z.string(), z.any()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

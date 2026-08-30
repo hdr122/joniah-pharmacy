@@ -200,13 +200,13 @@ export default function DeliverySpeedAnalytics() {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900 border-emerald-200">
+            <Card className="bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-950 dark:to-violet-900 border-violet-200">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-2">
+                <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 mb-2">
                   <Timer className="w-5 h-5" />
                   <span className="text-sm font-medium">متوسط الوقت</span>
                 </div>
-                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{formatDuration(overallStats.overallAvg)}</p>
+                <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">{formatDuration(overallStats.overallAvg)}</p>
               </CardContent>
             </Card>
             
@@ -319,7 +319,7 @@ export default function DeliverySpeedAnalytics() {
                         <div className="flex items-center gap-6">
                           <div className="text-center">
                             <p className="text-xs text-muted-foreground">متوسط الوقت</p>
-                            <p className="font-bold text-emerald-600">{formatDuration(dp.avgDeliveryTime)}</p>
+                            <p className="font-bold text-violet-600">{formatDuration(dp.avgDeliveryTime)}</p>
                           </div>
                           <div className="text-center">
                             <p className="text-xs text-muted-foreground">أسرع توصيل</p>

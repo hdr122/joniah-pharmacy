@@ -10,7 +10,7 @@ export default function Maintenance({ message, estimatedEndTime }: MaintenancePr
   const defaultMessage = "الموقع تحت الصيانة حالياً. سنعود قريباً!";
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-fuchsia-50 p-4">
       <Card className="max-w-md w-full">
         <CardContent className="pt-6 text-center space-y-6">
           {/* أيقونة الصيانة */}

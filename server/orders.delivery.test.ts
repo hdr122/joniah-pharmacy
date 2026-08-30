@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { db } from "./db";
+import * as db from "./db";
 
 describe("Orders Delivery Operations", () => {
   let testOrderId: number;
@@ -17,6 +17,7 @@ describe("Orders Delivery Operations", () => {
 
     // Create test order
     const order = await db.createOrder({
+      branchId: 1,
       customerId: 1,
       deliveryPersonId: testDeliveryId,
       regionId: 1,

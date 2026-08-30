@@ -56,7 +56,7 @@ export default function CustomerDetails() {
   if (customerLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function CustomerDetails() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5 text-emerald-600" />
+            <User className="w-5 h-5 text-violet-600" />
             معلومات الزبون
           </CardTitle>
         </CardHeader>
@@ -166,7 +166,7 @@ export default function CustomerDetails() {
                 href={customer.locationUrl1}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-600 hover:underline flex items-center gap-2"
+                className="text-violet-600 hover:underline flex items-center gap-2"
               >
                 <ExternalLink className="w-4 h-4" />
                 فتح الموقع
@@ -181,7 +181,7 @@ export default function CustomerDetails() {
                 href={customer.locationUrl2}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-600 hover:underline flex items-center gap-2"
+                className="text-violet-600 hover:underline flex items-center gap-2"
               >
                 <ExternalLink className="w-4 h-4" />
                 فتح الموقع
@@ -239,8 +239,8 @@ export default function CustomerDetails() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-emerald-600" />
+                <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-violet-600" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">إجمالي الإنفاق</p>
@@ -256,7 +256,7 @@ export default function CustomerDetails() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-emerald-600" />
+            <Package className="w-5 h-5 text-violet-600" />
             سجل الطلبات ({orders?.length || 0})
           </CardTitle>
           <CardDescription>جميع طلبات الزبون</CardDescription>
@@ -264,7 +264,7 @@ export default function CustomerDetails() {
         <CardContent>
           {ordersLoading ? (
             <div className="text-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto text-emerald-600" />
+              <Loader2 className="w-6 h-6 animate-spin mx-auto text-violet-600" />
             </div>
           ) : !orders || orders.length === 0 ? (
             <div className="text-center py-12 text-gray-500">

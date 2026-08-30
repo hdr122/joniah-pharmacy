@@ -177,10 +177,10 @@ export default function DeliveryHistory() {
       ) : (
         <>
         {/* Performance Statistics Card */}
-        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+        <Card className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border-violet-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-emerald-600" />
+              <Package className="w-5 h-5 text-violet-600" />
               إحصائيات الأداء
             </CardTitle>
             <CardDescription>
@@ -244,9 +244,9 @@ export default function DeliveryHistory() {
                       <div className="text-xs text-gray-500 mt-1">د.ع</div>
                     </div>
                     
-                    <div className="bg-white rounded-lg p-4 border border-teal-200">
+                    <div className="bg-white rounded-lg p-4 border border-fuchsia-200">
                       <div className="text-sm text-gray-600 mb-1">إجمالي رسوم التوصيل</div>
-                      <div className="text-2xl font-bold text-teal-600">{totalDeliveryFees.toLocaleString('en-US')}</div>
+                      <div className="text-2xl font-bold text-fuchsia-600">{totalDeliveryFees.toLocaleString('en-US')}</div>
                       <div className="text-xs text-gray-500 mt-1">د.ع</div>
                     </div>
                   </div>
@@ -254,9 +254,9 @@ export default function DeliveryHistory() {
                   {/* إحصائيات الوقت */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* متوسط وقت التسليم */}
-                    <div className="bg-white rounded-lg p-4 border border-emerald-200">
+                    <div className="bg-white rounded-lg p-4 border border-violet-200">
                       <div className="text-sm text-gray-600 mb-1">متوسط وقت التسليم</div>
-                      <div className="text-2xl font-bold text-emerald-600">{formatDuration(avgMinutes)}</div>
+                      <div className="text-2xl font-bold text-violet-600">{formatDuration(avgMinutes)}</div>
                       <div className="text-xs text-gray-500 mt-1">من القبول إلى التسليم</div>
                     </div>
 
@@ -421,7 +421,7 @@ export default function DeliveryHistory() {
                                   
                                   {order.status === "delivered" && order.deliveredAt && (
                                     <div className="flex items-center gap-2">
-                                      <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                      <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
                                       <span className="font-medium">تسليم الطلب:</span>
                                       <span>{new Date(order.deliveredAt).toLocaleString("ar-IQ", { 
                                         year: "numeric", 

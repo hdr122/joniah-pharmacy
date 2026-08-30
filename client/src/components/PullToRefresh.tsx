@@ -131,15 +131,15 @@ export function PullToRefresh({
         }}
       >
         <div
-          className={`flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900 shadow-xl border-2 border-emerald-200 dark:border-emerald-700 transition-all duration-200 ${
+          className={`flex items-center justify-center w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-900 shadow-xl border-2 border-violet-200 dark:border-violet-700 transition-all duration-200 ${
             isRefreshing ? "scale-110" : ""
           }`}
         >
           {isRefreshing ? (
-            <Loader2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 animate-spin" />
+            <Loader2 className="w-6 h-6 text-violet-600 dark:text-violet-400 animate-spin" />
           ) : (
             <RefreshCw
-              className="w-6 h-6 text-emerald-600 dark:text-emerald-400 transition-transform"
+              className="w-6 h-6 text-violet-600 dark:text-violet-400 transition-transform"
               style={{ transform: `rotate(${rotation}deg)` }}
             />
           )}
@@ -155,7 +155,7 @@ export function PullToRefresh({
             opacity: pullDistance > 20 ? 1 : 0,
           }}
         >
-          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded-full shadow-sm">
+          <span className="text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950 px-3 py-1 rounded-full shadow-sm">
             {isRefreshing 
               ? "جاري التحديث..." 
               : pullDistance >= threshold 

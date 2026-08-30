@@ -297,7 +297,7 @@ export default function UserManagement() {
                       return (
                         <div 
                           key={permission.id} 
-                          className="flex items-center gap-2 p-2 rounded border hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                          className="flex items-center gap-2 p-2 rounded border hover:border-violet-300 dark:hover:border-violet-700 transition-colors"
                         >
                           <Checkbox
                             id={`perm-${permission.id}`}
@@ -345,7 +345,7 @@ export default function UserManagement() {
         
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
+            <Button className="gap-2 bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
               <UserPlus className="w-4 h-4" />
               إضافة مستخدم جديد
             </Button>
@@ -399,7 +399,7 @@ export default function UserManagement() {
                 <Button
                   onClick={handleCreate}
                   disabled={createUser.isPending}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-violet-600 hover:bg-violet-700"
                 >
                   {createUser.isPending ? "جاري الإنشاء..." : "إنشاء المستخدم"}
                 </Button>
@@ -474,7 +474,7 @@ export default function UserManagement() {
                                   return perm ? (
                                     <Badge
                                       key={permId}
-                                      className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                      className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400"
                                     >
                                       {perm.label}
                                     </Badge>
@@ -586,7 +586,7 @@ export default function UserManagement() {
               <Button
                 onClick={handleUpdate}
                 disabled={updateUser.isPending}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-violet-600 hover:bg-violet-700"
               >
                 {updateUser.isPending ? "جاري التحديث..." : "حفظ التغييرات"}
               </Button>

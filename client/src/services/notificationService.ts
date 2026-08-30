@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
@@ -16,6 +17,11 @@ class NotificationService {
    * Initialize push notifications
    */
   async initialize() {
+    // Capacitor push/local notification plugins only exist in the native app
+    if (!Capacitor.isNativePlatform()) {
+      console.log('[Notifications] Skipping native notifications on web');
+      return;
+    }
     try {
       // Request permission
       await this.requestPermissions();
@@ -51,18 +57,22 @@ class NotificationService {
    */
   private async registerPushNotifications() {
     try {
+      // The token arrives via the 'registration' event after register()
+      await PushNotifications.addListener('registration', async (token) => {
+        if (token.value) {
+          this.fcmToken = token.value;
+          console.log('[Notifications] FCM Token:', this.fcmToken);
+
+          // Send token to backend to store for this user
+          await this.sendTokenToServer(this.fcmToken);
+        }
+      });
+
+      await PushNotifications.addListener('registrationError', (error) => {
+        console.error('[Notifications] Registration error:', error);
+      });
+
       await PushNotifications.register();
-
-      // Get the token
-      const result = await PushNotifications.getDeliveryTokens();
-
-      if (result.fcm) {
-        this.fcmToken = result.fcm;
-        console.log('[Notifications] FCM Token:', this.fcmToken);
-
-        // Send token to backend to store for this user
-        await this.sendTokenToServer(this.fcmToken);
-      }
     } catch (error) {
       console.error('[Notifications] Registration failed:', error);
     }
@@ -99,7 +109,7 @@ class NotificationService {
 
       // Show local notification
       this.showLocalNotification({
-        title: notification.title || 'جونيا',
+        title: notification.title || 'Xenon',
         body: notification.body || 'رسالة جديدة',
         id: Math.floor(Math.random() * 10000),
       });

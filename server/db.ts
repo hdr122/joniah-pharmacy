@@ -1,11 +1,11 @@
-import { eq, and, desc, sql, gte, lte, lt, gt, inArray, isNotNull } from "drizzle-orm";
+import { eq, and, desc, asc, sql, gte, lte, lt, gt, inArray, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool } from "mysql2";
 import { notifyOwner } from "./_core/notification";
 import { InsertUser, users, regions, provinces, orders, notifications, messages, InsertRegion, InsertProvince, InsertOrder, customers, deliveryLocations, InsertDeliveryLocation, dailyStats, pushSubscriptions, activityLogs, InsertActivityLog, orderFormSettings, InsertOrderFormSetting, orderLocations, orderRouteTracking, InsertOrderRouteTracking, settings, subscriptionCodes, branches, maintenanceMode, storeProducts, storePurchases, subscriptionActivations, updates, announcements, announcementReads, siteSettings, notificationSettings, notificationLogs } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { hash, compare } from 'bcryptjs';
-import { getStartOfDay, getEndOfDay, getTodayRange, getYesterdayRange, getBusinessDateString, getCurrentTimeISOInIraq } from './dateUtils';
+import { getStartOfDay, getEndOfDay, getTodayRange, getYesterdayRange, getBusinessDateString, getCurrentSqlDatetime, toSqlDatetime as sqlDatetime } from './dateUtils';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _pool: ReturnType<typeof createPool> | null = null;
@@ -80,11 +80,11 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     }
 
     if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date().toISOString();
+      values.lastSignedIn = getCurrentSqlDatetime();
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date().toISOString();
+      updateSet.lastSignedIn = getCurrentSqlDatetime();
     }
 
     await db.insert(users).values(values).onDuplicateKeyUpdate({
@@ -325,7 +325,7 @@ export async function createOrder(data: InsertOrder) {
   if (!db) throw new Error("Database not available");
   // Set createdAt to Iraq timezone (GMT+3) if not already set
   if (!data.createdAt) {
-    data.createdAt = getCurrentTimeISOInIraq();
+    data.createdAt = getCurrentSqlDatetime();
   }
   const result = await db.insert(orders).values(data);
   // Get the inserted order ID
@@ -403,10 +403,10 @@ export async function getAllOrders(options?: {
   
   // Date filter - using sql template for timestamp comparison
   if (options?.startDate) {
-    conditions.push(sql`${orders.createdAt} >= ${options.startDate}`);
+    conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(options.startDate)}`);
   }
   if (options?.endDate) {
-    conditions.push(sql`${orders.createdAt} <= ${options.endDate}`);
+    conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(options.endDate)}`);
   }
   
   // Status filter
@@ -603,7 +603,7 @@ export async function updateOrderStatus(id: number, status: "pending_approval" |
     Object.keys(data).forEach(key => {
       const value = (data as any)[key];
       if (value instanceof Date) {
-        updateData[key] = value.toISOString();
+        updateData[key] = sqlDatetime(value);
       } else {
         updateData[key] = value;
       }
@@ -611,6 +611,7 @@ export async function updateOrderStatus(id: number, status: "pending_approval" |
   }
   
   await db.update(orders).set(updateData).where(eq(orders.id, id));
+  return { success: true };
 }
 
 export async function reassignOrder(orderId: number, newDeliveryPersonId: number) {
@@ -794,7 +795,9 @@ export async function getDashboardStats(branchId?: number | null) {
         ? and(eq(orders.status, "delivered"), eq(orders.isDeleted, 0), eq(orders.branchId, branchId))
         : and(eq(orders.status, "delivered"), eq(orders.isDeleted, 0))
     );
-  const totalRegions = await db.select({ count: sql<number>`COUNT(*)` }).from(regions);
+  const totalRegions = await db.select({ count: sql<number>`COUNT(*)` })
+    .from(regions)
+    .where(branchId ? eq(regions.branchId, branchId) : undefined);
   
   // Get recent orders (excluding deleted) - filtered by branchId
   const recentOrders = await db
@@ -968,7 +971,7 @@ export async function createNotification(data: {
     message: data.message,
     type: data.type,
     orderId: data.orderId,
-    createdAt: getCurrentTimeISOInIraq(),
+    createdAt: getCurrentSqlDatetime(),
   });
   
   // Send Firebase push notification
@@ -1105,7 +1108,7 @@ export async function updateUserLocation(userId: number, latitude: string, longi
   await db.update(users).set({ 
     latitude, 
     longitude,
-    lastLocationUpdate: new Date().toISOString(),
+    lastLocationUpdate: getCurrentSqlDatetime(),
   }).where(eq(users.id, userId));
 }
 
@@ -1148,10 +1151,10 @@ export async function getCustomStats(filters: {
 
   // Date filters
   if (filters.startDate) {
-    conditions.push(sql`${orders.createdAt} >= ${filters.startDate}`);
+    conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(filters.startDate)}`);
   }
   if (filters.endDate) {
-    conditions.push(sql`${orders.createdAt} <= ${filters.endDate}`);
+    conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(filters.endDate)}`);
   }
 
   // Region filter
@@ -1282,7 +1285,7 @@ export async function deleteOrder(orderId: number, deletedBy: number) {
   await db.update(orders)
     .set({ 
       isDeleted: 1, 
-      deletedAt: new Date().toISOString(),
+      deletedAt: getCurrentSqlDatetime(),
       deletedBy 
     })
     .where(eq(orders.id, orderId));
@@ -1396,7 +1399,7 @@ export async function searchCustomers(
       c.locationUrl2,
       c.notes,
       c.regionId,
-      ANY_VALUE(r.name) as regionName,
+      MAX(r.name) as regionName,
       c.lastDeliveryLocation,
       c.lastDeliveryAt,
       c.createdAt,
@@ -1441,7 +1444,7 @@ export async function updateCustomer(customerId: number, data: {
   const { customers } = await import("../drizzle/schema");
   const updateData: any = { ...data };
   if (data.lastDeliveryAt) {
-    updateData.lastDeliveryAt = data.lastDeliveryAt.toISOString();
+    updateData.lastDeliveryAt = sqlDatetime(data.lastDeliveryAt);
   }
   await db.update(customers).set(updateData).where(eq(customers.id, customerId));
 }
@@ -1748,8 +1751,8 @@ export async function saveDailyStatsSnapshot(branchId: number) {
         eq(orders.branchId, branchId),
         eq(orders.status, "delivered"),
         eq(orders.isDeleted, 0),
-        sql`${orders.deliveredAt} >= ${yesterday.toISOString()}`,
-        sql`${orders.deliveredAt} <= ${yesterdayEnd.toISOString()}`
+        sql`${orders.deliveredAt} >= ${sqlDatetime(yesterday)}`,
+        sql`${orders.deliveredAt} <= ${sqlDatetime(yesterdayEnd)}`
       )
     );
   
@@ -1796,8 +1799,8 @@ export async function getTodayStats(branchId?: number | null) {
   // Build where conditions
   const conditions = [
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${today.toISOString()}`,
-    sql`${orders.createdAt} <= ${tomorrow.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(today)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(tomorrow)}`
   ];
   
   if (branchId) {
@@ -1828,8 +1831,8 @@ export async function getTodayStats(branchId?: number | null) {
   // Get recent orders for today
   const recentOrderConditions = [
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${today.toISOString().split('T')[0]}`,
-    sql`${orders.createdAt} < ${tomorrow.toISOString().split('T')[0]}`
+    sql`${orders.createdAt} >= ${sqlDatetime(today).slice(0, 10)}`,
+    sql`${orders.createdAt} < ${sqlDatetime(tomorrow).slice(0, 10)}`
   ];
   if (branchId) {
     recentOrderConditions.push(eq(orders.branchId, branchId));
@@ -1858,8 +1861,8 @@ export async function getTodayStats(branchId?: number | null) {
     eq(orders.deliveryPersonId, users.id),
     eq(orders.status, "delivered"),
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${today.toISOString()}`,
-    sql`${orders.createdAt} <= ${tomorrow.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(today)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(tomorrow)}`
   ];
   if (branchId) {
     topDeliveryJoinConditions.push(eq(orders.branchId, branchId));
@@ -1883,8 +1886,8 @@ export async function getTodayStats(branchId?: number | null) {
   const topRegionJoinConditions = [
     eq(orders.regionId, regions.id),
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${today.toISOString()}`,
-    sql`${orders.createdAt} <= ${tomorrow.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(today)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(tomorrow)}`
   ];
   if (branchId) {
     topRegionJoinConditions.push(eq(orders.branchId, branchId));
@@ -1941,8 +1944,8 @@ export async function getSpecificDayStats(month: number, day: number, year?: num
   // Get day's orders
   const dayOrderConditions = [
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${dayStart.toISOString()}`,
-    sql`${orders.createdAt} < ${dayEnd.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(dayStart)}`,
+    sql`${orders.createdAt} < ${sqlDatetime(dayEnd)}`
   ];
   if (branchId) {
     dayOrderConditions.push(eq(orders.branchId, branchId));
@@ -1981,8 +1984,8 @@ export async function getSpecificDayStats(month: number, day: number, year?: num
     .where(
       and(
         eq(orders.isDeleted, 0),
-        sql`${orders.createdAt} >= ${dayStart.toISOString()}`,
-        sql`${orders.createdAt} < ${dayEnd.toISOString()}`
+        sql`${orders.createdAt} >= ${sqlDatetime(dayStart)}`,
+        sql`${orders.createdAt} < ${sqlDatetime(dayEnd)}`
       )
     )
     .orderBy(desc(orders.createdAt))
@@ -2001,8 +2004,8 @@ export async function getSpecificDayStats(month: number, day: number, year?: num
       eq(orders.deliveryPersonId, users.id),
       eq(orders.status, "delivered"),
       eq(orders.isDeleted, 0),
-      sql`${orders.createdAt} >= ${dayStart.toISOString()}`,
-      sql`${orders.createdAt} < ${dayEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(dayStart)}`,
+      sql`${orders.createdAt} < ${sqlDatetime(dayEnd)}`
     ))
     .where(eq(users.role, "delivery"))
     .groupBy(users.id)
@@ -2020,8 +2023,8 @@ export async function getSpecificDayStats(month: number, day: number, year?: num
     .leftJoin(orders, and(
       eq(orders.regionId, regions.id),
       eq(orders.isDeleted, 0),
-      sql`${orders.createdAt} >= ${dayStart.toISOString()}`,
-      sql`${orders.createdAt} < ${dayEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(dayStart)}`,
+      sql`${orders.createdAt} < ${sqlDatetime(dayEnd)}`
     ))
     .groupBy(regions.id)
     .orderBy(desc(sql<number>`COUNT(${orders.id})`))
@@ -2054,8 +2057,8 @@ export async function getStatsByDateRange(startDate: string, endDate: string, br
   // Build where conditions
   const whereConditions = [
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${start.toISOString()}`,
-    sql`${orders.createdAt} <= ${end.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(start)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(end)}`
   ];
   
   // Add branchId filter if provided
@@ -2086,8 +2089,8 @@ export async function getStatsByDateRange(startDate: string, endDate: string, br
   // Get recent orders for the range
   const recentOrdersWhere = [
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${start.toISOString()}`,
-    sql`${orders.createdAt} <= ${end.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(start)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(end)}`
   ];
   if (branchId !== undefined && branchId !== null) {
     recentOrdersWhere.push(eq(orders.branchId, branchId));
@@ -2111,8 +2114,8 @@ export async function getStatsByDateRange(startDate: string, endDate: string, br
     eq(orders.deliveryPersonId, users.id),
     eq(orders.status, "delivered"),
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${start.toISOString()}`,
-    sql`${orders.createdAt} <= ${end.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(start)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(end)}`
   ];
   if (branchId !== undefined && branchId !== null) {
     topDeliveriesOrderJoin.push(eq(orders.branchId, branchId));
@@ -2139,8 +2142,8 @@ export async function getStatsByDateRange(startDate: string, endDate: string, br
   const topRegionsOrderJoin = [
     eq(orders.regionId, regions.id),
     eq(orders.isDeleted, 0),
-    sql`${orders.createdAt} >= ${start.toISOString()}`,
-    sql`${orders.createdAt} <= ${end.toISOString()}`
+    sql`${orders.createdAt} >= ${sqlDatetime(start)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(end)}`
   ];
   if (branchId !== undefined && branchId !== null) {
     topRegionsOrderJoin.push(eq(orders.branchId, branchId));
@@ -2249,8 +2252,8 @@ export async function getDeliveryPath(orderId: number, deliveryPersonId: number)
     .from(deliveryLocations)
     .where(and(
       eq(deliveryLocations.deliveryPersonId, deliveryPersonId),
-      sql`${deliveryLocations.createdAt} >= ${acceptLoc.timestamp}`,
-      sql`${deliveryLocations.createdAt} <= ${deliverLoc.timestamp}`
+      sql`${deliveryLocations.createdAt} >= ${sqlDatetime(acceptLoc.timestamp)}`,
+      sql`${deliveryLocations.createdAt} <= ${sqlDatetime(deliverLoc.timestamp)}`
     ))
       .orderBy(deliveryLocations.createdAt);
   
@@ -2676,8 +2679,8 @@ export async function getMonthlyDistances(year: number, month: number, branchId?
             timestamp
           FROM delivery_locations
           WHERE deliveryPersonId = ${person.id}
-            AND createdAt >= ${startDate}
-            AND createdAt <= ${endDate}
+            AND createdAt >= ${sqlDatetime(startDate)}
+            AND createdAt <= ${sqlDatetime(endDate)}
           ORDER BY createdAt ASC
         `);
         
@@ -2711,8 +2714,8 @@ export async function getMonthlyDistances(year: number, month: number, branchId?
             and(
               eq(orders.deliveryPersonId, person.id),
               eq(orders.status, 'delivered'),
-              sql`${orders.deliveredAt} >= ${startDate}`,
-              sql`${orders.deliveredAt} <= ${endDate}`
+              sql`${orders.deliveredAt} >= ${sqlDatetime(startDate)}`,
+              sql`${orders.deliveredAt} <= ${sqlDatetime(endDate)}`
             )
           );
         
@@ -2770,10 +2773,10 @@ export async function getDeliveryPersonOrders(deliveryPersonId: number, startDat
     `;
     
     if (startDate) {
-      query = sql`${query} AND o.createdAt >= ${startDate}`;
+      query = sql`${query} AND o.createdAt >= ${sqlDatetime(startDate)}`;
     }
     if (endDate) {
-      query = sql`${query} AND o.createdAt <= ${endDate}`;
+      query = sql`${query} AND o.createdAt <= ${sqlDatetime(endDate)}`;
     }
     
     query = sql`${query} ORDER BY o.createdAt DESC`;
@@ -2829,8 +2832,8 @@ export async function getOrderRoute(orderId: number) {
         accuracy
       FROM order_locations
       WHERE orderId = ${orderId}
-        AND createdAt >= ${order.acceptedAt}
-        AND createdAt <= ${order.deliveredAt}
+        AND createdAt >= ${sqlDatetime(order.acceptedAt)}
+        AND createdAt <= ${sqlDatetime(order.deliveredAt)}
       ORDER BY timestamp ASC
     `);
     
@@ -2929,8 +2932,8 @@ export async function getTraccarRoute(deliveryPersonId: number, deviceId: number
   }
   
   try {
-    const fromISO = from.toISOString();
-    const toISO = to.toISOString();
+    const fromISO = sqlDatetime(from);
+    const toISO = sqlDatetime(to);
     const route = await traccarRequest(
       `positions?deviceId=${deviceId}&from=${fromISO}&to=${toISO}`,
       user.traccarUsername,
@@ -3069,8 +3072,8 @@ export async function getDeliveryRouteByTime(userId: number, date: string, hours
           battery
         FROM delivery_locations
         WHERE deliveryPersonId = ${userId}
-          AND createdAt >= ${startTime}
-          AND createdAt <= ${endTime}
+          AND createdAt >= ${sqlDatetime(startTime)}
+          AND createdAt <= ${sqlDatetime(endTime)}
           AND latitude IS NOT NULL
           AND longitude IS NOT NULL
           AND latitude BETWEEN -90 AND 90
@@ -3179,8 +3182,8 @@ export async function getOrderCompleteRoute(orderId: number) {
         battery
       FROM delivery_locations
       WHERE deliveryPersonId = ${order.deliveryPersonId}
-        AND createdAt >= ${startTime}
-        AND createdAt <= ${endTime}
+        AND createdAt >= ${sqlDatetime(startTime)}
+        AND createdAt <= ${sqlDatetime(endTime)}
       ORDER BY createdAt ASC
     `);
     
@@ -3437,11 +3440,11 @@ export async function getOrdersForExport(filters: {
   const conditions: any[] = [];
 
   if (filters.startDate) {
-    conditions.push(sql`${orders.createdAt} >= ${new Date(filters.startDate).toISOString()}`);
+    conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(filters.startDate)}`);
   }
 
   if (filters.endDate) {
-    conditions.push(sql`${orders.createdAt} <= ${new Date(filters.endDate).toISOString()}`);
+    conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(filters.endDate)}`);
   }
 
   if (filters.deliveryPersonIds && filters.deliveryPersonIds.length > 0) {
@@ -3477,14 +3480,14 @@ export async function getCustomersByOrderCount(filters: {
   const result = await db.execute(sql`
     SELECT 
       c.id,
-      ANY_VALUE(c.name) as name,
-      ANY_VALUE(c.phone) as phone,
-      ANY_VALUE(c.email) as email,
-      ANY_VALUE(c.address1) as address1,
-      ANY_VALUE(c.address2) as address2,
-      ANY_VALUE(c.locationUrl1) as locationUrl1,
-      ANY_VALUE(c.locationUrl2) as locationUrl2,
-      ANY_VALUE(c.createdAt) as createdAt,
+      MAX(c.name) as name,
+      MAX(c.phone) as phone,
+      MAX(c.email) as email,
+      MAX(c.address1) as address1,
+      MAX(c.address2) as address2,
+      MAX(c.locationUrl1) as locationUrl1,
+      MAX(c.locationUrl2) as locationUrl2,
+      MAX(c.createdAt) as createdAt,
       COUNT(o.id) as orderCount,
       MAX(o.createdAt) as lastOrderDate
     FROM customers c
@@ -3527,14 +3530,14 @@ export async function getInactiveCustomers(filters: {
   const result = await db.execute(sql`
     SELECT 
       c.id,
-      ANY_VALUE(c.name) as name,
-      ANY_VALUE(c.phone) as phone,
-      ANY_VALUE(c.email) as email,
-      ANY_VALUE(c.address1) as address1,
-      ANY_VALUE(c.address2) as address2,
-      ANY_VALUE(c.locationUrl1) as locationUrl1,
-      ANY_VALUE(c.locationUrl2) as locationUrl2,
-      ANY_VALUE(c.createdAt) as createdAt,
+      MAX(c.name) as name,
+      MAX(c.phone) as phone,
+      MAX(c.email) as email,
+      MAX(c.address1) as address1,
+      MAX(c.address2) as address2,
+      MAX(c.locationUrl1) as locationUrl1,
+      MAX(c.locationUrl2) as locationUrl2,
+      MAX(c.createdAt) as createdAt,
       COUNT(o.id) as orderCount,
       MAX(o.createdAt) as lastOrderDate,
       DATEDIFF(NOW(), MAX(o.createdAt)) as daysSinceLastOrder
@@ -3591,14 +3594,14 @@ export async function getCustomersWithFilters(filters: {
   const result = await db.execute(sql`
     SELECT 
       c.id,
-      ANY_VALUE(c.name) as name,
-      ANY_VALUE(c.phone) as phone,
-      ANY_VALUE(c.email) as email,
-      ANY_VALUE(c.address1) as address1,
-      ANY_VALUE(c.address2) as address2,
-      ANY_VALUE(c.locationUrl1) as locationUrl1,
-      ANY_VALUE(c.locationUrl2) as locationUrl2,
-      ANY_VALUE(c.createdAt) as createdAt,
+      MAX(c.name) as name,
+      MAX(c.phone) as phone,
+      MAX(c.email) as email,
+      MAX(c.address1) as address1,
+      MAX(c.address2) as address2,
+      MAX(c.locationUrl1) as locationUrl1,
+      MAX(c.locationUrl2) as locationUrl2,
+      MAX(c.createdAt) as createdAt,
       COUNT(o.id) as orderCount,
       MAX(o.createdAt) as lastOrderDate,
       DATEDIFF(NOW(), MAX(o.createdAt)) as daysSinceLastOrder
@@ -3672,8 +3675,8 @@ export async function getOrderWithRoute(orderId: number) {
         timestamp
       FROM delivery_locations
       WHERE deliveryPersonId = ${order.deliveryPersonId}
-        AND createdAt >= ${startTime}
-        AND createdAt <= ${endTime}
+        AND createdAt >= ${sqlDatetime(startTime)}
+        AND createdAt <= ${sqlDatetime(endTime)}
         AND latitude IS NOT NULL
         AND longitude IS NOT NULL
         AND CAST(latitude AS DECIMAL(10,8)) BETWEEN -90 AND 90
@@ -3728,7 +3731,7 @@ export async function logActivity(data: {
     metadata: data.metadata ? JSON.stringify(data.metadata) : null,
     ipAddress: data.ipAddress || null,
     userAgent: data.userAgent || null,
-    createdAt: getCurrentTimeISOInIraq(),
+    createdAt: getCurrentSqlDatetime(),
   });
 
   return result;
@@ -3763,10 +3766,10 @@ export async function getActivityLogs(filters?: {
     conditions.push(eq(activityLogs.activityType, filters.activityType as any));
   }
   if (filters?.startDate) {
-    conditions.push(sql`${activityLogs.createdAt} >= ${filters.startDate.toISOString()}`);
+    conditions.push(sql`${activityLogs.createdAt} >= ${sqlDatetime(filters.startDate)}`);
   }
   if (filters?.endDate) {
-    conditions.push(sql`${activityLogs.createdAt} <= ${filters.endDate.toISOString()}`);
+    conditions.push(sql`${activityLogs.createdAt} <= ${sqlDatetime(filters.endDate)}`);
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -3811,8 +3814,8 @@ export async function getUserActivityStats(userId?: number, startDate?: Date, en
 
   const conditions = [];
   if (userId) conditions.push(eq(activityLogs.userId, userId));
-  if (startDate) conditions.push(sql`${activityLogs.createdAt} >= ${startDate.toISOString()}`);
-  if (endDate) conditions.push(sql`${activityLogs.createdAt} <= ${endDate.toISOString()}`);
+  if (startDate) conditions.push(sql`${activityLogs.createdAt} >= ${sqlDatetime(startDate)}`);
+  if (endDate) conditions.push(sql`${activityLogs.createdAt} <= ${sqlDatetime(endDate)}`);
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const stats = await db
@@ -3843,8 +3846,8 @@ export async function getEmployeeStats(employeeId?: number, startDate?: Date, en
 
   const conditions = [];
   if (employeeId) conditions.push(eq(orders.createdBy, employeeId));
-  if (startDate) conditions.push(sql`${orders.createdAt} >= ${startDate}`);
-  if (endDate) conditions.push(sql`${orders.createdAt} <= ${endDate}`);
+  if (startDate) conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(startDate)}`);
+  if (endDate) conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(endDate)}`);
   if (branchId) conditions.push(eq(orders.branchId, branchId));
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -3929,8 +3932,8 @@ export async function getDeliveryPersonStats(deliveryPersonId?: number, startDat
     eq(users.role, 'delivery')
   ];
   if (deliveryPersonId) conditions.push(eq(orders.deliveryPersonId, deliveryPersonId));
-  if (startDate) conditions.push(sql`${orders.createdAt} >= ${startDate}`);
-  if (endDate) conditions.push(sql`${orders.createdAt} <= ${endDate}`);
+  if (startDate) conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(startDate)}`);
+  if (endDate) conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(endDate)}`);
   if (branchId) conditions.push(eq(users.branchId, branchId));
 
   const stats = await db
@@ -3984,8 +3987,8 @@ export async function getDeliveryPersonDetailsWithComparisons(deliveryPersonId: 
     const customOrders = await db.select().from(orders)
       .where(and(
         eq(orders.deliveryPersonId, deliveryPersonId),
-        sql`${orders.createdAt} >= ${customStartDate}`,
-        sql`${orders.createdAt} <= ${customEndDate}`
+        sql`${orders.createdAt} >= ${sqlDatetime(customStartDate)}`,
+        sql`${orders.createdAt} <= ${sqlDatetime(customEndDate)}`
       ));
     
     const customDelivered = customOrders.filter((o: any) => o.status === 'delivered');
@@ -4030,8 +4033,8 @@ export async function getDeliveryPersonDetailsWithComparisons(deliveryPersonId: 
   const todayOrders = await db.select().from(orders)
     .where(and(
       eq(orders.deliveryPersonId, deliveryPersonId),
-      sql`${orders.createdAt} >= ${todayStart.toISOString()}`,
-      sql`${orders.createdAt} < ${todayEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(todayStart)}`,
+      sql`${orders.createdAt} < ${sqlDatetime(todayEnd)}`
     ));
   
   const todayDelivered = todayOrders.filter((o: any) => o.status === 'delivered');
@@ -4042,8 +4045,8 @@ export async function getDeliveryPersonDetailsWithComparisons(deliveryPersonId: 
   const yesterdayOrders = await db.select().from(orders)
     .where(and(
       eq(orders.deliveryPersonId, deliveryPersonId),
-      sql`${orders.createdAt} >= ${yesterdayStart.toISOString()}`,
-      sql`${orders.createdAt} < ${yesterdayEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(yesterdayStart)}`,
+      sql`${orders.createdAt} < ${sqlDatetime(yesterdayEnd)}`
     ));
   
   const yesterdayDelivered = yesterdayOrders.filter((o: any) => o.status === 'delivered');
@@ -4068,8 +4071,8 @@ export async function getDeliveryPersonDetailsWithComparisons(deliveryPersonId: 
   const currentMonthOrders = await db.select().from(orders)
     .where(and(
       eq(orders.deliveryPersonId, deliveryPersonId),
-      sql`${orders.createdAt} >= ${currentMonthStart.toISOString()}`,
-      sql`${orders.createdAt} <= ${currentMonthEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(currentMonthStart)}`,
+      sql`${orders.createdAt} <= ${sqlDatetime(currentMonthEnd)}`
     ));
   
   const currentMonthDelivered = currentMonthOrders.filter((o: any) => o.status === 'delivered');
@@ -4080,8 +4083,8 @@ export async function getDeliveryPersonDetailsWithComparisons(deliveryPersonId: 
   const previousMonthOrders = await db.select().from(orders)
     .where(and(
       eq(orders.deliveryPersonId, deliveryPersonId),
-      sql`${orders.createdAt} >= ${previousMonthStart.toISOString()}`,
-      sql`${orders.createdAt} <= ${previousMonthEnd.toISOString()}`
+      sql`${orders.createdAt} >= ${sqlDatetime(previousMonthStart)}`,
+      sql`${orders.createdAt} <= ${sqlDatetime(previousMonthEnd)}`
     ));
   
   const previousMonthDelivered = previousMonthOrders.filter((o: any) => o.status === 'delivered');
@@ -4177,8 +4180,8 @@ export async function getDeliveryPersonOrdersFiltered(deliveryPersonId?: number,
 
   const conditions = [];
   if (deliveryPersonId) conditions.push(eq(orders.deliveryPersonId, deliveryPersonId));
-  if (startDate) conditions.push(sql`${orders.createdAt} >= ${startDate}`);
-  if (endDate) conditions.push(sql`${orders.createdAt} <= ${endDate}`);
+  if (startDate) conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(startDate)}`);
+  if (endDate) conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(endDate)}`);
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const orderList = await db
@@ -4456,11 +4459,11 @@ export async function getDeliverySpeedAnalytics(filters?: {
   }
 
   if (filters?.startDate) {
-    conditions.push(sql`${orders.createdAt} >= ${filters.startDate}`);
+    conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(filters.startDate)}`);
   }
 
   if (filters?.endDate) {
-    conditions.push(sql`${orders.createdAt} <= ${filters.endDate}`);
+    conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(filters.endDate)}`);
   }
 
   // Get all delivered orders with delivery time
@@ -4570,11 +4573,11 @@ export async function getFastestAndSlowestOrders(filters?: {
   ];
 
   if (filters?.startDate) {
-    conditions.push(sql`${orders.createdAt} >= ${filters.startDate}`);
+    conditions.push(sql`${orders.createdAt} >= ${sqlDatetime(filters.startDate)}`);
   }
 
   if (filters?.endDate) {
-    conditions.push(sql`${orders.createdAt} <= ${filters.endDate}`);
+    conditions.push(sql`${orders.createdAt} <= ${sqlDatetime(filters.endDate)}`);
   }
 
   const limit = filters?.limit || 10;
@@ -4647,8 +4650,8 @@ export async function getMonthlyBestTimes(year: number, month: number) {
     eq(orders.isDeleted, 0),
     isNotNull(orders.deliveryDuration),
     gt(orders.deliveryDuration, 0),
-    sql`${orders.createdAt} >= ${startDate}`,
-    sql`${orders.createdAt} <= ${endDate}`,
+    sql`${orders.createdAt} >= ${sqlDatetime(startDate)}`,
+    sql`${orders.createdAt} <= ${sqlDatetime(endDate)}`,
   ];
 
   // Get all delivered orders for the month
@@ -5167,7 +5170,7 @@ export async function softDeleteBranch(id: number) {
   
   const { branches } = await import("../drizzle/schema");
   await db.update(branches).set({ 
-    deletedAt: new Date().toISOString(),
+    deletedAt: getCurrentSqlDatetime(),
     isActive: 0 
   }).where(eq(branches.id, id));
 }
@@ -5207,7 +5210,7 @@ export async function permanentlyDeleteOldBranches() {
   await db.delete(branches)
     .where(and(
       sql`${branches.deletedAt} IS NOT NULL`,
-      sql`${branches.deletedAt} < ${thirtyDaysAgo.toISOString()}`
+      sql`${branches.deletedAt} < ${sqlDatetime(thirtyDaysAgo)}`
     ));
   
   return 1; // Success
@@ -5298,7 +5301,7 @@ export async function getDeliveryPersonWorkingDays(deliveryPersonId: number, sta
   // Get all days in range
   const allDays: string[] = [];
   for (let d = new Date(start); d <= endDateObj; d.setDate(d.getDate() + 1)) {
-    allDays.push(d.toISOString().split('T')[0]);
+    allDays.push(sqlDatetime(d).slice(0, 10));
   }
   
   // Find non-working days
@@ -5449,8 +5452,8 @@ export async function validateAndUseSubscriptionCode(code: string, branchId: num
   await db
     .update(branches)
     .set({
-      subscriptionEndDate: newEndDate.toISOString(),
-      updatedAt: new Date().toISOString(),
+      subscriptionEndDate: sqlDatetime(newEndDate),
+      updatedAt: getCurrentSqlDatetime(),
     })
     .where(eq(branches.id, branchId));
 
@@ -5460,13 +5463,13 @@ export async function validateAndUseSubscriptionCode(code: string, branchId: num
     .set({
       isUsed: 1,
       usedBy: branchId,
-      usedAt: new Date().toISOString(),
+      usedAt: getCurrentSqlDatetime(),
     })
     .where(eq(subscriptionCodes.id, subscriptionCode.id));
 
   return {
     success: true,
-    newEndDate: newEndDate.toISOString(),
+    newEndDate: sqlDatetime(newEndDate),
     daysAdded: subscriptionCode.durationDays,
   };
 }
@@ -5563,8 +5566,8 @@ export async function registerPharmacy(params: {
     address: params.address || '',
     phone: params.phone || '',
     isActive: 1,
-    subscriptionStartDate: new Date().toISOString(),
-    subscriptionEndDate: subscriptionEndDate.toISOString(),
+    subscriptionStartDate: getCurrentSqlDatetime(),
+    subscriptionEndDate: sqlDatetime(subscriptionEndDate),
   });
 
   const branchId = Number(branchResult.insertId);
@@ -5587,14 +5590,14 @@ export async function registerPharmacy(params: {
     .set({
       isUsed: 1,
       usedBy: branchId,
-      usedAt: new Date().toISOString(),
+      usedAt: getCurrentSqlDatetime(),
     })
     .where(eq(subscriptionCodes.id, subscriptionCode.id));
 
   return {
     success: true,
     branchId,
-    subscriptionEndDate: subscriptionEndDate.toISOString(),
+    subscriptionEndDate: sqlDatetime(subscriptionEndDate),
   };
 }
 
@@ -5705,19 +5708,19 @@ export async function activateSubscription(activationCode: string, branchId: num
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + (product[0].durationMonths || 1));
   
-  await db.update(storePurchases).set({ isActivated: 1, activatedAt: startDate.toISOString() })
+  await db.update(storePurchases).set({ isActivated: 1, activatedAt: sqlDatetime(startDate) })
     .where(eq(storePurchases.id, purchase[0].id));
   
   await db.insert(subscriptionActivations).values({
     branchId,
     productId: purchase[0].productId,
     purchaseId: purchase[0].id,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: sqlDatetime(startDate),
+    endDate: sqlDatetime(endDate),
     isActive: 1,
   });
   
-  return { success: true, endDate: endDate.toISOString() };
+  return { success: true, endDate: sqlDatetime(endDate) };
 }
 
 export async function getBranchPurchases(branchId: number) {
@@ -5733,7 +5736,7 @@ export async function getActiveSubscriptions(branchId: number) {
   return await db.select().from(subscriptionActivations)
     .where(and(
       eq(subscriptionActivations.branchId, branchId),
-      gt(subscriptionActivations.endDate, now.toISOString())
+      gt(subscriptionActivations.endDate, sqlDatetime(now))
     ))
     .orderBy(desc(subscriptionActivations.createdAt));
 }
@@ -5936,11 +5939,11 @@ export async function getNotificationStats(branchId: number, startDate?: string,
   const conditions = [eq(notificationLogs.branchId, branchId)];
   
   if (startDate) {
-    conditions.push(sql`${notificationLogs.createdAt} >= ${startDate}`);
+    conditions.push(sql`${notificationLogs.createdAt} >= ${sqlDatetime(startDate)}`);
   }
   
   if (endDate) {
-    conditions.push(sql`${notificationLogs.createdAt} <= ${endDate}`);
+    conditions.push(sql`${notificationLogs.createdAt} <= ${sqlDatetime(endDate)}`);
   }
   
   const logs = await db.select()
@@ -5995,7 +5998,7 @@ export async function getFCMToken(userId: number) {
   return user.length > 0 ? user[0].fcmToken : null;
 }
 
-export async function getAllFCMTokens(role?: string) {
+export async function getAllFCMTokens(role?: typeof users.$inferSelect.role) {
   const db = await getDb();
   if (!db) return [];
 
@@ -6014,44 +6017,59 @@ export async function getAllFCMTokens(role?: string) {
 
 // ===== Location Tracking =====
 
+// delivery_locations.createdAt uses timestamp mode 'string' → compare with 'YYYY-MM-DD HH:MM:SS'
+const toSqlDatetime = sqlDatetime;
+
 export async function saveDeliveryLocation(data: {
-  userId: number;
-  latitude: number;
-  longitude: number;
-  accuracy?: number;
-  altitude?: number;
-  heading?: number;
-  speed?: number;
-  createdAt?: Date;
+  branchId?: number;
+  deliveryPersonId: number;
+  deviceId?: string;
+  latitude: string;
+  longitude: string;
+  accuracy?: string;
+  speed?: string;
+  heading?: string;
+  battery?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database connection failed");
 
+  // branchId is required by the schema; fall back to the delivery person's branch
+  let branchId = data.branchId;
+  if (!branchId) {
+    const person = await db.select({ branchId: users.branchId })
+      .from(users)
+      .where(eq(users.id, data.deliveryPersonId))
+      .limit(1);
+    branchId = person[0]?.branchId ?? 1;
+  }
+
   const result = await db.insert(deliveryLocations).values({
-    userId: data.userId,
-    latitude: data.latitude.toString(),
-    longitude: data.longitude.toString(),
+    branchId,
+    deliveryPersonId: data.deliveryPersonId,
+    deviceId: data.deviceId,
+    latitude: data.latitude,
+    longitude: data.longitude,
     accuracy: data.accuracy,
-    altitude: data.altitude,
-    heading: data.heading,
     speed: data.speed,
-    createdAt: data.createdAt || new Date(),
+    heading: data.heading,
+    battery: data.battery,
   });
 
   return result;
 }
 
-export async function getDeliveryLocations(userId: number, limit: number = 50, withinMinutes: number = 60) {
+export async function getDeliveryLocations(deliveryPersonId: number, limit: number = 50, withinMinutes: number = 60) {
   const db = await getDb();
   if (!db) return [];
 
-  const timeCutoff = new Date(Date.now() - withinMinutes * 60 * 1000);
+  const timeCutoff = toSqlDatetime(new Date(Date.now() - withinMinutes * 60 * 1000));
 
   const locations = await db.select()
     .from(deliveryLocations)
     .where(
       and(
-        eq(deliveryLocations.userId, userId),
+        eq(deliveryLocations.deliveryPersonId, deliveryPersonId),
         gte(deliveryLocations.createdAt, timeCutoff)
       )
     )
@@ -6065,13 +6083,13 @@ export async function getDeliveryLocations(userId: number, limit: number = 50, w
   }));
 }
 
-export async function getCurrentDeliveryLocation(userId: number) {
+export async function getCurrentDeliveryLocation(deliveryPersonId: number) {
   const db = await getDb();
   if (!db) return null;
 
   const location = await db.select()
     .from(deliveryLocations)
-    .where(eq(deliveryLocations.userId, userId))
+    .where(eq(deliveryLocations.deliveryPersonId, deliveryPersonId))
     .orderBy(desc(deliveryLocations.createdAt))
     .limit(1);
 
@@ -6084,37 +6102,61 @@ export async function getCurrentDeliveryLocation(userId: number) {
   };
 }
 
-export async function getActiveDeliveryLocations(branchId: number, withinMinutes: number = 15) {
+export async function getActiveDeliveryLocations(branchId?: number, withinMinutes: number = 15) {
   const db = await getDb();
   if (!db) return [];
 
-  const timeCutoff = new Date(Date.now() - withinMinutes * 60 * 1000);
+  const timeCutoff = toSqlDatetime(new Date(Date.now() - withinMinutes * 60 * 1000));
 
-  // Get latest location for each active delivery person in branch
+  // Get latest location for each active delivery person (optionally scoped to a branch)
+  const conditions = [gte(deliveryLocations.createdAt, timeCutoff)];
+  if (branchId) {
+    conditions.push(eq(users.branchId, branchId));
+  }
+
   const locations = await db.select()
     .from(deliveryLocations)
-    .innerJoin(users, eq(deliveryLocations.userId, users.id))
-    .where(
-      and(
-        eq(users.branchId, branchId),
-        gte(deliveryLocations.createdAt, timeCutoff)
-      )
-    )
+    .innerJoin(users, eq(deliveryLocations.deliveryPersonId, users.id))
+    .where(and(...conditions))
     .orderBy(desc(deliveryLocations.createdAt));
 
-  // Group by user to get latest location
+  // Active (pending) orders per delivery person
+  const activeOrderRows = await db.select({
+    deliveryPersonId: orders.deliveryPersonId,
+    count: sql<number>`COUNT(*)`,
+  })
+    .from(orders)
+    .where(and(eq(orders.status, "pending"), eq(orders.isDeleted, 0)))
+    .groupBy(orders.deliveryPersonId);
+  const activeOrdersByPerson = new Map(activeOrderRows.map(r => [r.deliveryPersonId, Number(r.count)]));
+
+  // Group by delivery person to get latest location
+  const now = Date.now();
   const latestByUser = new Map();
   locations.forEach(({ delivery_locations, users: user }) => {
-    if (!latestByUser.has(delivery_locations.userId)) {
-      latestByUser.set(delivery_locations.userId, {
-        userId: delivery_locations.userId,
+    if (!latestByUser.has(delivery_locations.deliveryPersonId)) {
+      const updatedAtMs = new Date(delivery_locations.createdAt).getTime();
+      const ageSeconds = isNaN(updatedAtMs) ? Infinity : (now - updatedAtMs) / 1000;
+      const status = ageSeconds < 120 ? 'online' : ageSeconds < 900 ? 'recent' : 'offline';
+
+      latestByUser.set(delivery_locations.deliveryPersonId, {
+        userId: delivery_locations.deliveryPersonId,
+        deliveryPersonId: delivery_locations.deliveryPersonId,
+        name: user.name,
         userName: user.name,
-        latitude: parseFloat(delivery_locations.latitude),
-        longitude: parseFloat(delivery_locations.longitude),
+        deliveryPersonName: user.name,
+        profileImage: user.profileImage,
+        phone: user.phone,
+        latitude: delivery_locations.latitude,
+        longitude: delivery_locations.longitude,
         accuracy: delivery_locations.accuracy,
         heading: delivery_locations.heading,
         speed: delivery_locations.speed,
+        battery: delivery_locations.battery,
         updatedAt: delivery_locations.createdAt,
+        timestamp: delivery_locations.createdAt,
+        status,
+        activeOrders: activeOrdersByPerson.get(delivery_locations.deliveryPersonId) || 0,
       });
     }
   });
@@ -6127,19 +6169,22 @@ export async function getDeliveryRoute(orderId: string) {
   if (!db) return [];
 
   // Get delivery person for this order
-  const delivery = await db.select()
-    .from(deliveries)
-    .where(eq(deliveries.orderId, orderId))
+  const order = await db.select({ deliveryPersonId: orders.deliveryPersonId, acceptedAt: orders.acceptedAt })
+    .from(orders)
+    .where(eq(orders.id, parseInt(orderId, 10)))
     .limit(1);
 
-  if (delivery.length === 0) return [];
-
-  const userId = delivery[0].userId;
+  if (order.length === 0) return [];
 
   // Get all locations during delivery
+  const conditions = [eq(deliveryLocations.deliveryPersonId, order[0].deliveryPersonId)];
+  if (order[0].acceptedAt) {
+    conditions.push(gte(deliveryLocations.createdAt, order[0].acceptedAt));
+  }
+
   const locations = await db.select()
     .from(deliveryLocations)
-    .where(eq(deliveryLocations.userId, userId))
+    .where(and(...conditions))
     .orderBy(asc(deliveryLocations.createdAt));
 
   return locations.map(loc => ({

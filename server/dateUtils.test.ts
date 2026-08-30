@@ -33,8 +33,8 @@ describe('getCurrentTimeISOInIraq', () => {
     const isoTime = getCurrentTimeISOInIraq();
     const date = new Date(isoTime);
     
-    // Format using Iraq timezone
-    const iraqTime = date.toLocaleString('ar-IQ', {
+    // Format using Iraq timezone (nu-latn forces Latin digits regardless of system locale)
+    const iraqTime = date.toLocaleString('ar-IQ-u-nu-latn', {
       timeZone: 'Asia/Baghdad',
       hour12: false,
       year: 'numeric',
@@ -44,9 +44,10 @@ describe('getCurrentTimeISOInIraq', () => {
       minute: '2-digit',
       second: '2-digit'
     });
-    
-    // Should be a valid time string
-    expect(iraqTime).toMatch(/\d{4}\/\d{2}\/\d{2}/);
+
+    // Should be a valid date/time string with day, month, and year components
+    // (separators may include invisible RTL marks, so allow 1-2 non-digit chars)
+    expect(iraqTime).toMatch(/\d{2}\D{1,2}\d{2}\D{1,2}\d{4}|\d{4}\D{1,2}\d{2}\D{1,2}\d{2}/);
   });
 
   it('should display time 3 hours ahead of UTC when formatted for Iraq', () => {

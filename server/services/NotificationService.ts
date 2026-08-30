@@ -124,14 +124,14 @@ export class NotificationService {
 
       const messages = tokens.map((token) => ({
         notification: {
-          title: 'جونيا - Joniah',
+          title: 'Xenon',
           body: message,
         },
         data: {},
         token,
       }));
 
-      await admin.messaging().sendAll(messages as any);
+      await admin.messaging().sendEach(messages as any);
 
       console.log('[Notifications] Batch sent to', tokens.length, 'devices');
     } catch (error) {

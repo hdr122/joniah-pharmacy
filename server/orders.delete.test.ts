@@ -21,6 +21,7 @@ describe("Orders Delete System", () => {
 
     // Create a test order
     await db.createOrder({
+      branchId: 1,
       deliveryPersonId: adminUser.id,
       regionId: 1,
       provinceId: 1,
@@ -59,7 +60,7 @@ describe("Orders Delete System", () => {
     // Verify our test order is in deleted list
     const ourDeletedOrder = deletedOrders.find((o: any) => o.id === testOrderId);
     expect(ourDeletedOrder).toBeDefined();
-    expect(ourDeletedOrder?.isDeleted).toBe(true);
+    expect(ourDeletedOrder?.isDeleted).toBe(1);
     expect(ourDeletedOrder?.deletedBy).toBe(adminContext.user.id);
   });
 
@@ -74,7 +75,7 @@ describe("Orders Delete System", () => {
     const activeOrders = await db.getAllOrders();
     const restoredOrder = activeOrders.find((o: any) => o.id === testOrderId);
     expect(restoredOrder).toBeDefined();
-    expect(restoredOrder?.isDeleted).toBe(false);
+    expect(restoredOrder?.isDeleted ?? 0).toBe(0);
   });
 
   it("should exclude deleted orders from statistics", async () => {

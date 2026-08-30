@@ -164,7 +164,7 @@ export default function EditOrderDialog({ order, open, onClose, onOpenChange, on
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleCloseDialog(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
             تعديل الطلب #{order.id}
           </DialogTitle>
           <DialogDescription>
@@ -285,7 +285,7 @@ export default function EditOrderDialog({ order, open, onClose, onOpenChange, on
                                 className="w-6 h-6 rounded-full object-cover"
                               />
                             ) : (
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center">
                                 <User className="w-3 h-3 text-white" />
                               </div>
                             )}
@@ -401,7 +401,7 @@ export default function EditOrderDialog({ order, open, onClose, onOpenChange, on
             <Button
               type="submit"
               disabled={updateOrderMutation.isPending}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
+              className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white"
             >
               {updateOrderMutation.isPending ? (
                 <>

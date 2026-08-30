@@ -1,5 +1,8 @@
-import { BackgroundGeolocation } from '@capacitor-community/background-geolocation';
+import { registerPlugin } from '@capacitor/core';
+import type { BackgroundGeolocationPlugin } from '@capacitor-community/background-geolocation';
 import { Geolocation } from '@capacitor/geolocation';
+
+const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 
 export interface LocationData {
   latitude: number;
@@ -14,6 +17,7 @@ export interface LocationData {
 
 class BackgroundGeolocationService {
   private isTracking = false;
+  private watcherId: string | null = null;
   private locationUpdateCallback: ((location: LocationData) => void) | null = null;
   private sendLocationInterval: NodeJS.Timeout | null = null;
 
@@ -29,18 +33,33 @@ class BackgroundGeolocationService {
 
       this.locationUpdateCallback = onLocationUpdate || null;
 
-      // Start background geolocation
-      await BackgroundGeolocation.start();
-
-      // Listen for location updates
-      BackgroundGeolocation.onLocation((location) => {
-        this.handleLocationUpdate(location);
-      });
-
-      // Listen for errors
-      BackgroundGeolocation.onError((error) => {
-        console.error('[BackgroundGeo] Error:', error);
-      });
+      // Start background geolocation watcher
+      this.watcherId = await BackgroundGeolocation.addWatcher(
+        {
+          backgroundMessage: 'يتم تتبع موقعك لتوصيل الطلبات',
+          backgroundTitle: 'Xenon - تتبع الموقع',
+          requestPermissions: true,
+          stale: false,
+          distanceFilter: 10,
+        },
+        (location, error) => {
+          if (error) {
+            console.error('[BackgroundGeo] Error:', error);
+            return;
+          }
+          if (location) {
+            this.handleLocationUpdate({
+              latitude: location.latitude,
+              longitude: location.longitude,
+              accuracy: location.accuracy,
+              altitude: location.altitude ?? undefined,
+              heading: location.bearing ?? undefined,
+              speed: location.speed ?? undefined,
+              time: location.time ?? Date.now(),
+            });
+          }
+        }
+      );
 
       // Also get real-time location updates for foreground
       this.startForegroundTracking();
@@ -61,7 +80,10 @@ class BackgroundGeolocationService {
         return;
       }
 
-      await BackgroundGeolocation.stop();
+      if (this.watcherId) {
+        await BackgroundGeolocation.removeWatcher({ id: this.watcherId });
+        this.watcherId = null;
+      }
       this.isTracking = false;
 
       if (this.sendLocationInterval) {

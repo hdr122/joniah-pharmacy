@@ -1,14 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.joniah.pharmacy.delivery',
-  appName: 'جونيا للتوصيل',
+  appId: 'com.xenon.delivery',
+  appName: 'Xenon Delivery',
   webDir: 'dist/public',
   bundledWebRuntime: false,
 
   server: {
     androidScheme: 'https',
-    url: process.env.VITE_API_URL || 'https://joniah-pharmacy-production-1fbf.up.railway.app',
+    url: process.env.VITE_API_URL || 'https://xenondelivery.up.railway.app',
     cleartext: process.env.NODE_ENV === 'development',
     errorPath: '/offline.html',
   },
@@ -43,10 +43,10 @@ const config: CapacitorConfig = {
       preventSuspend: true,
 
       // Notification configuration
-      notificationTitle: 'Joniah Delivery Tracking',
+      notificationTitle: 'Xenon Delivery Tracking',
       notificationText: 'جاري تتبع موقعك - Sharing your location',
-      notificationColor: '#FF6B35',
-      notificationIconColor: '#FF6B35',
+      notificationColor: '#7c3aed',
+      notificationIconColor: '#7c3aed',
       notificationIconLarge: 'ic_launcher',
       notificationIconSmall: 'ic_launcher',
     },
@@ -54,7 +54,7 @@ const config: CapacitorConfig = {
     // Local Notifications
     LocalNotifications: {
       smallIcon: 'ic_stat_icon',
-      iconColor: '#FF6B35',
+      iconColor: '#7c3aed',
       permissions: ['android.permission.POST_NOTIFICATIONS'],
     },
 
@@ -62,7 +62,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: '#FF6B35',
+      backgroundColor: '#7c3aed',
       androidSplashResourceName: 'splash',
       showSpinner: true,
       spinnerColor: '#ffffff',

@@ -492,7 +492,7 @@ export default function DeliveryDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -515,21 +515,28 @@ export default function DeliveryDashboard() {
         <EnableNotificationsModal userId={user.id} branchId={user.branchId} />
       )}
       
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4 lg:p-8" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-[#120b26] dark:to-[#1c1136] p-4 lg:p-8" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header - تصميم جديد */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl shadow-lg p-6 text-white">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">مرحباً {user?.name} 👋</h1>
-              <p className="text-emerald-100 mt-2">لوحة تحكم المندوب</p>
+        {/* Header - هوية Xenon */}
+        <div className="relative overflow-hidden bg-[#170f2e] rounded-2xl shadow-lg p-6 text-white ring-1 ring-white/10">
+          <div className="pointer-events-none absolute -top-16 left-1/4 h-48 w-48 rounded-full bg-fuchsia-600/25 blur-[80px]" />
+          <div className="pointer-events-none absolute -bottom-16 right-1/4 h-48 w-48 rounded-full bg-violet-600/25 blur-[80px]" />
+          <div className="relative flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <img src="/xenon-logo.svg" alt="Xenon" className="w-14 h-14 xenon-logo-glow" />
+              <div>
+                <h1 className="text-3xl font-bold">مرحباً {user?.name} 👋</h1>
+                <p className="text-violet-200/70 mt-1">
+                  لوحة المندوب — <span className="xenon-gradient-text font-bold">Xenon</span>
+                </p>
+              </div>
             </div>
             <div className="flex gap-3 flex-wrap">
               <ThemeToggle />
               <Button
                 variant={locationTracking ? "secondary" : "outline"}
                 className={locationTracking 
-                  ? "bg-white text-emerald-600 hover:bg-emerald-50" 
+                  ? "bg-white text-violet-600 hover:bg-violet-50" 
                   : "border-white text-white hover:bg-white/10"
                 }
                 onClick={toggleLocationTracking}
@@ -574,7 +581,7 @@ export default function DeliveryDashboard() {
                           <div className="flex items-center justify-between w-full">
                             <span className="font-semibold text-sm">{notif.title}</span>
                             {!notif.isRead && (
-                              <Badge className="bg-emerald-500 text-white text-xs px-1.5 py-0.5">جديد</Badge>
+                              <Badge className="bg-violet-500 text-white text-xs px-1.5 py-0.5">جديد</Badge>
                             )}
                           </div>
                           <span className="text-xs text-muted-foreground">{notif.message}</span>
@@ -582,7 +589,7 @@ export default function DeliveryDashboard() {
                       ))}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="text-center text-emerald-600 font-medium cursor-pointer"
+                        className="text-center text-violet-600 font-medium cursor-pointer"
                         onClick={() => setLocation("/delivery/notifications")}
                       >
                         عرض جميع الإشعارات
@@ -625,59 +632,36 @@ export default function DeliveryDashboard() {
           </div>
         </div>
 
-        {/* Statistics - تصميم جديد */}
+        {/* Statistics - هوية Xenon */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                إجمالي الطلبات
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-yellow-500 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                قيد التنفيذ
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                تم التسليم اليوم
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-green-600">{stats.delivered}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                تسليمات الشهر
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-emerald-600">{stats.monthlyDelivered || 0}</p>
-            </CardContent>
-          </Card>
+          {[
+            { label: "إجمالي الطلبات", value: stats.total, Icon: Package, chip: "bg-violet-500/15 text-violet-500 dark:text-violet-300" },
+            { label: "قيد التنفيذ", value: stats.pending, Icon: Clock, chip: "bg-amber-500/15 text-amber-600 dark:text-amber-300" },
+            { label: "تم التسليم اليوم", value: stats.delivered, Icon: CheckCircle, chip: "bg-green-500/15 text-green-600 dark:text-green-300" },
+            { label: "تسليمات الشهر", value: stats.monthlyDelivered || 0, Icon: Package, chip: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-300" },
+          ].map(({ label, value, Icon, chip }) => (
+            <Card
+              key={label}
+              className="group relative overflow-hidden border-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-fuchsia-400/40"
+            >
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${chip}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-3xl font-extrabold tabular-nums text-foreground">{value}</p>
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Orders List - تصميم جديد */}
         <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-gray-800 dark:to-gray-700">
+          <CardHeader className="bg-accent/50 dark:from-gray-800 dark:to-gray-700">
             <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-emerald-600" />
+              <Package className="w-5 h-5 text-violet-600" />
               طلباتي
             </CardTitle>
             <CardDescription>جميع الطلبات المعينة لك</CardDescription>
@@ -703,7 +687,7 @@ export default function DeliveryDashboard() {
                   return (
                     <div
                       key={order.id}
-                      className="p-5 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 hover:shadow-xl transition-all duration-200"
+                      className="p-5 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-xl transition-all duration-200"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -714,7 +698,7 @@ export default function DeliveryDashboard() {
                           <div className="space-y-2 text-sm">
                             {/* المنطقة - تظهر دائماً */}
                             <div className="flex items-center gap-2 text-muted-foreground">
-                              <MapPin className="w-4 h-4 text-emerald-600" />
+                              <MapPin className="w-4 h-4 text-violet-600" />
                               <span className="font-medium">{order.regionName} - {order.provinceName}</span>
                             </div>
                             
@@ -776,7 +760,7 @@ export default function DeliveryDashboard() {
                           </div>
                         </div>
                         <div className="text-left">
-                          <p className="text-2xl font-bold text-emerald-600">
+                          <p className="text-2xl font-bold text-violet-600">
                             {order.price.toLocaleString('en-US')} د.ع
                           </p>
                         </div>
@@ -896,8 +880,8 @@ export default function DeliveryDashboard() {
                           )}
                           
                           {order.customerLastDeliveryLocation && (
-                            <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg">
-                              <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">آخر تسليم:</span>
+                            <div className="flex items-center gap-2 p-2 bg-violet-50 dark:bg-violet-950/30 rounded-lg">
+                              <span className="text-sm text-violet-700 dark:text-violet-300 font-medium">آخر تسليم:</span>
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -935,7 +919,7 @@ export default function DeliveryDashboard() {
                         {order.status === "pending_approval" && (
                           <>
                             <Button
-                              className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg"
+                              className="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 shadow-lg"
                               onClick={() => {
                                 acceptOrderMutation.mutate({ orderId: order.id });
                               }}
@@ -968,7 +952,7 @@ export default function DeliveryDashboard() {
                         {order.status === "pending" && (
                           <>
                             <Button
-                              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                              className="flex-1 bg-gradient-to-r from-green-600 to-violet-600 hover:from-green-700 hover:to-violet-700 shadow-lg"
                               onClick={() => {
                                 setSelectedOrder(order);
                                 setDialogType("deliver");
@@ -1048,7 +1032,7 @@ export default function DeliveryDashboard() {
                       setImageFile(e.target.files[0]);
                     }
                   }}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                  className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-100 file:text-violet-700 hover:file:bg-violet-200 dark:file:bg-violet-500/20 dark:file:text-violet-200"
                 />
               </div>
             </div>
@@ -1063,7 +1047,7 @@ export default function DeliveryDashboard() {
             </div>
             <div className="flex gap-2">
               <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-violet-600 hover:bg-violet-700"
                 onClick={handleDeliver}
                 disabled={uploading || deliverMutation.isPending}
               >
@@ -1205,7 +1189,7 @@ export default function DeliveryDashboard() {
             />
             <div className="flex gap-2">
               <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-violet-600 hover:bg-violet-700"
                 onClick={() => {
                   if (!adminNote.trim()) {
                     toast.error("الرجاء إدخال الملاحظة");

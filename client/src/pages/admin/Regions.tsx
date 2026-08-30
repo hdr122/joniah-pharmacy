@@ -94,7 +94,7 @@ export default function Regions() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function Regions() {
         </div>
         <Button
           onClick={() => setIsAddDialogOpen(true)}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600"
+          className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
         >
           <Plus className="w-4 h-4 ml-2" />
           إضافة منطقة جديدة
@@ -137,7 +137,7 @@ export default function Regions() {
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-emerald-600" />
+                        <MapPin className="w-4 h-4 text-violet-600" />
                         <span className="font-medium">{region.name}</span>
                       </div>
                     </TableCell>
@@ -205,7 +205,7 @@ export default function Regions() {
             </div>
             <div className="flex gap-3">
               <Button
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                className="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600"
                 onClick={handleAdd}
                 disabled={createMutation.isPending}
               >

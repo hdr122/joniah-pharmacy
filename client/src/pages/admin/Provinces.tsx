@@ -122,7 +122,7 @@ export default function Provinces() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -136,7 +136,7 @@ export default function Provinces() {
         </div>
         <Button
           onClick={() => setIsAddDialogOpen(true)}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600"
+          className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
         >
           <Plus className="w-4 h-4 ml-2" />
           إضافة محافظة جديدة
@@ -166,12 +166,12 @@ export default function Provinces() {
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-emerald-600" />
+                        <Globe className="w-4 h-4 text-violet-600" />
                         <span className="font-medium">{province.name}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">
+                      <span className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">
                         {getRegionName(province.regionId)}
                       </span>
                     </TableCell>
@@ -254,7 +254,7 @@ export default function Provinces() {
             </div>
             <div className="flex gap-3">
               <Button
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                className="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600"
                 onClick={handleAdd}
                 disabled={createMutation.isPending}
               >

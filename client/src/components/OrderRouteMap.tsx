@@ -185,7 +185,7 @@ export default function OrderRouteMap({ orderId, locations: initialLocations, st
     return (
       <div className="h-[500px] bg-muted rounded-lg flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
           <p className="text-muted-foreground">جاري تحميل بيانات المسار...</p>
         </div>
       </div>
@@ -208,7 +208,7 @@ export default function OrderRouteMap({ orderId, locations: initialLocations, st
     <div className="h-[500px] rounded-lg overflow-hidden relative">
       {!mapReady && (
         <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
         </div>
       )}
       <MapView

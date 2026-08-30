@@ -83,7 +83,7 @@ export async function startBackgroundTracking(
       const id = await BackgroundGeolocation.addWatcher(
         {
           backgroundMessage: "جاري تتبع موقعك لتحديث الإدارة",
-          backgroundTitle: "جونيا للتوصيل",
+          backgroundTitle: "Xenon للتوصيل",
           requestPermissions: true,
           stale: false,
           distanceFilter: 10, // Update every 10 meters
@@ -242,7 +242,7 @@ export async function requestLocationPermissions(): Promise<boolean> {
       const id = await BackgroundGeolocation.addWatcher(
         {
           backgroundMessage: "جاري تتبع موقعك",
-          backgroundTitle: "جونيا للتوصيل",
+          backgroundTitle: "Xenon للتوصيل",
           requestPermissions: true,
           stale: true,
         },

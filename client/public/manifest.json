@@ -1,7 +1,7 @@
 {
-  "name": "صيدلية جونيا - نظام إدارة الطلبات",
-  "short_name": "صيدلية جونيا",
-  "description": "نظام إدارة طلبات صيدلية جونيا مع تتبع المندوبين والإشعارات الفورية",
+  "name": "Xenon — نظام المندوبين",
+  "short_name": "Xenon",
+  "description": "نظام مندوبين شركة Xenon — إدارة الطلبات وتتبع المندوبين",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

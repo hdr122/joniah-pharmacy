@@ -159,7 +159,7 @@ export default function DeliveryMap() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -187,9 +187,9 @@ export default function DeliveryMap() {
           <p className="text-muted-foreground mt-2">عرض مواقع المندوبين في الوقت الفعلي</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-emerald-600 dark:text-emerald-400">تحديث تلقائي</span>
+          <div className="flex items-center gap-2 px-3 py-2 bg-violet-500/10 rounded-lg border border-violet-500/20">
+            <div className="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-violet-600 dark:text-violet-400">تحديث تلقائي</span>
           </div>
           <Button
             onClick={handleManualRefresh}
@@ -205,14 +205,14 @@ export default function DeliveryMap() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-r-4 border-r-emerald-500">
+        <Card className="border-r-4 border-r-violet-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">مندوبون بموقع نشط</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
+                <MapPin className="w-6 h-6 text-violet-600 dark:text-violet-400" />
               </div>
               <div className="text-3xl font-bold text-foreground">{withLocationCount}</div>
             </div>
@@ -292,8 +292,8 @@ export default function DeliveryMap() {
                   className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                      <User className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                    <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
+                      <User className="w-6 h-6 text-violet-600 dark:text-violet-400" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">{person.deliveryPersonName}</h3>
@@ -314,7 +314,7 @@ export default function DeliveryMap() {
                       {person.activeOrders} طلبات نشطة
                     </Badge>
                     {person.latitude && person.longitude && (
-                      <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                      <Badge variant="outline" className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20">
                         متصل
                       </Badge>
                     )}

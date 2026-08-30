@@ -1,13 +1,61 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, Pill, LogOut } from "lucide-react";
+import { Loader2, LogOut, User, Lock } from "lucide-react";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
+
+/** Shared dark cosmic backdrop for all login states */
+function XenonScene({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="relative min-h-screen overflow-hidden bg-[#120b26] flex items-center justify-center px-4 py-10"
+      dir="rtl"
+    >
+      {/* Ambient glows */}
+      <div className="pointer-events-none absolute -top-32 right-1/4 h-96 w-96 rounded-full bg-violet-600/25 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-fuchsia-600/20 blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/3 left-0 h-64 w-64 rounded-full bg-amber-500/10 blur-[100px]" />
+      {/* Subtle star field */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            "radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.5) 50%, transparent 51%), radial-gradient(1px 1px at 70% 15%, rgba(255,255,255,.35) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,255,255,.4) 50%, transparent 51%), radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.3) 50%, transparent 51%), radial-gradient(1px 1px at 10% 65%, rgba(255,255,255,.35) 50%, transparent 51%)",
+        }}
+      />
+      <div className="relative z-10 w-full max-w-md">{children}</div>
+    </div>
+  );
+}
+
+function XenonBrand() {
+  return (
+    <div className="text-center mb-8">
+      <img
+        src="/xenon-logo.svg"
+        alt="Xenon"
+        className="mx-auto w-24 h-24 xenon-logo-glow animate-[pulse_4s_ease-in-out_infinite]"
+      />
+      <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">
+        <span className="xenon-gradient-text">Xenon</span>
+      </h1>
+      <p className="mt-2 text-sm text-violet-200/70">نظام مندوبين شركة Xenon</p>
+    </div>
+  );
+}
+
+/** Glass panel */
+function GlassCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-xl shadow-[0_20px_60px_-20px_rgba(124,58,237,0.5)] p-8">
+      {children}
+    </div>
+  );
+}
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -21,11 +69,8 @@ export default function Login() {
     onSuccess: async (data) => {
       toast.success("تم تسجيل الدخول بنجاح");
       setIsRedirecting(true);
-      // Invalidate auth query to refetch user data
       await utils.auth.me.invalidate();
-      // Small delay to ensure session is properly set
-      await new Promise(resolve => setTimeout(resolve, 500));
-      // Redirect based on role
+      await new Promise((resolve) => setTimeout(resolve, 500));
       if (data.user.role === "admin") {
         window.location.href = "/admin";
       } else {
@@ -49,122 +94,85 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!username || !password) {
       toast.error("الرجاء إدخال اسم المستخدم وكلمة المرور");
       return;
     }
-
     loginMutation.mutate({ username, password });
   };
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
-
-  // Show loading state during redirect or initial auth check
   if (loading || isRedirecting || loginMutation.isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50" dir="rtl">
+      <XenonScene>
         <div className="text-center">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg mb-6">
-            <Pill className="w-10 h-10 text-white" />
-          </div>
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-gray-600">جاري التحميل...</p>
+          <img
+            src="/xenon-logo.svg"
+            alt="Xenon"
+            className="mx-auto w-24 h-24 xenon-logo-glow animate-[pulse_1.6s_ease-in-out_infinite]"
+          />
+          <p className="mt-6 text-violet-200/80">جاري التحميل...</p>
         </div>
-      </div>
+      </XenonScene>
     );
   }
 
-  // If user is already logged in (OAuth), show logout prompt
   if (isAuthenticated && user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50" dir="rtl">
-        <Card className="w-full max-w-md mx-4 shadow-2xl border-emerald-100">
-          <CardHeader className="space-y-4 text-center pb-8">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Pill className="w-10 h-10 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                صيدلية جونيا
-              </CardTitle>
-              <CardDescription className="text-base mt-2 text-gray-600">
-                أنت مسجل دخول بالفعل
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
-              <p className="text-gray-700 mb-1">مرحباً،</p>
-              <p className="text-emerald-700 font-bold text-lg">{user.name || user.username}</p>
-              {isOwner && (
-                <p className="text-sm text-gray-500 mt-1">مالك النظام</p>
+      <XenonScene>
+        <XenonBrand />
+        <GlassCard>
+          <div className="rounded-xl border border-violet-400/20 bg-violet-500/10 p-4 text-center">
+            <p className="text-violet-200/80 mb-1">مرحباً،</p>
+            <p className="text-white font-bold text-lg">{user.name || user.username}</p>
+            {isOwner && <p className="text-sm text-violet-300/70 mt-1">مالك النظام</p>}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            <Button
+              onClick={() => setLocation(user.role === "admin" ? "/admin" : "/delivery")}
+              className="w-full h-12 xenon-gradient-bg text-white font-semibold shadow-lg hover:opacity-90 transition-opacity"
+            >
+              الذهاب إلى لوحة التحكم
+            </Button>
+
+            <Button
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              variant="outline"
+              className="w-full h-12 border-white/15 bg-transparent text-violet-100 hover:bg-white/5 hover:text-white font-semibold"
+            >
+              {logoutMutation.isPending ? (
+                <>
+                  <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                  جاري تسجيل الخروج...
+                </>
+              ) : (
+                <>
+                  <LogOut className="ml-2 h-5 w-5" />
+                  تسجيل الخروج والدخول بحساب آخر
+                </>
               )}
-            </div>
-            
-            <div className="space-y-3">
-              <Button
-                onClick={() => setLocation(user.role === "admin" ? "/admin" : "/delivery")}
-                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                الذهاب إلى لوحة التحكم
-              </Button>
-              
-              <Button
-                onClick={handleLogout}
-                disabled={logoutMutation.isPending}
-                variant="outline"
-                className="w-full h-12 border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold transition-all duration-200"
-              >
-                {logoutMutation.isPending ? (
-                  <>
-                    <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                    جاري تسجيل الخروج...
-                  </>
-                ) : (
-                  <>
-                    <LogOut className="ml-2 h-5 w-5" />
-                    تسجيل الخروج والدخول بحساب آخر
-                  </>
-                )}
-              </Button>
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-center text-sm text-gray-500">
-                جميع الحقوق محفوظة © {new Date().getFullYear()} HarthHDR
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </Button>
+          </div>
+        </GlassCard>
+        <p className="mt-6 text-center text-xs text-violet-300/50">
+          جميع الحقوق محفوظة © {new Date().getFullYear()} Xenon
+        </p>
+      </XenonScene>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50" dir="rtl">
-      <Card className="w-full max-w-md mx-4 shadow-2xl border-emerald-100">
-        <CardHeader className="space-y-4 text-center pb-8">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Pill className="w-10 h-10 text-white" />
-          </div>
-          <div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              صيدلية جونيا
-            </CardTitle>
-            <CardDescription className="text-base mt-2 text-gray-600">
-              نظام إدارة الطلبات والتوصيل
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-gray-700 font-medium">
-                اسم المستخدم
-              </Label>
+    <XenonScene>
+      <XenonBrand />
+      <GlassCard>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="username" className="text-violet-100 font-medium">
+              اسم المستخدم
+            </Label>
+            <div className="relative">
+              <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-300/50" />
               <Input
                 id="username"
                 type="text"
@@ -172,14 +180,17 @@ export default function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="أدخل اسم المستخدم"
                 disabled={loginMutation.isPending}
-                className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                className="h-12 pr-10 border-white/10 bg-white/[0.06] text-white placeholder:text-violet-300/40 focus-visible:border-fuchsia-400/60 focus-visible:ring-fuchsia-400/30"
                 autoComplete="username"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 font-medium">
-                كلمة المرور
-              </Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-violet-100 font-medium">
+              كلمة المرور
+            </Label>
+            <div className="relative">
+              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-300/50" />
               <Input
                 id="password"
                 type="password"
@@ -187,42 +198,40 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور"
                 disabled={loginMutation.isPending}
-                className="h-11 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                className="h-12 pr-10 border-white/10 bg-white/[0.06] text-white placeholder:text-violet-300/40 focus-visible:border-fuchsia-400/60 focus-visible:ring-fuchsia-400/30"
                 autoComplete="current-password"
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? (
-                <>
-                  <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                  جاري تسجيل الدخول...
-                </>
-              ) : (
-                "تسجيل الدخول"
-              )}
-            </Button>
-          </form>
-          
-          <div className="mt-8 pt-6 border-t border-gray-200 space-y-3">
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => setLocation("/privacy-policy")}
-                className="text-xs text-gray-500 hover:text-emerald-600 underline transition-colors"
-              >
-                سياسة الخصوصية / Privacy Policy
-              </button>
-            </div>
-            <p className="text-center text-sm text-gray-500">
-              جميع الحقوق محفوظة © {new Date().getFullYear()} HarthHDR
-            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <Button
+            type="submit"
+            className="w-full h-12 xenon-gradient-bg text-white font-semibold shadow-[0_10px_30px_-10px_rgba(219,39,119,0.6)] hover:opacity-90 transition-opacity"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? (
+              <>
+                <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                جاري تسجيل الدخول...
+              </>
+            ) : (
+              "تسجيل الدخول"
+            )}
+          </Button>
+        </form>
+      </GlassCard>
+
+      <div className="mt-6 space-y-2 text-center">
+        <button
+          type="button"
+          onClick={() => setLocation("/privacy-policy")}
+          className="text-xs text-violet-300/60 hover:text-fuchsia-300 underline underline-offset-4 transition-colors"
+        >
+          سياسة الخصوصية / Privacy Policy
+        </button>
+        <p className="text-xs text-violet-300/50">
+          جميع الحقوق محفوظة © {new Date().getFullYear()} Xenon
+        </p>
+      </div>
+    </XenonScene>
   );
 }

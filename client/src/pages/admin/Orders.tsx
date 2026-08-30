@@ -250,7 +250,7 @@ export default function Orders() {
     const hours = Math.floor(Math.abs(durationMinutes) / 60);
     const minutes = Math.abs(durationMinutes) % 60;
     
-    let colorClass = "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+    let colorClass = "bg-gradient-to-r from-green-500 to-violet-500 text-white";
     let icon = "✓";
     
     if (durationMinutes > 240) {
@@ -294,7 +294,7 @@ export default function Orders() {
       },
       delivered: { 
         label: "تم التسليم", 
-        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
+        className: "bg-gradient-to-r from-green-500 to-violet-500 text-white",
         icon: <CheckCircle className="w-3 h-3" />
       },
       postponed: { 
@@ -355,21 +355,21 @@ export default function Orders() {
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 rounded-2xl shadow-2xl p-8 text-white">
+      <div className="bg-gradient-to-r from-violet-500 via-green-500 to-fuchsia-500 rounded-2xl shadow-2xl p-8 text-white">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">
               <Package className="w-10 h-10" />
               إدارة الطلبات
             </h1>
-            <p className="text-emerald-50 text-lg">
+            <p className="text-violet-50 text-lg">
               إدارة شاملة لجميع الطلبات مع فلاتر متقدمة وتصدير البيانات
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Button
               onClick={() => setSimpleOrderFormOpen(true)}
-              className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg font-bold px-6 py-6 text-lg"
+              className="bg-white text-violet-600 hover:bg-violet-50 shadow-lg font-bold px-6 py-6 text-lg"
               size="lg"
             >
               <Zap className="w-5 h-5 ml-2" />
@@ -388,11 +388,11 @@ export default function Orders() {
       </div>
 
       {/* Filters Card with gradient border */}
-      <Card className="shadow-xl border-2 border-transparent bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950">
+      <Card className="shadow-xl border-2 border-transparent bg-accent/50 dark:from-violet-950 dark:to-fuchsia-950">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              <Filter className="w-6 h-6 text-emerald-600" />
+            <CardTitle className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              <Filter className="w-6 h-6 text-violet-600" />
               الفلاتر والبحث
             </CardTitle>
             {activeFiltersCount > 0 && (
@@ -413,7 +413,7 @@ export default function Orders() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-semibold flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-emerald-600" />
+                <Calendar className="w-4 h-4 text-violet-600" />
                 فلتر التاريخ
               </Label>
               <DateFilterDropdown
@@ -424,7 +424,7 @@ export default function Orders() {
             
             <div className="space-y-2">
               <Label className="text-sm font-semibold flex items-center gap-2">
-                <Download className="w-4 h-4 text-emerald-600" />
+                <Download className="w-4 h-4 text-violet-600" />
                 تصدير البيانات
               </Label>
               <Button
@@ -439,13 +439,13 @@ export default function Orders() {
 
             <div className="space-y-2">
               <Label className="text-sm font-semibold flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-emerald-600" />
+                <RefreshCw className="w-4 h-4 text-violet-600" />
                 تحديث البيانات
               </Label>
               <Button
                 onClick={() => utils.orders.list.invalidate()}
                 variant="outline"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 border-0 shadow-md"
+                className="w-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 border-0 shadow-md"
               >
                 <RefreshCw className="w-4 h-4 ml-2" />
                 تحديث
@@ -456,7 +456,7 @@ export default function Orders() {
           {/* Second row: Phone search */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold flex items-center gap-2">
-              <Phone className="w-4 h-4 text-emerald-600" />
+              <Phone className="w-4 h-4 text-violet-600" />
               البحث برقم الهاتف
             </Label>
             <div className="relative">
@@ -466,7 +466,7 @@ export default function Orders() {
                 placeholder="ابحث برقم هاتف الزبون..."
                 value={phoneSearch}
                 onChange={(e) => setPhoneSearch(e.target.value)}
-                className="pr-10 py-6 text-lg border-2 border-emerald-200 focus:border-emerald-500"
+                className="pr-10 py-6 text-lg border-2 border-violet-200 focus:border-violet-500"
               />
             </div>
           </div>
@@ -476,13 +476,13 @@ export default function Orders() {
             <Button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
               variant="ghost"
-              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-semibold"
+              className="text-violet-600 hover:text-violet-700 hover:bg-violet-50 font-semibold"
             >
               <Filter className="w-4 h-4 ml-2" />
               {showAdvancedFilters ? "إخفاء الفلاتر المتقدمة" : "عرض الفلاتر المتقدمة"}
             </Button>
             {activeFiltersCount > 0 && (
-              <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
+              <Badge className="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white px-3 py-1">
                 {activeFiltersCount} فلتر نشط
               </Badge>
             )}
@@ -493,11 +493,11 @@ export default function Orders() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t bg-white dark:bg-gray-900 rounded-lg p-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4 text-emerald-600" />
+                  <User className="w-4 h-4 text-violet-600" />
                   المندوب
                 </Label>
                 <Select value={selectedDeliveryPerson} onValueChange={setSelectedDeliveryPerson}>
-                  <SelectTrigger className="border-2 border-emerald-200 focus:border-emerald-500">
+                  <SelectTrigger className="border-2 border-violet-200 focus:border-violet-500">
                     <SelectValue placeholder="اختر المندوب" />
                   </SelectTrigger>
                   <SelectContent>
@@ -513,11 +513,11 @@ export default function Orders() {
 
               <div className="space-y-2">
                 <Label className="text-sm font-semibold flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <MapPin className="w-4 h-4 text-violet-600" />
                   المنطقة
                 </Label>
                 <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                  <SelectTrigger className="border-2 border-emerald-200 focus:border-emerald-500">
+                  <SelectTrigger className="border-2 border-violet-200 focus:border-violet-500">
                     <SelectValue placeholder="اختر المنطقة" />
                   </SelectTrigger>
                   <SelectContent>
@@ -533,7 +533,7 @@ export default function Orders() {
 
               <div className="space-y-2">
                 <Label className="text-sm font-semibold flex items-center gap-2">
-                  <Package className="w-4 h-4 text-emerald-600" />
+                  <Package className="w-4 h-4 text-violet-600" />
                   الحالة
                 </Label>
                 <Select 
@@ -546,7 +546,7 @@ export default function Orders() {
                     }
                   }}
                 >
-                  <SelectTrigger className="border-2 border-emerald-200 focus:border-emerald-500">
+                  <SelectTrigger className="border-2 border-violet-200 focus:border-violet-500">
                     <SelectValue placeholder="اختر الحالة" />
                   </SelectTrigger>
                   <SelectContent>
@@ -569,11 +569,11 @@ export default function Orders() {
       <Card className="shadow-xl">
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 p-4 border-b">
+            <div className="bg-accent/50 dark:from-gray-900 dark:to-slate-900 p-4 border-b">
               <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-2 bg-transparent">
                 <TabsTrigger 
                   value="all" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-fuchsia-500 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold"
                 >
                   الكل ({filteredOrders.length})
                 </TabsTrigger>
@@ -591,7 +591,7 @@ export default function Orders() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="delivered"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-violet-500 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold"
                 >
                   مسلمة ({filteredOrders.filter((o: any) => o.status === 'delivered').length})
                 </TabsTrigger>
@@ -628,7 +628,7 @@ export default function Orders() {
                   <div className="overflow-x-auto rounded-xl border-2 border-gray-200 dark:border-gray-800 shadow-lg">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950">
+                        <TableRow className="bg-accent/50 dark:from-violet-950 dark:to-fuchsia-950">
                           <TableHead className="font-bold text-center">المندوب</TableHead>
                           <TableHead className="font-bold text-center hidden md:table-cell">رقم الهاتف</TableHead>
                           <TableHead className="font-bold text-center hidden md:table-cell">المنطقة</TableHead>
@@ -644,17 +644,17 @@ export default function Orders() {
                       <TableBody>
                         {displayedOrders.map((order: any) => {
                           return (
-                            <TableRow key={order.id} className="hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors">
+                            <TableRow key={order.id} className="hover:bg-violet-50/50 dark:hover:bg-violet-950/20 transition-colors">
                               <TableCell className="text-center">
                                 <div className="flex items-center gap-2 justify-center">
                                   {order.deliveryPersonImage ? (
                                     <img
                                       src={order.deliveryPersonImage}
                                       alt={order.deliveryPersonName || ""}
-                                      className="w-10 h-10 rounded-full border-2 border-emerald-500 shadow-md object-cover"
+                                      className="w-10 h-10 rounded-full border-2 border-violet-500 shadow-md object-cover"
                                     />
                                   ) : (
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center text-white font-bold shadow-md">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center text-white font-bold shadow-md">
                                       <User className="w-5 h-5" />
                                     </div>
                                   )}
@@ -665,7 +665,7 @@ export default function Orders() {
                                 {order.customerPhone || "—"}
                               </TableCell>
                               <TableCell className="text-center hidden md:table-cell">
-                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300">
+                                <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300">
                                   {order.regionName || "—"}
                                 </Badge>
                               </TableCell>
@@ -673,7 +673,7 @@ export default function Orders() {
                                 {order.customerAddress1 || "—"}
                               </TableCell>
                               <TableCell className="text-center">
-                                <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                                <span className="font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                                   {formatCurrency(order.price)}
                                 </span>
                               </TableCell>
@@ -712,7 +712,7 @@ export default function Orders() {
                                     }}
                                     size="sm"
                                     variant="ghost"
-                                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -765,7 +765,7 @@ export default function Orders() {
                       <Button
                         onClick={handleLoadMore}
                         disabled={isLoadingMore}
-                        className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg px-8 py-6 text-lg font-bold"
+                        className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg px-8 py-6 text-lg font-bold"
                         size="lg"
                       >
                         {isLoadingMore ? (
@@ -793,7 +793,7 @@ export default function Orders() {
       <Dialog open={simpleOrderFormOpen} onOpenChange={setSimpleOrderFormOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
               إضافة طلب مبسط
             </DialogTitle>
             <DialogDescription>
@@ -995,7 +995,7 @@ export default function Orders() {
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
               تفاصيل الطلب
             </DialogTitle>
             <DialogDescription>
@@ -1036,46 +1036,46 @@ export default function Orders() {
               </div>
 
               {/* Order Info */}
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6 rounded-xl border-2 border-emerald-200 dark:border-emerald-800">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
+              <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-950 dark:to-fuchsia-950 p-6 rounded-xl border-2 border-violet-200 dark:border-violet-800">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-violet-800 dark:text-violet-200">
                   <Package className="w-5 h-5" />
                   معلومات الطلب
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm text-emerald-600 dark:text-emerald-400">السعر</Label>
-                    <p className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">السعر</Label>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                       {formatCurrency(orderDetails.price)}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm text-emerald-600 dark:text-emerald-400">الحالة</Label>
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">الحالة</Label>
                     <div className="mt-1">{getStatusBadge(orderDetails.status)}</div>
                   </div>
                   <div>
-                    <Label className="text-sm text-emerald-600 dark:text-emerald-400">المندوب</Label>
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">المندوب</Label>
                     <p className="text-lg font-semibold">{orderDetails.deliveryPersonName || "—"}</p>
                   </div>
                   <div>
-                    <Label className="text-sm text-emerald-600 dark:text-emerald-400">تاريخ الإنشاء</Label>
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">تاريخ الإنشاء</Label>
                     <p className="text-lg" dir="ltr">{formatIraqDateEN(orderDetails.createdAt)}</p>
                   </div>
                   {orderDetails.acceptedAt && (
                     <div>
-                      <Label className="text-sm text-emerald-600 dark:text-emerald-400">تاريخ القبول</Label>
+                      <Label className="text-sm text-violet-600 dark:text-violet-400">تاريخ القبول</Label>
                       <p className="text-lg" dir="ltr">{formatIraqDateEN(orderDetails.acceptedAt)}</p>
                     </div>
                   )}
                   {orderDetails.deliveredAt && (
                     <div>
-                      <Label className="text-sm text-emerald-600 dark:text-emerald-400">تاريخ التسليم</Label>
+                      <Label className="text-sm text-violet-600 dark:text-violet-400">تاريخ التسليم</Label>
                       <p className="text-lg" dir="ltr">{formatIraqDateEN(orderDetails.deliveredAt)}</p>
                     </div>
                   )}
                 </div>
                 {orderDetails.notes && (
-                  <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
-                    <Label className="text-sm text-emerald-600 dark:text-emerald-400">ملاحظات</Label>
+                  <div className="mt-4 pt-4 border-t border-violet-200 dark:border-violet-800">
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">ملاحظات</Label>
                     <p className="text-lg mt-2 bg-white dark:bg-gray-900 p-3 rounded-lg">{orderDetails.notes}</p>
                   </div>
                 )}
@@ -1083,7 +1083,7 @@ export default function Orders() {
 
               {/* Delivery Info */}
               {orderDetails.status === 'delivered' && (
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
+                <div className="bg-gradient-to-br from-green-50 to-violet-50 dark:from-green-950 dark:to-violet-950 p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-green-800 dark:text-green-200">
                     <CheckCircle className="w-5 h-5" />
                     معلومات التسليم
@@ -1179,7 +1179,7 @@ export default function Orders() {
           {routeMapOrder && (
             <div className="space-y-4">
               {/* معلومات المسار */}
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="bg-accent/50 dark:from-blue-950 dark:to-cyan-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-sm text-blue-600 dark:text-blue-400">وقت القبول</p>

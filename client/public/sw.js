@@ -1,6 +1,6 @@
-const CACHE_NAME = 'joniah-pharmacy-v2';
-const STATIC_CACHE = 'joniah-static-v2';
-const API_CACHE = 'joniah-api-v1';
+const CACHE_NAME = 'xenon-delivery-v3';
+const STATIC_CACHE = 'xenon-static-v3';
+const API_CACHE = 'xenon-api-v2';
 
 // الملفات الأساسية للتخزين المؤقت
 const urlsToCache = [
@@ -70,22 +70,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Static assets - Cache first
+  // Static assets - Network first so new deployments reach users immediately,
+  // falling back to cache when offline
   if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|woff|woff2)$/)) {
     event.respondWith(
-      caches.match(request)
-        .then((response) => {
-          if (response) {
-            return response;
-          }
-          return fetch(request).then((networkResponse) => {
-            const responseClone = networkResponse.clone();
-            caches.open(STATIC_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
-            return networkResponse;
+      fetch(request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(request, responseClone);
           });
+          return networkResponse;
         })
+        .catch(() => caches.match(request))
     );
     return;
   }
@@ -121,7 +118,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   console.log('[SW] Push received');
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'صيدلية جونيا';
+  const title = data.title || 'Xenon';
   const options = {
     body: data.body || 'لديك إشعار جديد',
     icon: '/icon-192.png',

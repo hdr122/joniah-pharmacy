@@ -57,7 +57,7 @@ export default function DeliveryNotifications() {
       case "order_returned":
         return <XCircle className="w-5 h-5 text-purple-600" />;
       case "message":
-        return <Mail className="w-5 h-5 text-emerald-600" />;
+        return <Mail className="w-5 h-5 text-violet-600" />;
       default:
         return <Bell className="w-5 h-5 text-gray-600" />;
     }
@@ -148,7 +148,7 @@ export default function DeliveryNotifications() {
                   <Card
                     key={notification.id}
                     className={`cursor-pointer transition-all hover:shadow-md ${
-                      !notification.isRead ? "border-r-4 border-r-emerald-500 bg-emerald-50/30" : ""
+                      !notification.isRead ? "border-r-4 border-r-violet-500 bg-violet-50/30" : ""
                     }`}
                     onClick={() => {
                       if (!notification.isRead) {
@@ -165,7 +165,7 @@ export default function DeliveryNotifications() {
                           <div className="flex items-start justify-between gap-2">
                             <h3 className="font-semibold text-gray-900">{notification.title}</h3>
                             {!notification.isRead && (
-                              <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                              <Badge variant="secondary" className="bg-violet-100 text-violet-700">
                                 جديد
                               </Badge>
                             )}
@@ -244,7 +244,7 @@ export default function DeliveryNotifications() {
         {/* Footer */}
         <footer className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 text-center">
           <p className="text-gray-600">
-            جميع الحقوق محفوظة لـ <span className="font-bold text-emerald-600">HarthHDR</span> © {new Date().getFullYear()}
+            جميع الحقوق محفوظة لـ <span className="font-bold text-violet-600">HarthHDR</span> © {new Date().getFullYear()}
           </p>
         </footer>
       </div>

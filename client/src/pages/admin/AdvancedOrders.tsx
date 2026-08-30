@@ -36,7 +36,7 @@ export default function AdvancedOrders() {
     }
 
     const worksheetData = [
-      ["صيدلية جونيا - تقرير الطلبات"],
+      ["Xenon - تقرير الطلبات"],
       ["التاريخ: " + new Date().toLocaleDateString("ar-IQ")],
       [],
       ["رقم الطلب", "العميل", "المندوب", "المبلغ", "الحالة", "التاريخ"],
@@ -156,7 +156,7 @@ export default function AdvancedOrders() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }

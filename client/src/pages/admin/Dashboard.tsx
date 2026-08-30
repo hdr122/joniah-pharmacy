@@ -53,7 +53,7 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
+        <Loader2 className="w-12 h-12 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -70,14 +70,14 @@ export default function AdminDashboard() {
       title: "المندوبين النشطين",
       value: stats?.activeDeliveries || 0,
       icon: Users,
-      gradient: "from-emerald-500 to-teal-600",
+      gradient: "from-violet-500 to-fuchsia-600",
       link: "/admin/deliveries",
     },
     {
       title: "الطلبات المسلمة",
       value: stats?.deliveredOrders || 0,
       icon: TrendingUp,
-      gradient: "from-green-500 to-emerald-600",
+      gradient: "from-green-500 to-violet-600",
       link: "/admin/orders?status=delivered",
     },
     {
@@ -94,10 +94,10 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
             لوحة التحكم
           </h1>
-          <p className="text-muted-foreground mt-2">مرحباً بك في نظام إدارة صيدلية جونيا</p>
+          <p className="text-muted-foreground mt-2">مرحباً بك في نظام مندوبين شركة Xenon</p>
         </div>
         <div className="flex gap-3">
           <DateFilterDropdown
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
           <Button
             variant={viewMode === 'all' ? 'default' : 'outline'}
             onClick={() => setViewMode('all')}
-            className={viewMode === 'all' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700' : 'hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300'}
+            className={viewMode === 'all' ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700' : 'hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300'}
           >
             الإحصائيات الكلية
           </Button>
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
         <Card className="border-none shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+          <CardHeader className="bg-accent/50 border-b">
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-blue-600" />
               <CardTitle className="text-xl">الطلبات الأخيرة</CardTitle>
@@ -158,17 +158,17 @@ export default function AdminDashboard() {
                 {stats.recentOrders.map((order: any) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all"
+                    className="flex items-center justify-between p-4 bg-muted/60 rounded-xl hover:shadow-md transition-all"
                   >
                     <div>
-                      <p className="font-bold text-gray-900">طلب #{order.id}</p>
+                      <p className="font-bold text-foreground">طلب #{order.id}</p>
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {order.region}
                       </p>
                     </div>
                     <div className="text-left">
-                      <p className="font-bold text-emerald-600 text-lg">
+                      <p className="font-bold text-violet-600 text-lg">
                         {formatCurrency(order.price)}
                       </p>
                       <p className="text-xs text-muted-foreground">{order.status}</p>
@@ -189,9 +189,9 @@ export default function AdminDashboard() {
 
         {/* Top Deliveries */}
         <Card className="border-none shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+          <CardHeader className="bg-accent/50 border-b">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-emerald-600" />
+              <Award className="w-5 h-5 text-violet-600" />
               <CardTitle className="text-xl">أفضل المندوبين</CardTitle>
             </div>
             <CardDescription>حسب عدد الطلبات المسلمة</CardDescription>
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
                 {stats.topDeliveries.map((delivery: any, index: number) => (
                   <div
                     key={delivery.id}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all"
+                    className="flex items-center justify-between p-4 bg-muted/60 rounded-xl hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="text-left">
-                      <p className="font-bold text-emerald-600 text-lg">
+                      <p className="font-bold text-violet-600 text-lg">
                         {formatNumber(delivery.deliveredCount)}
                       </p>
                       <p className="text-xs text-muted-foreground">طلب</p>
@@ -229,8 +229,8 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-10 h-10 text-emerald-600" />
+                <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-10 h-10 text-violet-600" />
                 </div>
                 <p className="text-muted-foreground">لا توجد بيانات حالياً</p>
               </div>
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
 
         {/* Top Regions */}
         <Card className="border-none shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+          <CardHeader className="bg-accent/50 border-b">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-purple-600" />
               <CardTitle className="text-xl">أكثر المناطق طلباً</CardTitle>
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={region.id}
-                      className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all"
+                      className="flex items-center justify-between p-4 bg-muted/60 rounded-xl hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-none shadow-lg bg-gradient-to-r from-emerald-50 to-teal-50">
+      <Card className="border-none shadow-lg bg-accent/50">
         <CardHeader>
           <CardTitle className="text-2xl">الإجراءات السريعة</CardTitle>
           <CardDescription>الوصول السريع إلى الصفحات الأكثر استخداماً</CardDescription>
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link href="/admin/orders/create">
-              <Button className="w-full h-auto py-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg">
+              <Button className="w-full h-auto py-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 shadow-lg">
                 <div className="flex flex-col items-center gap-2">
                   <Package className="w-6 h-6" />
                   <span>إضافة طلب جديد</span>
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
               </Button>
             </Link>
             <Link href="/admin/orders">
-              <Button variant="outline" className="w-full h-auto py-6 border-2 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300">
+              <Button variant="outline" className="w-full h-auto py-6 border-2 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300">
                 <div className="flex flex-col items-center gap-2">
                   <Package className="w-6 h-6" />
                   <span>إدارة الطلبات</span>

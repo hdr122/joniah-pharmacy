@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import { storagePut } from "./storage";
+import { getCurrentSqlDatetime } from "./dateUtils";
 import * as oneSignal from "./onesignal";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
@@ -743,7 +744,7 @@ export const appRouter = router({
         if (input.status === 'delivered' && currentOrder.status !== 'delivered') {
           finalUpdateData.deliveredByAdmin = ctx.user.id;
           finalUpdateData.deliveredByAdminUsername = ctx.user.username || ctx.user.name || 'مسؤول';
-          finalUpdateData.deliveredAt = new Date().toISOString();
+          finalUpdateData.deliveredAt = getCurrentSqlDatetime();
         }
         
         // Send OneSignal notification if status changed

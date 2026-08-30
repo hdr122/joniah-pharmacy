@@ -92,12 +92,12 @@ export default function RegisterPharmacy() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="bg-emerald-100 dark:bg-emerald-900/30 p-4 rounded-full">
-              <Building2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+            <div className="bg-violet-100 dark:bg-violet-900/30 p-4 rounded-full">
+              <Building2 className="h-12 w-12 text-violet-600 dark:text-violet-400" />
             </div>
           </div>
           <CardTitle className="text-3xl">إنشاء صيدلية جديدة</CardTitle>
@@ -105,8 +105,8 @@ export default function RegisterPharmacy() {
             قم بإدخال كود التفعيل ومعلومات الصيدلية لبدء الاشتراك
           </CardDescription>
           {priceData && (
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg mt-4">
-              <p className="text-sm text-emerald-700 dark:text-emerald-300">
+            <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded-lg mt-4">
+              <p className="text-sm text-violet-700 dark:text-violet-300">
                 سعر الاشتراك السنوي: <span className="font-bold text-lg">${priceData.price}</span>
               </p>
             </div>

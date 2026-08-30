@@ -150,7 +150,7 @@ export function ExportButton({ data, filename, columns, title }: ExportButtonPro
               `).join('')}
             </tbody>
           </table>
-          <p class="footer">صيدلية جونيا - نظام إدارة الطلبات</p>
+          <p class="footer">Xenon - نظام إدارة الطلبات</p>
           <div class="no-print" style="text-align: center; margin-top: 20px;">
             <button onclick="window.print()" style="padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer;">
               طباعة / حفظ كـ PDF

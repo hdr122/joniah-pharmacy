@@ -219,11 +219,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Mobile Header */}
       <div className="lg:hidden bg-card border-b border-border px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-            <Pill className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-[#170f2e] ring-1 ring-white/10 rounded-lg flex items-center justify-center">
+            <img src="/xenon-logo.svg" alt="Xenon" className="w-7 h-7 xenon-logo-glow" />
           </div>
           <div>
-            <h1 className="font-bold text-foreground">صيدلية جونيا</h1>
+            <h1 className="font-bold text-foreground">Xenon</h1>
             <p className="text-xs text-muted-foreground">لوحة المدير</p>
           </div>
         </div>
@@ -257,11 +257,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Logo */}
           <div className="p-6 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Pill className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 bg-[#170f2e] ring-1 ring-white/10 rounded-xl flex items-center justify-center shadow-lg">
+                <img src="/xenon-logo.svg" alt="Xenon" className="w-8 h-8 xenon-logo-glow" />
               </div>
               <div>
-                <h1 className="font-bold text-xl text-foreground">صيدلية جونيا</h1>
+                <h1 className="font-bold text-xl text-foreground">Xenon</h1>
                 <p className="text-sm text-muted-foreground">لوحة المدير</p>
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     variant={isActive ? "default" : "ghost"}
                     className={`w-full justify-start gap-3 ${
                       isActive
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white"
+                        ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                     onClick={() => setSidebarOpen(false)}
@@ -307,7 +307,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       variant="ghost"
                       className={`w-full justify-between gap-3 ${
                         hasActiveItem
-                          ? "bg-emerald-50 text-emerald-700 font-semibold"
+                          ? "bg-violet-50 text-violet-700 font-semibold"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
@@ -332,7 +332,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             size="sm"
                             className={`w-full justify-start gap-3 ${
                               isActive
-                                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white"
+                                ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
                                 : "text-gray-600 hover:bg-gray-50"
                             }`}
                             onClick={() => setSidebarOpen(false)}
@@ -355,7 +355,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <p className="text-sm font-medium text-foreground">{user?.name || "المدير"}</p>
               <p className="text-xs text-muted-foreground">@{user?.username}</p>
               {isOwner && (
-                <p className="text-xs text-emerald-600 font-medium mt-1">المالك</p>
+                <p className="text-xs text-violet-600 font-medium mt-1">المالك</p>
               )}
             </div>
             <div className="mb-3 flex justify-center">
@@ -396,10 +396,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <footer className="lg:mr-64 bg-white border-t border-gray-200 py-4 px-8 text-center">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <p className="text-sm text-gray-600">
-            جميع الحقوق محفوظة لـ <span className="font-bold text-emerald-600">HarthHDR</span> © {new Date().getFullYear()}
+            جميع الحقوق محفوظة لـ <span className="font-bold text-violet-600">HarthHDR</span> © {new Date().getFullYear()}
           </p>
           <div className="hidden sm:block w-px h-4 bg-gray-300"></div>
-          <p className="text-sm text-emerald-600 font-medium flex items-center gap-2">
+          <p className="text-sm text-violet-600 font-medium flex items-center gap-2">
             <span>🕐</span>
             <span>Baghdad Time (GMT+3)</span>
           </p>

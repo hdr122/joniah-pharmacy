@@ -209,14 +209,14 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
   if (checking) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
-      <Card className="border-emerald-200">
+      <Card className="border-violet-200">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
             {allGranted ? '✅ جميع الصلاحيات ممنوحة' : 'الصلاحيات المطلوبة'}
@@ -233,7 +233,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
           <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="flex-shrink-0">
               {permissions.notifications ? (
-                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                <CheckCircle2 className="w-6 h-6 text-violet-600" />
               ) : (
                 <Bell className="w-6 h-6 text-gray-400" />
               )}
@@ -248,7 +248,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
                   onClick={requestNotifications}
                   disabled={loading}
                   size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-violet-600 hover:bg-violet-700"
                 >
                   {loading ? (
                     <>
@@ -267,7 +267,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
           <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="flex-shrink-0">
               {permissions.geolocation ? (
-                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                <CheckCircle2 className="w-6 h-6 text-violet-600" />
               ) : (
                 <MapPin className="w-6 h-6 text-gray-400" />
               )}
@@ -277,7 +277,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
               <p className="text-sm text-gray-600 mb-3">
                 لتتبع موقعك أثناء التوصيل وتحديث الإدارة بموقعك الحالي
                 {isNativePlatform() && (
-                  <span className="block text-xs text-emerald-600 mt-1">
+                  <span className="block text-xs text-violet-600 mt-1">
                     ✓ يعمل حتى عند إغلاق التطبيق
                   </span>
                 )}
@@ -287,7 +287,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
                   onClick={requestGeolocation}
                   disabled={loading}
                   size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-violet-600 hover:bg-violet-700"
                 >
                   {loading ? (
                     <>
@@ -308,7 +308,7 @@ export function PermissionsRequest({ onPermissionsGranted }: PermissionsRequestP
               <Button 
                 onClick={requestAllPermissions}
                 disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-violet-600 hover:bg-violet-700"
                 size="lg"
               >
                 {loading ? (

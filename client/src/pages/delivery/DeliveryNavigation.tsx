@@ -766,7 +766,7 @@ export default function DeliveryNavigation() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     );
   }
@@ -811,7 +811,7 @@ export default function DeliveryNavigation() {
 
       {/* Status Bar */}
       {isNavigating && (
-        <div className={`p-3 ${isOffRoute ? "bg-red-500" : "bg-emerald-500"} text-white`}>
+        <div className={`p-3 ${isOffRoute ? "bg-red-500" : "bg-violet-500"} text-white`}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {isOffRoute ? (
@@ -917,7 +917,7 @@ export default function DeliveryNavigation() {
             <Card className="bg-card/95 backdrop-blur">
               <CardContent className="p-4">
                 <Button
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600"
+                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600"
                   onClick={() => {
                     const locations = availableLocations();
                     if (locations.length > 1) {
@@ -984,7 +984,7 @@ export default function DeliveryNavigation() {
                 className="w-full justify-start gap-3 h-auto py-3"
                 onClick={() => startNavigation(location.id)}
               >
-                <MapPin className="w-5 h-5 text-emerald-600" />
+                <MapPin className="w-5 h-5 text-violet-600" />
                 <div className="text-right">
                   <p className="font-medium">{location.name}</p>
                   <p className="text-xs text-muted-foreground truncate max-w-[200px]">

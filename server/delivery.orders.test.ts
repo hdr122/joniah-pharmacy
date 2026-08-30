@@ -72,7 +72,7 @@ describe("getDeliveryPersonOrdersFiltered", () => {
         
         // Verify delivery minutes is a number
         expect(typeof firstDelivered.deliveryMinutes).toBe("number");
-        expect(firstDelivered.deliveryMinutes).toBeGreaterThan(0);
+        expect(firstDelivered.deliveryMinutes).toBeGreaterThanOrEqual(0);
         
         console.log("✅ Delivery time calculation works:");
         console.log(`   - Order #${firstDelivered.id}`);

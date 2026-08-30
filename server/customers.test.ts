@@ -76,7 +76,7 @@ describe('Customers and Regions Database Tests', () => {
 
   it('should be able to insert a province', async () => {
     const [result] = await connection.query(`
-      INSERT INTO provinces (name) VALUES ('بغداد')
+      INSERT INTO provinces (branchId, name) VALUES (1, 'بغداد')
     `);
     
     expect((result as any).affectedRows).toBe(1);
@@ -88,13 +88,13 @@ describe('Customers and Regions Database Tests', () => {
   it('should be able to insert a region', async () => {
     // إدخال محافظة أولاً
     const [provinceResult] = await connection.query(`
-      INSERT INTO provinces (name) VALUES ('بغداد')
+      INSERT INTO provinces (branchId, name) VALUES (1, 'بغداد')
     `);
     const provinceId = (provinceResult as any).insertId;
     
     // إدخال منطقة
     const [regionResult] = await connection.query(`
-      INSERT INTO regions (name, provinceId) VALUES ('الكرادة', ?)
+      INSERT INTO regions (branchId, name, provinceId) VALUES (1, 'الكرادة', ?)
     `, [provinceId]);
     
     expect((regionResult as any).affectedRows).toBe(1);
@@ -106,8 +106,8 @@ describe('Customers and Regions Database Tests', () => {
 
   it('should be able to insert a customer', async () => {
     const [result] = await connection.query(`
-      INSERT INTO customers (name, phone, email, address1, notes) 
-      VALUES ('أحمد محمد', '07901234567', 'ahmed@example.com', 'شارع الرشيد', 'زبون مميز')
+      INSERT INTO customers (branchId, name, phone, email, address1, notes) 
+      VALUES (1, 'أحمد محمد', '07901234567', 'ahmed@example.com', 'شارع الرشيد', 'زبون مميز')
     `);
     
     expect((result as any).affectedRows).toBe(1);
@@ -127,19 +127,19 @@ describe('Customers and Regions Database Tests', () => {
   it('should be able to link customer with region', async () => {
     // إدخال محافظة ومنطقة
     const [provinceResult] = await connection.query(`
-      INSERT INTO provinces (name) VALUES ('بغداد')
+      INSERT INTO provinces (branchId, name) VALUES (1, 'بغداد')
     `);
     const provinceId = (provinceResult as any).insertId;
     
     const [regionResult] = await connection.query(`
-      INSERT INTO regions (name, provinceId) VALUES ('الكرادة', ?)
+      INSERT INTO regions (branchId, name, provinceId) VALUES (1, 'الكرادة', ?)
     `, [provinceId]);
     const regionId = (regionResult as any).insertId;
     
     // إدخال زبون مرتبط بالمنطقة
     const [customerResult] = await connection.query(`
-      INSERT INTO customers (name, phone, regionId) 
-      VALUES ('علي حسن', '07907654321', ?)
+      INSERT INTO customers (branchId, name, phone, regionId)
+      VALUES (1, 'علي حسن', '07907654321', ?)
     `, [regionId]);
     
     expect((customerResult as any).affectedRows).toBe(1);
@@ -170,7 +170,9 @@ describe('Customers and Regions Database Tests', () => {
       WHERE TABLE_SCHEMA = DATABASE()
     `);
     
-    const tableNames = (tables as any[]).map(t => t.TABLE_NAME);
+    // Table names are lowercased on Windows (lower_case_table_names=1),
+    // so compare case-insensitively
+    const tableNames = (tables as any[]).map(t => String(t.TABLE_NAME).toLowerCase());
     
     expect(tableNames).toContain('users');
     expect(tableNames).toContain('provinces');
@@ -180,7 +182,7 @@ describe('Customers and Regions Database Tests', () => {
     expect(tableNames).toContain('notifications');
     expect(tableNames).toContain('messages');
     expect(tableNames).toContain('delivery_locations');
-    expect(tableNames).toContain('dailyStats');
+    expect(tableNames).toContain('dailystats');
     expect(tableNames).toContain('order_locations');
     expect(tableNames).toContain('push_subscriptions');
     expect(tableNames).toContain('activity_logs');

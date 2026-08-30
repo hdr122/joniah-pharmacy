@@ -56,21 +56,21 @@ function BackupSection() {
   };
 
   return (
-    <div className="p-4 border border-emerald-200 rounded-lg bg-emerald-50">
+    <div className="p-4 border border-violet-200 rounded-lg bg-violet-50">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="font-medium text-emerald-800 flex items-center gap-2">
+          <h3 className="font-medium text-violet-800 flex items-center gap-2">
             <Database className="w-4 h-4" />
             إنشاء نسخة احتياطية كاملة
           </h3>
-          <p className="text-sm text-emerald-600 mt-1">
+          <p className="text-sm text-violet-600 mt-1">
             يتم حفظ جميع البيانات في ملف JSON يمكن تحميله وحفظه في مكان آمن.
             <br />
             <strong>يتضمن:</strong> الطلبات، الزبائن، المندوبين، المناطق، الإحصائيات اليومية، وسجل النشاطات.
           </p>
         </div>
         <Button
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-violet-600 hover:bg-violet-700"
           onClick={handleCreateBackup}
           disabled={isCreating}
         >
@@ -208,21 +208,21 @@ export default function About() {
       </div>
 
       {/* Subscription Status */}
-      <Card className="border-2 border-emerald-200 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50">
+      <Card className="border-2 border-violet-200 shadow-lg">
+        <CardHeader className="bg-accent/50">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl flex items-center gap-2">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              <CheckCircle2 className="w-6 h-6 text-violet-600" />
               حالة الاشتراك
             </CardTitle>
-            <div className="px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-bold">نشط</div>
+            <div className="px-3 py-1 bg-violet-600 text-white rounded-full text-sm font-bold">نشط</div>
           </div>
           <CardDescription>معلومات اشتراكك الحالي</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
           {/* Expiry Date */}
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <Calendar className="w-8 h-8 text-emerald-600" />
+            <Calendar className="w-8 h-8 text-violet-600" />
             <div>
               <p className="text-sm text-gray-600">تاريخ انتهاء الاشتراك</p>
               <p className="text-2xl font-bold text-gray-900">2026/11/05</p>
@@ -230,26 +230,26 @@ export default function About() {
           </div>
 
           {/* Countdown Timer */}
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border-2 border-emerald-200">
+          <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 p-6 rounded-xl border-2 border-violet-200">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-lg font-bold text-emerald-800">الوقت المتبقي</h3>
+              <Clock className="w-5 h-5 text-violet-600" />
+              <h3 className="text-lg font-bold text-violet-800">الوقت المتبقي</h3>
             </div>
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center p-4 bg-white rounded-lg shadow">
-                <p className="text-3xl font-bold text-emerald-600">{timeRemaining.months}</p>
+                <p className="text-3xl font-bold text-violet-600">{timeRemaining.months}</p>
                 <p className="text-sm text-gray-600 mt-1">شهر</p>
               </div>
               <div className="text-center p-4 bg-white rounded-lg shadow">
-                <p className="text-3xl font-bold text-emerald-600">{timeRemaining.days}</p>
+                <p className="text-3xl font-bold text-violet-600">{timeRemaining.days}</p>
                 <p className="text-sm text-gray-600 mt-1">يوم</p>
               </div>
               <div className="text-center p-4 bg-white rounded-lg shadow">
-                <p className="text-3xl font-bold text-emerald-600">{timeRemaining.hours}</p>
+                <p className="text-3xl font-bold text-violet-600">{timeRemaining.hours}</p>
                 <p className="text-sm text-gray-600 mt-1">ساعة</p>
               </div>
               <div className="text-center p-4 bg-white rounded-lg shadow">
-                <p className="text-3xl font-bold text-emerald-600">{timeRemaining.minutes}</p>
+                <p className="text-3xl font-bold text-violet-600">{timeRemaining.minutes}</p>
                 <p className="text-sm text-gray-600 mt-1">دقيقة</p>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function About() {
 
       {/* Developer Information */}
       <Card className="border-2 border-blue-200 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
+        <CardHeader className="bg-accent/50">
           <CardTitle className="text-2xl flex items-center gap-2">
             <User className="w-6 h-6 text-blue-600" />
             معلومات المطور
@@ -326,11 +326,11 @@ export default function About() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <Code className="w-6 h-6 text-emerald-600" />
+            <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center">
+              <Code className="w-6 h-6 text-violet-600" />
             </div>
             <div>
-              <CardTitle>صيدلية جونيا</CardTitle>
+              <CardTitle>Xenon</CardTitle>
               <CardDescription>نظام إدارة الطلبات والتوصيل</CardDescription>
             </div>
           </div>
@@ -339,15 +339,15 @@ export default function About() {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">المطور</p>
-              <p className="text-lg font-bold text-emerald-600">HarthHDR</p>
+              <p className="text-lg font-bold text-violet-600">HarthHDR</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">الإصدار</p>
               <p className="text-lg font-bold">V2.6</p>
             </div>
           </div>
-          <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-            <p className="text-center text-emerald-800 font-medium">
+          <div className="p-4 bg-violet-50 rounded-lg border border-violet-200">
+            <p className="text-center text-violet-800 font-medium">
               جميع الحقوق محفوظة © HarthHDR 2024
             </p>
           </div>
@@ -358,7 +358,7 @@ export default function About() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-emerald-500" />
+            <Database className="w-5 h-5 text-violet-500" />
             نظام النسخ الاحتياطي
           </CardTitle>
           <CardDescription>

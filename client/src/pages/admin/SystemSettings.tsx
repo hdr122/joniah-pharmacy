@@ -60,7 +60,7 @@ export default function SystemSettings() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -76,7 +76,7 @@ export default function SystemSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-emerald-600" />
+            <Clock className="w-5 h-5 text-violet-600" />
             وقت بدء اليوم الجديد
           </CardTitle>
           <CardDescription>
@@ -119,7 +119,7 @@ export default function SystemSettings() {
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+              className="bg-violet-600 hover:bg-violet-700 gap-2"
             >
               {isSaving ? (
                 <>
@@ -141,7 +141,7 @@ export default function SystemSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-emerald-600" />
+            <Database className="w-5 h-5 text-violet-600" />
             النسخ الاحتياطي التلقائي
           </CardTitle>
           <CardDescription>

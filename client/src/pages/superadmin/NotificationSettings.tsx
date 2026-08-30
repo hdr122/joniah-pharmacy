@@ -31,7 +31,7 @@ export default function NotificationSettings() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -45,7 +45,7 @@ export default function NotificationSettings() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-violet-600 hover:bg-violet-700">
               <Plus className="w-4 h-4 ml-2" />
               إضافة إعدادات فرع
             </Button>
@@ -149,7 +149,7 @@ function SettingCard({
                 size="sm"
                 onClick={handleSave}
                 disabled={updateMutation.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-violet-600 hover:bg-violet-700"
               >
                 {updateMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -358,7 +358,7 @@ function CreateSettingsForm({
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button type="submit" disabled={createMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700">
+        <Button type="submit" disabled={createMutation.isPending} className="bg-violet-600 hover:bg-violet-700">
           {createMutation.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (

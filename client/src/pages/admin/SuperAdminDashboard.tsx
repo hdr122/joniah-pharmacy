@@ -160,7 +160,7 @@ export default function SuperAdminDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     );
   }
@@ -169,11 +169,11 @@ export default function SuperAdminDashboard() {
     <div className="container mx-auto py-8 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
             إدارة الفروع
           </h1>
           <p className="text-muted-foreground mt-2">
-            إدارة جميع فروع صيدلية جونيا والاشتراكات
+            إدارة جميع فروع شركة Xenon والاشتراكات
           </p>
         </div>
         <div className="flex gap-2">
@@ -194,7 +194,7 @@ export default function SuperAdminDashboard() {
               </>
             )}
           </Button>
-          <Button onClick={() => setCreateDialogOpen(true)} className="bg-gradient-to-r from-emerald-600 to-teal-600">
+          <Button onClick={() => setCreateDialogOpen(true)} className="bg-gradient-to-r from-violet-600 to-fuchsia-600">
             <Plus className="ml-2 h-4 w-4" />
             إضافة فرع جديد
           </Button>
@@ -294,7 +294,7 @@ export default function SuperAdminDashboard() {
               {/* الإحصائيات */}
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
-                  <div className="text-2xl font-bold text-emerald-600">{branch.stats?.totalOrders || 0}</div>
+                  <div className="text-2xl font-bold text-violet-600">{branch.stats?.totalOrders || 0}</div>
                   <div className="text-xs text-muted-foreground">إجمالي الطلبات</div>
                 </div>
                 <div>
@@ -470,7 +470,7 @@ export default function SuperAdminDashboard() {
             <Button 
               onClick={handleCreateBranch}
               disabled={createBranchMutation.isPending}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600"
+              className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
             >
               {createBranchMutation.isPending ? "جاري الإنشاء..." : "إنشاء الفرع"}
             </Button>
@@ -548,7 +548,7 @@ export default function SuperAdminDashboard() {
             <Button 
               onClick={handleUpdateBranch}
               disabled={updateBranchMutation.isPending}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600"
+              className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
             >
               {updateBranchMutation.isPending ? "جاري التحديث..." : "تحديث الفرع"}
             </Button>
@@ -655,7 +655,7 @@ export default function SuperAdminDashboard() {
                 });
               }}
               disabled={updateMaintenanceMutation.isPending}
-              className={maintenanceData.isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-gradient-to-r from-emerald-600 to-teal-600"}
+              className={maintenanceData.isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-gradient-to-r from-violet-600 to-fuchsia-600"}
             >
               {updateMaintenanceMutation.isPending ? "جاري التحديث..." : "حفظ التغييرات"}
             </Button>

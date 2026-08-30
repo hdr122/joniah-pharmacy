@@ -154,7 +154,7 @@ export default function CreateOrder() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Phone className="w-5 h-5 text-emerald-600" />
+              <Phone className="w-5 h-5 text-violet-600" />
               رقم هاتف الزبون
             </CardTitle>
             <CardDescription>
@@ -193,7 +193,7 @@ export default function CreateOrder() {
                         <div className="text-xs text-gray-500 mt-1">{customer.address1}</div>
                       )}
                       {customer.regionName && (
-                        <div className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+                        <div className="text-xs text-violet-600 mt-1 flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {customer.regionName}
                         </div>
@@ -206,15 +206,15 @@ export default function CreateOrder() {
 
             {/* عرض آخر موقع تسليم للزبون */}
             {selectedCustomer?.lastDeliveryLocation && (
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+              <div className="p-4 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-800">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div>
-                    <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                    <p className="text-sm font-medium text-violet-800 dark:text-violet-200">
                       <MapPin className="w-4 h-4 inline ml-2" />
                       آخر موقع تسليم لهذا الزبون
                     </p>
                     {selectedCustomer.lastDeliveryAt && (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                      <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">
                         تاريخ آخر تسليم: {new Date(selectedCustomer.lastDeliveryAt).toLocaleDateString('ar-IQ')}
                       </p>
                     )}
@@ -240,7 +240,7 @@ export default function CreateOrder() {
                       href={selectedCustomer.lastDeliveryLocation}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm"
                     >
                       <LinkIcon className="w-4 h-4" />
                       فتح الموقع
@@ -262,7 +262,7 @@ export default function CreateOrder() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-emerald-600" />
+              <MapPin className="w-5 h-5 text-violet-600" />
               تفاصيل الطلب
             </CardTitle>
             <CardDescription>
@@ -398,7 +398,7 @@ export default function CreateOrder() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-emerald-600" />
+              <User className="w-5 h-5 text-violet-600" />
               معلومات الزبون الإضافية
             </CardTitle>
             <CardDescription>
@@ -501,7 +501,7 @@ export default function CreateOrder() {
           <Button
             type="submit"
             disabled={createMutation.isPending}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-violet-600 hover:bg-violet-700"
           >
             {createMutation.isPending ? (
               <>

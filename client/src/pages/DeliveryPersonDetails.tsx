@@ -571,10 +571,10 @@ export default function DeliveryPersonDetails() {
 
       {/* Custom Period Stats (if filter is custom) */}
       {dateFilter === 'custom' && customStartDate && customEndDate && stats.customPeriod && (
-        <Card className="border-2 shadow-lg bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-teal-950 dark:to-cyan-900">
+        <Card className="border-2 shadow-lg bg-gradient-to-br from-fuchsia-50 to-cyan-100 dark:from-fuchsia-950 dark:to-cyan-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-teal-600" />
+              <Clock className="h-5 w-5 text-fuchsia-600" />
               إحصائيات الفترة المخصصة
             </CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -584,7 +584,7 @@ export default function DeliveryPersonDetails() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-teal-700">{stats.customPeriod.totalOrders}</div>
+                <div className="text-2xl font-bold text-fuchsia-700">{stats.customPeriod.totalOrders}</div>
                 <p className="text-xs text-muted-foreground">إجمالي الطلبات</p>
               </div>
               <div className="text-center">

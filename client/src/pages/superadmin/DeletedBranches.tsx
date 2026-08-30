@@ -37,7 +37,7 @@ export default function DeletedBranches() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto"></div>
           <p className="mt-4 text-muted-foreground">جاري التحميل...</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function DeletedBranches() {
                   {/* زر الاستعادة */}
                   <Button 
                     variant="outline" 
-                    className="w-full border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                    className="w-full border-violet-600 text-violet-600 hover:bg-violet-50"
                     onClick={() => {
                       setBranchToRestore(branch);
                       setRestoreDialogOpen(true);
@@ -149,8 +149,8 @@ export default function DeletedBranches() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-            <p className="text-sm text-emerald-800">
+          <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+            <p className="text-sm text-violet-800">
               ✅ سيتم استعادة الفرع وجميع بياناته وسيصبح نشطاً مرة أخرى.
             </p>
           </div>
@@ -160,7 +160,7 @@ export default function DeletedBranches() {
               إلغاء
             </Button>
             <Button 
-              className="bg-gradient-to-r from-emerald-600 to-teal-600"
+              className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
               onClick={() => restoreBranchMutation.mutate({ id: branchToRestore?.id })}
               disabled={restoreBranchMutation.isPending}
             >

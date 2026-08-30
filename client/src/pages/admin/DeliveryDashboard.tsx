@@ -98,7 +98,7 @@ export default function DeliveryDashboard() {
     const statusMap: Record<string, { label: string; className: string }> = {
       pending_approval: { label: "بانتظار الموافقة", className: "bg-gradient-to-r from-yellow-500 to-orange-500 text-white" },
       pending: { label: "قيد التوصيل", className: "bg-gradient-to-r from-blue-500 to-cyan-600 text-white" },
-      delivered: { label: "تم التسليم", className: "bg-gradient-to-r from-green-500 to-emerald-600 text-white" },
+      delivered: { label: "تم التسليم", className: "bg-gradient-to-r from-green-500 to-violet-600 text-white" },
       postponed: { label: "مؤجل", className: "bg-gradient-to-r from-orange-500 to-amber-600 text-white" },
       cancelled: { label: "ملغي", className: "bg-gradient-to-r from-red-500 to-rose-600 text-white" },
       returned: { label: "مرتجع", className: "bg-gradient-to-r from-gray-400 to-gray-500 text-white" },
@@ -190,7 +190,7 @@ export default function DeliveryDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
             لوحة تحكم المندوبين
           </h1>
           <p className="text-muted-foreground mt-2">متابعة شاملة لأداء المندوبين وسرعة التسليم</p>
@@ -215,7 +215,7 @@ export default function DeliveryDashboard() {
           <Button 
             variant="outline" 
             onClick={() => refetch()}
-            className="gap-2 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition-all"
+            className="gap-2 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 transition-all"
           >
             <RefreshCw className="w-4 h-4" />
             تحديث
@@ -271,11 +271,11 @@ export default function DeliveryDashboard() {
         <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
               <p className="text-xs text-muted-foreground font-medium text-center">المسلمة</p>
-              <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-violet-600 bg-clip-text text-transparent">
                 {totalDelivered.toLocaleString('en-US')}
               </p>
             </div>
@@ -340,10 +340,10 @@ export default function DeliveryDashboard() {
       </div>
 
       {/* Performance Explanation */}
-      <Card className="border-none shadow-lg bg-gradient-to-r from-emerald-50 to-teal-50">
+      <Card className="border-none shadow-lg bg-accent/50">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <TrendingUp className="w-5 h-5 text-violet-600" />
             معايير الأداء
           </CardTitle>
         </CardHeader>
@@ -379,7 +379,7 @@ export default function DeliveryDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Bar Chart */}
           <Card className="border-none shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+            <CardHeader className="bg-accent/50 border-b">
               <CardTitle className="text-xl">مقارنة أداء المندوبين</CardTitle>
               <CardDescription>عدد الطلبات حسب الحالة لكل مندوب</CardDescription>
             </CardHeader>
@@ -410,7 +410,7 @@ export default function DeliveryDashboard() {
           {/* Pie Chart */}
           {statusDistribution.length > 0 && (
             <Card className="border-none shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+              <CardHeader className="bg-accent/50 border-b">
                 <CardTitle className="text-xl">توزيع حالات الطلبات</CardTitle>
                 <CardDescription>نسبة كل حالة من إجمالي الطلبات</CardDescription>
               </CardHeader>
@@ -449,20 +449,20 @@ export default function DeliveryDashboard() {
 
       {/* Delivery Person Stats Table */}
       <Card className="border-none shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+        <CardHeader className="bg-accent/50 border-b">
           <CardTitle className="text-2xl">تفاصيل أداء المندوبين</CardTitle>
           <CardDescription>الإحصائيات الكاملة لكل مندوب</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {isLoading ? (
             <div className="text-center py-16">
-              <Loader2 className="w-12 h-12 animate-spin mx-auto text-emerald-600" />
+              <Loader2 className="w-12 h-12 animate-spin mx-auto text-violet-600" />
               <p className="text-muted-foreground mt-4">جاري التحميل...</p>
             </div>
           ) : !stats || stats.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="w-12 h-12 text-emerald-600" />
+              <div className="w-24 h-24 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-12 h-12 text-violet-600" />
               </div>
               <p className="text-xl font-semibold text-muted-foreground">لا توجد بيانات</p>
               <p className="text-sm text-muted-foreground mt-2">لم يتم تسجيل أي طلبات للمندوبين في هذه الفترة</p>
@@ -495,12 +495,12 @@ export default function DeliveryDashboard() {
                           {stat.deliveryPersonName || `مندوب #${stat.deliveryPersonId}`}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 text-blue-700 font-semibold">
+                          <Badge variant="outline" className="bg-accent/50 border-blue-200 text-blue-700 font-semibold">
                             {(stat.totalOrders || 0).toLocaleString('en-US')}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm">
+                          <Badge className="bg-gradient-to-r from-green-500 to-violet-600 text-white font-semibold shadow-sm">
                             {(stat.deliveredOrders || 0).toLocaleString('en-US')}
                           </Badge>
                         </TableCell>
@@ -533,7 +533,7 @@ export default function DeliveryDashboard() {
                         <TableCell className={`font-bold ${getDurationColor(stat.avgDeliveryTime)}`}>
                           {stat.avgDeliveryTime ? `${Math.round(stat.avgDeliveryTime).toLocaleString('en-US')} د` : '-'}
                         </TableCell>
-                        <TableCell className="font-bold text-emerald-600">
+                        <TableCell className="font-bold text-violet-600">
                           {formatPrice(stat.totalRevenue || 0)}
                         </TableCell>
                         <TableCell>
@@ -559,20 +559,20 @@ export default function DeliveryDashboard() {
 
       {/* Orders Table */}
       <Card className="border-none shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+        <CardHeader className="bg-accent/50 border-b">
           <CardTitle className="text-2xl">سجل الطلبات التفصيلي</CardTitle>
           <CardDescription>جميع الطلبات مع سرعة الأداء لكل طلب</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {ordersLoading ? (
             <div className="text-center py-16">
-              <Loader2 className="w-12 h-12 animate-spin mx-auto text-emerald-600" />
+              <Loader2 className="w-12 h-12 animate-spin mx-auto text-violet-600" />
               <p className="text-muted-foreground mt-4">جاري التحميل...</p>
             </div>
           ) : !ordersData || ordersData.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-12 h-12 text-emerald-600" />
+              <div className="w-24 h-24 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Package className="w-12 h-12 text-violet-600" />
               </div>
               <p className="text-xl font-semibold text-muted-foreground">لا توجد طلبات</p>
               <p className="text-sm text-muted-foreground mt-2">لم يتم تسجيل أي طلبات في هذه الفترة</p>
@@ -601,7 +601,7 @@ export default function DeliveryDashboard() {
                       <TableCell className="hidden md:table-cell">{order.deliveryPersonName || '-'}</TableCell>
                       <TableCell>{order.customerName || '-'}</TableCell>
                       <TableCell className="hidden lg:table-cell">{order.regionName || '-'}</TableCell>
-                      <TableCell className="font-bold text-emerald-600">{formatPrice(order.price)}</TableCell>
+                      <TableCell className="font-bold text-violet-600">{formatPrice(order.price)}</TableCell>
                       <TableCell className="hidden md:table-cell">{getStatusBadge(order.status)}</TableCell>
                       <TableCell className={`font-bold hidden sm:table-cell ${getDurationColor(order.deliveryMinutes)}`}>
                         {formatDuration(order.deliveryMinutes)}

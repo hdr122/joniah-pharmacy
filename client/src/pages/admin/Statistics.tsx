@@ -23,7 +23,7 @@ export default function Statistics() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default function Statistics() {
 
       {/* Top Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-emerald-500">
+        <Card className="border-l-4 border-l-violet-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
@@ -65,7 +65,7 @@ export default function Statistics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-emerald-600">
+            <p className="text-3xl font-bold text-violet-600">
               {(stats?.totalRevenue || 0).toLocaleString('en-US')} د.ع
             </p>
           </CardContent>
@@ -233,7 +233,7 @@ export default function Statistics() {
                     <p className="text-sm text-gray-600">{region.orderCount} طلب</p>
                   </div>
                   <div className="text-left">
-                    <p className="text-lg font-bold text-emerald-600">
+                    <p className="text-lg font-bold text-violet-600">
                       {region.revenue.toLocaleString('en-US')} د.ع
                     </p>
                   </div>

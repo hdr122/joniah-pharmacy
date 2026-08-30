@@ -19,10 +19,25 @@ class WebSocketManager {
   private userConnections: Map<string, AuthenticatedWebSocket> = new Map();
 
   constructor(server: HTTPServer) {
+    // noServer + manual upgrade routing so we never touch other WebSocket
+    // upgrades on the same HTTP server (e.g. Vite HMR in development)
     this.wss = new WebSocketServer({
-      server,
-      path: '/api/realtime',
+      noServer: true,
       clientTracking: false, // We manage clients manually
+    });
+
+    server.on('upgrade', (req, socket, head) => {
+      let pathname = '';
+      try {
+        pathname = new URL(req.url || '', 'http://localhost').pathname;
+      } catch {
+        return;
+      }
+      if (pathname !== '/api/realtime') return;
+
+      this.wss.handleUpgrade(req, socket, head, (ws) => {
+        this.wss.emit('connection', ws, req);
+      });
     });
 
     this.setupServer();
@@ -65,7 +80,7 @@ class WebSocketManager {
     }, 30000);
   }
 
-  private handleMessage(ws: AuthenticatedWebSocket, data: Buffer) {
+  private handleMessage(ws: AuthenticatedWebSocket, data: import('ws').RawData) {
     try {
       const message: RealtimeMessage = JSON.parse(data.toString());
 

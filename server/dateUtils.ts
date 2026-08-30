@@ -118,8 +118,35 @@ export function getCurrentTimeInIraq(): Date {
 export function getCurrentTimeISOInIraq(): string {
   // Get current UTC time
   const now = new Date();
-  
+
   // Return the current UTC time as ISO string
   // The frontend will display it in Iraq timezone (GMT+3) using toLocaleString with timeZone: 'Asia/Baghdad'
   return now.toISOString();
+}
+
+/**
+ * Current time formatted for MySQL/MariaDB DATETIME/TIMESTAMP columns
+ * ('YYYY-MM-DD HH:MM:SS' in the server's local timezone).
+ * ISO strings with 'T'/'Z' are rejected by MariaDB and strict-mode MySQL,
+ * so always use this for values written to the database.
+ */
+export function toSqlDatetime(value: Date | string | number): string {
+  // Date-only strings (used for business-date columns) pass through unchanged
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+  // Already SQL-formatted datetime strings pass through unchanged
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+    return value;
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  );
+}
+
+export function getCurrentSqlDatetime(): string {
+  return toSqlDatetime(new Date());
 }

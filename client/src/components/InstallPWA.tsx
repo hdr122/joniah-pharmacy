@@ -76,21 +76,21 @@ export function InstallPWA() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-in slide-in-from-bottom-5">
-      <div className="bg-emerald-600 text-white rounded-lg shadow-2xl p-4">
+      <div className="bg-violet-600 text-white rounded-lg shadow-2xl p-4">
         <div className="flex items-start gap-3">
           <Download className="w-6 h-6 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-lg mb-1">
               ثبّت التطبيق
             </h3>
-            <p className="text-sm text-emerald-50 mb-3">
+            <p className="text-sm text-violet-50 mb-3">
               احصل على تجربة أفضل مع التطبيق المثبت - إشعارات فورية، عمل بدون إنترنت، وسرعة أكبر
             </p>
             <div className="flex gap-2">
               <Button
                 onClick={handleInstall}
                 size="sm"
-                className="bg-white text-emerald-600 hover:bg-emerald-50"
+                className="bg-white text-violet-600 hover:bg-violet-50"
               >
                 تثبيت الآن
               </Button>
@@ -98,7 +98,7 @@ export function InstallPWA() {
                 onClick={handleDismiss}
                 size="sm"
                 variant="ghost"
-                className="text-white hover:bg-emerald-700"
+                className="text-white hover:bg-violet-700"
               >
                 لاحقاً
               </Button>
@@ -106,7 +106,7 @@ export function InstallPWA() {
           </div>
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 text-emerald-100 hover:text-white"
+            className="flex-shrink-0 text-violet-100 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
