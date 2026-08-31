@@ -190,16 +190,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
+  // السوبر أدمن خارج أي فرع يرى قسم إدارة الفروع فقط؛
+  // عناصر الفرع تظهر له بعد الدخول إلى فرع معيّن
+  const inBranchContext = !isSuperAdmin || !!user?.branchId;
+
   // فلترة الأقسام والعناصر حسب الصلاحيات
   const filteredMenuSections = useMemo(() => {
     return menuSections
+      .filter(section => inBranchContext || section.label === "إدارة الفروع")
       .filter(section => checkItemPermission(section.permission))
       .map(section => ({
         ...section,
         items: section.items.filter(item => checkItemPermission(item.permission))
       }))
       .filter(section => section.items.length > 0);
-  }, [user?.permissions, isOwner]);
+  }, [user?.permissions, isOwner, inBranchContext]);
 
   // عناصر القائمة الرئيسية (خارج الأقسام)
   const mainMenuItems: MenuItem[] = [
@@ -208,10 +213,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: UserCircle, label: "الزبائن", path: "/admin/customers", permission: PERMISSIONS.VIEW_CUSTOMERS },
   ];
 
-  // فلترة العناصر الرئيسية
+  // فلترة العناصر الرئيسية (تختفي كلها خارج سياق الفرع)
   const filteredMainMenuItems = useMemo(() => {
+    if (!inBranchContext) return [];
     return mainMenuItems.filter(item => checkItemPermission(item.permission));
-  }, [user?.permissions, isOwner]);
+  }, [user?.permissions, isOwner, inBranchContext]);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">

@@ -31,7 +31,9 @@ export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
-    if (!ctx.user || ctx.user.role !== 'admin') {
+    // Super admins can do everything an admin can (inside any branch)
+    const allowedRoles = ['admin', 'superadmin', 'super_admin'];
+    if (!ctx.user || !allowedRoles.includes(ctx.user.role)) {
       throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
     }
 

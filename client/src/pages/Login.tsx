@@ -71,10 +71,12 @@ export default function Login() {
       setIsRedirecting(true);
       await utils.auth.me.invalidate();
       await new Promise((resolve) => setTimeout(resolve, 500));
-      if (data.user.role === "admin") {
-        window.location.href = "/admin";
-      } else {
+      if (data.user.role === "delivery") {
         window.location.href = "/delivery";
+      } else {
+        // admins go to the branch panel; super admins are redirected
+        // from /admin to the branches dashboard automatically
+        window.location.href = "/admin";
       }
     },
     onError: (error) => {

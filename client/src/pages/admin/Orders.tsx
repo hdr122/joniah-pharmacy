@@ -570,7 +570,7 @@ export default function Orders() {
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="bg-accent/50 dark:from-gray-900 dark:to-slate-900 p-4 border-b">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-2 bg-transparent">
+              <TabsList className="grid w-full h-auto grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 bg-transparent">
                 <TabsTrigger 
                   value="all" 
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-fuchsia-500 data-[state=active]:text-white data-[state=active]:shadow-lg font-semibold"

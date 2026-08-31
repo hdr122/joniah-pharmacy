@@ -76,8 +76,12 @@ export const appRouter = router({
           throw new TRPCError({ code: "UNAUTHORIZED", message: "اسم المستخدم أو كلمة المرور غير صحيحة" });
         }
         
-        await createSession(user.id, user.branchId, ctx.res, ctx.req);
-        
+        // السوبر أدمن يبدأ دائماً بلوحة الفروع بلا سياق فرع؛
+        // الدخول لفرع معيّن يتم من زر "دخول" على بطاقة الفرع
+        const sessionBranchId =
+          user.role === "superadmin" || user.role === "super_admin" ? null : user.branchId;
+        await createSession(user.id, sessionBranchId, ctx.res, ctx.req);
+
         // تسجيل نشاط تسجيل الدخول (اختياري - لا يوقف تسجيل الدخول عند الفشل)
         db.logActivity({
           branchId: getBranchId(user),
@@ -108,12 +112,11 @@ export const appRouter = router({
   // User Management (Admin only)
   users: router({
     list: adminProcedure.query(async ({ ctx }) => {
-      // Super admin يرى جميع المستخدمين
-      if (ctx.user.username === 'HarthHDR1' || ctx.user.role === 'super_admin' || ctx.user.role === 'superadmin') {
+      // السوبر أدمن خارج أي فرع يرى الجميع؛ داخل فرع يرى مستخدمي ذلك الفرع
+      if (ctx.user.branchId == null) {
         return await db.getAllUsers();
       }
-      // Admin يرى مستخدمي فرعه فقط
-      return await db.getUsersByBranch(getBranchId(ctx.user));
+      return await db.getUsersByBranch(ctx.user.branchId);
     }),
     
     getDeliveryPersons: adminProcedure.query(async ({ ctx }) => {
@@ -167,7 +170,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // Only admin can update others, users can update themselves
-        if (ctx.user.role !== "admin" && ctx.user.id !== input.id) {
+        if (!["admin", "superadmin", "super_admin"].includes(ctx.user.role) && ctx.user.id !== input.id) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         
@@ -183,7 +186,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // Only admin can update others' passwords
-        if (ctx.user.role !== "admin" && ctx.user.id !== input.id) {
+        if (!["admin", "superadmin", "super_admin"].includes(ctx.user.role) && ctx.user.id !== input.id) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         
@@ -281,7 +284,7 @@ export const appRouter = router({
         }
         
         // تمرير branchId الخاص بالمستخدم الحالي (إلا إذا كان super admin)
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.role === 'superadmin') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         await db.createAdminUser({ ...input, branchId });
         console.log('[createAdmin] User created successfully with branchId:', branchId);
         return { success: true };
@@ -417,13 +420,15 @@ export const appRouter = router({
         regionId: z.number().optional(),
       }).optional())
       .query(async ({ ctx, input }) => {
-        // Admin sees all orders, delivery person sees only their orders
-        if (ctx.user.role === "admin") {
-          // إضافة فلتر الفرع للمسؤولين
-          return await db.getAllOrders({ ...input, branchId: getBranchId(ctx.user) });
-        } else {
+        // المندوب يرى طلباته فقط؛ المدير يرى طلبات فرعه؛
+        // السوبر أدمن يرى طلبات الفرع الذي دخله (أو الكل خارج أي فرع)
+        if (ctx.user.role === "delivery") {
           return await db.getOrdersByDeliveryPerson(ctx.user.id);
         }
+        return await db.getAllOrders({
+          ...input,
+          branchId: ctx.user.branchId ?? undefined,
+        });
       }),
     
     count: protectedProcedure.query(async () => {
@@ -885,7 +890,7 @@ export const appRouter = router({
       .input(z.object({ deliveryId: z.number() }))
       .query(async ({ ctx, input }) => {
         // Only admin can view other delivery persons' orders
-        if (ctx.user.role !== "admin" && ctx.user.id !== input.deliveryId) {
+        if (!["admin", "superadmin", "super_admin"].includes(ctx.user.role) && ctx.user.id !== input.deliveryId) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
         }
         return await db.getOrdersByDeliveryPerson(input.deliveryId);
@@ -1031,7 +1036,7 @@ export const appRouter = router({
     
     listDeleted: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getDeletedOrders(branchId);
     }),
     
@@ -1067,13 +1072,13 @@ export const appRouter = router({
   stats: router({
     dashboard: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getDashboardStats(branchId);
     }),
     
     byRegion: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getOrderStatsByRegion(branchId);
     }),
     
@@ -1085,13 +1090,13 @@ export const appRouter = router({
     
     allDeliveryPersons: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getAllDeliveryPersonsStats(branchId);
     }),
     
     advanced: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getAdvancedStats(branchId);
     }),
     
@@ -1105,7 +1110,7 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         return await db.getCustomStats({ ...input, branchId });
       }),
     
@@ -1118,14 +1123,14 @@ export const appRouter = router({
     // Get today's stats
     today: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getTodayStats(branchId);
     }),
     
     // Get all-time stats
     allTime: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getDashboardStats(branchId);
     }),
     
@@ -1138,7 +1143,7 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         return await db.getSpecificDayStats(input.month, input.day, input.year, branchId);
       }),
     
@@ -1150,7 +1155,7 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         // تمرير branchId للمستخدمين العاديين، وعدم تمريره لـ super admin
-        const branchId = ctx.user.role === 'super_admin' || ctx.user.role === 'superadmin' ? undefined : ctx.user.branchId;
+        const branchId = ctx.user.branchId ?? undefined; // undefined = superadmin outside a branch (all branches)
         return await db.getStatsByDateRange(input.startDate, input.endDate, branchId);
       }),
   }),
@@ -1176,7 +1181,7 @@ export const appRouter = router({
       .input(z.object({ userId: z.number() }))
       .query(async ({ ctx, input }) => {
         // Only admin can view other users' notifications
-        if (ctx.user.role !== "admin" && ctx.user.id !== input.userId) {
+        if (!["admin", "superadmin", "super_admin"].includes(ctx.user.role) && ctx.user.id !== input.userId) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
         }
         return await db.getUserNotifications(input.userId);
@@ -1386,7 +1391,7 @@ export const appRouter = router({
   reports: router({
     incompleteOrders: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       return await db.getIncompleteOrdersReport(branchId);
     }),
     
@@ -1394,7 +1399,7 @@ export const appRouter = router({
       .input(z.object({ year: z.number().optional() }))
       .query(async ({ input, ctx }) => {
         // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         return await db.getMonthlyPerformance(input.year, branchId);
       }),
     
@@ -1652,7 +1657,7 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         const result = await db.getMonthlyDistances(input.year, input.month, branchId);
         return result;
       }),
@@ -1779,7 +1784,7 @@ export const appRouter = router({
     // Get all delivery persons live status (enhanced with heading)
     getAllLiveStatus: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع المندوبين، Admin يرى مندوبي فرعه فقط
-      const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+      const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
       const statuses = await db.getAllDeliveryPersonsLiveStatus(branchId);
       return statuses;
     }),
@@ -1862,7 +1867,7 @@ export const appRouter = router({
       }).optional())
       .query(async ({ input, ctx }) => {
         // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
-        const branchId = (ctx.user.role === 'super_admin' || ctx.user.username === 'HarthHDR1') ? null : ctx.user.branchId;
+        const branchId = ctx.user.branchId; // null = superadmin outside a branch (all branches)
         return await db.getActivityLogs({
           branchId,
           userId: input?.userId,

@@ -271,8 +271,10 @@ class SDKServer {
         // Custom authentication
         const user = await db.getUserById(payload.userId);
         if (user && user.isActive) {
-          // If JWT has a branchId (e.g. superadmin entered a branch), override the user's branchId
-          if (typeof payload.branchId === "number") {
+          // The session's branchId is authoritative: a number when a branch
+          // context is active (e.g. superadmin entered a branch), and null
+          // when a superadmin is outside any branch (branches dashboard)
+          if (typeof payload.branchId === "number" || payload.branchId === null) {
             return { ...user, branchId: payload.branchId } as typeof user;
           }
           return user;
