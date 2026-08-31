@@ -244,7 +244,7 @@ export default function SuperAdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {branchesStats?.reduce((sum: number, b: any) => sum + (b.stats?.revenue || 0), 0).toLocaleString()} د.ع
+              {branchesStats?.reduce((sum: number, b: any) => sum + Number(b.stats?.revenue || 0), 0).toLocaleString()} د.ع
             </div>
           </CardContent>
         </Card>
