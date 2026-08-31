@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   // دالة للتحقق من صلاحية عنصر
   const checkItemPermission = (permission?: string | string[]): boolean => {
     if (!permission) return true; // لا يوجد قيد
-    if (isOwner) return true; // المالك لديه كل الصلاحيات
+    if (isOwner || isSuperAdmin) return true; // المالك والمطور لديهما كل الصلاحيات
     if (Array.isArray(permission)) {
       return hasAnyPermission(permission);
     }
@@ -195,16 +195,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const inBranchContext = !isSuperAdmin || !!user?.branchId;
 
   // فلترة الأقسام والعناصر حسب الصلاحيات
+  // - المطور خارج أي فرع: قسم إدارة الفروع فقط
+  // - المطور داخل فرع: قائمة مدير الفرع كاملة بدون قسم إدارة الفروع (العودة عبر الزر)
   const filteredMenuSections = useMemo(() => {
     return menuSections
-      .filter(section => inBranchContext || section.label === "إدارة الفروع")
+      .filter(section => inBranchContext
+        ? !(isSuperAdmin && section.label === "إدارة الفروع")
+        : section.label === "إدارة الفروع")
       .filter(section => checkItemPermission(section.permission))
       .map(section => ({
         ...section,
         items: section.items.filter(item => checkItemPermission(item.permission))
       }))
       .filter(section => section.items.length > 0);
-  }, [user?.permissions, isOwner, inBranchContext]);
+  }, [user?.permissions, isOwner, inBranchContext, isSuperAdmin]);
 
   // عناصر القائمة الرئيسية (خارج الأقسام)
   const mainMenuItems: MenuItem[] = [
@@ -217,7 +221,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const filteredMainMenuItems = useMemo(() => {
     if (!inBranchContext) return [];
     return mainMenuItems.filter(item => checkItemPermission(item.permission));
-  }, [user?.permissions, isOwner, inBranchContext]);
+  }, [user?.permissions, isOwner, inBranchContext, isSuperAdmin]);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">

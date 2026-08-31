@@ -46,8 +46,9 @@ export function useCustomAuth() {
   
   // التحقق من صلاحية معينة
   const hasPermission = useCallback((permission: string): boolean => {
-    // المالك (owner) لديه جميع الصلاحيات
+    // المالك (owner) والمطور (superadmin) لديهما جميع الصلاحيات
     if (user?.openId) return true;
+    if (user?.role === "superadmin" || user?.role === "super_admin") return true;
     
     // إذا كان لديه صلاحية "all" فلديه جميع الصلاحيات
     if (userPermissions.includes("all")) return true;

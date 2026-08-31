@@ -37,12 +37,12 @@ const FEATURES = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#120b26] text-white" dir="rtl">
+    <div className="min-h-screen overflow-x-hidden bg-[#120b26] text-white" dir="rtl">
       {/* Header */}
       <header className="container mx-auto px-4 py-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <img src="/xenon-logo.svg" alt="Xenon" className="w-11 h-11 xenon-logo-glow" />
+            <img src="/xenon-logo.svg" alt="Xenon" className="w-10 h-10 xenon-logo-glow" />
             <div>
               <h1 className="text-xl font-extrabold tracking-tight">
                 <span className="xenon-gradient-text">Xenon</span>
@@ -50,17 +50,18 @@ export default function Home() {
               <p className="text-xs text-violet-200/60">نظام المندوبين والتوصيل</p>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2">
             <Link href="/register-pharmacy">
               <Button
+                size="sm"
                 variant="outline"
-                className="border-white/15 bg-transparent text-violet-100 hover:bg-white/5 hover:text-white"
+                className="border-white/15 bg-transparent text-violet-100 hover:bg-white/5 hover:text-white sm:h-10 sm:px-4"
               >
                 إنشاء فرع
               </Button>
             </Link>
             <Link href="/login">
-              <Button className="xenon-gradient-bg text-white hover:opacity-90 transition-opacity">
+              <Button size="sm" className="xenon-gradient-bg text-white hover:opacity-90 transition-opacity sm:h-10 sm:px-4">
                 تسجيل الدخول
                 <ArrowLeft className="mr-2 h-4 w-4" />
               </Button>

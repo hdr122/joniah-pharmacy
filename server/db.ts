@@ -5221,9 +5221,11 @@ export async function getAllBranchesStats() {
   if (!db) return [];
   
   const { branches } = await import("../drizzle/schema");
-  
-  // Get all branches
-  const allBranches = await db.select().from(branches);
+
+  // Get all non-deleted branches
+  const allBranches = await db.select().from(branches)
+    .where(sql`${branches.deletedAt} IS NULL`)
+    .orderBy(desc(branches.createdAt));
   
   // Get stats for each branch
   const stats = await Promise.all(allBranches.map(async (branch) => {
