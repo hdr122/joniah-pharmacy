@@ -1,0 +1,19 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "ai-color-palette",
+      "gradient-text"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "client/src/pages/admin/SuperAdminDashboard.tsx"
+        ],
+        "createdAt": "2026-09-01T02:17:04.613Z"
+      }
+    ]
+  }
+}
