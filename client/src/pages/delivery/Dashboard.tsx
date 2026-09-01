@@ -15,6 +15,7 @@ import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import EnableNotificationsModal from "@/components/EnableNotificationsModal";
+import { compressImage } from "@/lib/imageCompress";
 
 // دالة لفلترة الطلبات - إخفاء الطلبات بعد الساعة 5 فجراً (بداية اليوم الجديد)
 function filterOrdersByTime(orders: any[]) {
@@ -410,30 +411,18 @@ export default function DeliveryDashboard() {
         return;
       }
       
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const base64 = reader.result as string;
-          await deliverMutation.mutateAsync({
-            orderId: selectedOrder.id,
-            imageBase64: base64,
-            deliveryNote: deliveryNote.trim() || undefined,
-            deliveryLocationName,
-            deliveryLocationUrl,
-          });
-          setDialogType(null);
-          setImageFile(null);
-        } catch (error: any) {
-          console.error("Delivery error:", error);
-        } finally {
-          setUploading(false);
-        }
-      };
-      reader.onerror = () => {
-        toast.error("فشل قراءة الصورة");
-        setUploading(false);
-      };
-      reader.readAsDataURL(imageFile);
+      // Shrink before upload: proof photos are embedded in the database
+      const { base64, mimeType } = await compressImage(imageFile);
+      await deliverMutation.mutateAsync({
+        orderId: selectedOrder.id,
+        imageBase64: `data:${mimeType};base64,${base64}`,
+        deliveryNote: deliveryNote.trim() || undefined,
+        deliveryLocationName,
+        deliveryLocationUrl,
+      });
+      setDialogType(null);
+      setImageFile(null);
+      setUploading(false);
     } catch (error: any) {
       console.error("File read error:", error);
       toast.error("حدث خطأ أثناء معالجة الصورة");

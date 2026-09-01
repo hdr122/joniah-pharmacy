@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User, Lock, Image as ImageIcon, LogOut, Loader2, Camera } from "lucide-react";
+import { compressImage } from "@/lib/imageCompress";
 
 export default function DeliveryProfile() {
   const { data: user } = trpc.auth.me.useQuery();
@@ -130,17 +131,12 @@ export default function DeliveryProfile() {
 
     setUploading(true);
     try {
-      const buffer = await selectedImage.arrayBuffer();
-      const uint8Array = new Uint8Array(buffer);
-      
-      // Convert to base64 for sending to server
-      const base64 = btoa(
-        uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
+      // Shrink before upload: images are embedded in the database
+      const { base64, mimeType } = await compressImage(selectedImage);
 
       uploadImageMutation.mutate({
         imageData: base64,
-        mimeType: selectedImage.type,
+        mimeType,
       });
     } catch (error) {
       toast.error("فشل رفع الصورة");

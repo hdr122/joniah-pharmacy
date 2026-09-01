@@ -18,6 +18,23 @@ function getStorageConfig(): StorageConfig {
   return { baseUrl: baseUrl.replace(/\/+$/, ""), apiKey };
 }
 
+export function isStorageProxyConfigured(): boolean {
+  return Boolean(ENV.forgeApiUrl && ENV.forgeApiKey);
+}
+
+// Images are stored in TEXT columns when embedded, so keep a safe ceiling
+const MAX_INLINE_BYTES = 45_000;
+
+function toDataUrl(data: Buffer | Uint8Array | string, contentType: string): string {
+  const buffer = typeof data === "string" ? Buffer.from(data) : Buffer.from(data);
+  if (buffer.byteLength > MAX_INLINE_BYTES) {
+    throw new Error(
+      `الصورة كبيرة جداً (${Math.round(buffer.byteLength / 1024)} كيلوبايت). الحد الأقصى ${Math.round(MAX_INLINE_BYTES / 1024)} كيلوبايت`
+    );
+  }
+  return `data:${contentType};base64,${buffer.toString("base64")}`;
+}
+
 function buildUploadUrl(baseUrl: string, relKey: string): URL {
   const url = new URL("v1/storage/upload", ensureTrailingSlash(baseUrl));
   url.searchParams.set("path", normalizeKey(relKey));
@@ -72,24 +89,38 @@ export async function storagePut(
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream"
 ): Promise<{ key: string; url: string }> {
-  const { baseUrl, apiKey } = getStorageConfig();
   const key = normalizeKey(relKey);
+
+  // Self-hosted deployments (e.g. Railway) have no storage proxy: embed the
+  // file as a data URL so uploads keep working. Clients compress before send.
+  if (!isStorageProxyConfigured()) {
+    return { key, url: toDataUrl(data, contentType) };
+  }
+
+  const { baseUrl, apiKey } = getStorageConfig();
   const uploadUrl = buildUploadUrl(baseUrl, key);
   const formData = toFormData(data, contentType, key.split("/").pop() ?? key);
-  const response = await fetch(uploadUrl, {
-    method: "POST",
-    headers: buildAuthHeaders(apiKey),
-    body: formData,
-  });
 
-  if (!response.ok) {
-    const message = await response.text().catch(() => response.statusText);
-    throw new Error(
-      `Storage upload failed (${response.status} ${response.statusText}): ${message}`
-    );
+  try {
+    const response = await fetch(uploadUrl, {
+      method: "POST",
+      headers: buildAuthHeaders(apiKey),
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const message = await response.text().catch(() => response.statusText);
+      throw new Error(
+        `Storage upload failed (${response.status} ${response.statusText}): ${message}`
+      );
+    }
+    const url = (await response.json()).url;
+    return { key, url };
+  } catch (error) {
+    // Proxy unreachable — fall back to inline storage rather than losing the upload
+    console.warn("[Storage] Proxy upload failed, embedding inline:", error);
+    return { key, url: toDataUrl(data, contentType) };
   }
-  const url = (await response.json()).url;
-  return { key, url };
 }
 
 export async function storageGet(relKey: string): Promise<{ key: string; url: string; }> {
