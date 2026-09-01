@@ -11,6 +11,7 @@ import { initializeCronJobs } from "../cron";
 import { handleTraccarWebhook } from "../traccar-webhook";
 import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
+import { publicApiRouter } from "../public-api";
 import { WebSocketManager } from "../websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -184,6 +185,8 @@ async function startServer() {
   
   // Mobile REST API for native app
   app.use("/api/mobile", mobileRouter);
+  // External integrations API (X-API-Key)
+  app.use("/api/v1", publicApiRouter);
 
   // tRPC API
   app.use(

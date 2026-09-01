@@ -2216,6 +2216,31 @@ export const appRouter = router({
   }),
 
   // Super Admin routes for branch management
+  // External API keys management (developer panel)
+  apiKeys: router({
+    list: superAdminProcedure
+      .input(z.object({ branchId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.listApiKeys(input.branchId);
+      }),
+
+    create: superAdminProcedure
+      .input(z.object({
+        branchId: z.number(),
+        name: z.string().min(2).max(100),
+      }))
+      .mutation(async ({ input }) => {
+        // Returns the full key exactly once
+        return await db.createApiKey(input.branchId, input.name);
+      }),
+
+    revoke: superAdminProcedure
+      .input(z.object({ id: z.number(), branchId: z.number() }))
+      .mutation(async ({ input }) => {
+        return await db.revokeApiKey(input.id, input.branchId);
+      }),
+  }),
+
   branches: router({
     list: superAdminProcedure.query(async () => {
       return await db.getAllBranches();

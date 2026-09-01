@@ -342,6 +342,7 @@ export async function getOrderById(id: number) {
   const result = await db
     .select({
       id: orders.id,
+      branchId: orders.branchId,
       price: orders.price,
       status: orders.status,
       note: orders.note,
@@ -6194,4 +6195,151 @@ export async function getDeliveryRoute(orderId: string) {
     latitude: parseFloat(loc.latitude),
     longitude: parseFloat(loc.longitude),
   }));
+}
+
+// ===== External API keys =====
+
+import { apiKeys } from "../drizzle/schema";
+import { createHash, randomBytes } from "crypto";
+
+function hashApiKey(key: string): string {
+  return createHash("sha256").update(key).digest("hex");
+}
+
+export async function createApiKey(branchId: number, name: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // xn_ prefix + 40 hex chars; only the hash is stored
+  const key = "xn_" + randomBytes(20).toString("hex");
+  const keyPrefix = key.slice(0, 10);
+
+  await db.insert(apiKeys).values({
+    branchId,
+    name,
+    keyPrefix,
+    keyHash: hashApiKey(key),
+  });
+
+  // The full key is returned exactly once
+  return { key, keyPrefix };
+}
+
+export async function listApiKeys(branchId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select({
+    id: apiKeys.id,
+    name: apiKeys.name,
+    keyPrefix: apiKeys.keyPrefix,
+    isActive: apiKeys.isActive,
+    lastUsedAt: apiKeys.lastUsedAt,
+    createdAt: apiKeys.createdAt,
+  })
+    .from(apiKeys)
+    .where(eq(apiKeys.branchId, branchId))
+    .orderBy(desc(apiKeys.createdAt));
+}
+
+export async function revokeApiKey(id: number, branchId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(apiKeys)
+    .set({ isActive: 0 })
+    .where(and(eq(apiKeys.id, id), eq(apiKeys.branchId, branchId)));
+  return { success: true };
+}
+
+export async function resolveApiKey(key: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select()
+    .from(apiKeys)
+    .where(and(eq(apiKeys.keyHash, hashApiKey(key)), eq(apiKeys.isActive, 1)))
+    .limit(1);
+  if (rows.length === 0) return null;
+
+  // Best-effort usage stamp
+  db.update(apiKeys)
+    .set({ lastUsedAt: getCurrentSqlDatetime() })
+    .where(eq(apiKeys.id, rows[0].id))
+    .then(() => {})
+    .catch(() => {});
+
+  return rows[0];
+}
+
+// Delivery persons of a branch with live status for the external API
+export async function getDeliveryPersonsWithStatus(branchId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const persons = await db.select({
+    id: users.id,
+    name: users.name,
+    username: users.username,
+    phone: users.phone,
+    isActive: users.isActive,
+  })
+    .from(users)
+    .where(and(eq(users.branchId, branchId), eq(users.role, "delivery")));
+
+  if (persons.length === 0) return [];
+
+  const personIds = persons.map(p => p.id);
+
+  // Active (pending) orders per person
+  const activeRows = await db.select({
+    deliveryPersonId: orders.deliveryPersonId,
+    count: sql<number>`COUNT(*)`,
+  })
+    .from(orders)
+    .where(and(
+      eq(orders.branchId, branchId),
+      eq(orders.isDeleted, 0),
+      inArray(orders.status, ["pending", "pending_approval"]),
+      inArray(orders.deliveryPersonId, personIds),
+    ))
+    .groupBy(orders.deliveryPersonId);
+  const activeByPerson = new Map(activeRows.map(r => [r.deliveryPersonId, Number(r.count)]));
+
+  // Latest location per person (last hour)
+  const cutoff = sqlDatetime(new Date(Date.now() - 60 * 60 * 1000));
+  const locations = await db.select()
+    .from(deliveryLocations)
+    .where(and(
+      inArray(deliveryLocations.deliveryPersonId, personIds),
+      gte(deliveryLocations.createdAt, cutoff),
+    ))
+    .orderBy(desc(deliveryLocations.createdAt));
+  const latestLoc = new Map<number, typeof locations[number]>();
+  for (const loc of locations) {
+    if (!latestLoc.has(loc.deliveryPersonId)) latestLoc.set(loc.deliveryPersonId, loc);
+  }
+
+  const now = Date.now();
+  return persons.map(p => {
+    const loc = latestLoc.get(p.id);
+    const ageSeconds = loc ? (now - new Date(loc.createdAt).getTime()) / 1000 : Infinity;
+    const online = ageSeconds < 120;
+    const activeOrders = activeByPerson.get(p.id) || 0;
+    return {
+      id: p.id,
+      name: p.name,
+      username: p.username,
+      phone: p.phone,
+      isActive: p.isActive === 1,
+      online,
+      status: online ? (activeOrders > 0 ? "delivering" : "idle") : "offline",
+      activeOrders,
+      location: loc ? {
+        latitude: parseFloat(loc.latitude),
+        longitude: parseFloat(loc.longitude),
+        speed: loc.speed ? parseFloat(loc.speed) : null,
+        heading: loc.heading ? parseFloat(loc.heading) : null,
+        battery: loc.battery ? parseInt(loc.battery) : null,
+        updatedAt: loc.createdAt,
+      } : null,
+    };
+  });
 }

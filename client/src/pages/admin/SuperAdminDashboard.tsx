@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Plus, Users, Package, TrendingUp, Calendar, Edit, LogIn, Settings, AlertTriangle, Trash2 } from "lucide-react";
+import { Building2, Plus, Users, Package, TrendingUp, Calendar, Edit, LogIn, Settings, AlertTriangle, Trash2, KeyRound, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function SuperAdminDashboard() {
@@ -41,7 +41,28 @@ export default function SuperAdminDashboard() {
     subscriptionEndDate: "",
   });
 
+  const [apiDialogBranch, setApiDialogBranch] = useState<any>(null);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [freshKey, setFreshKey] = useState<string | null>(null);
+
   const { data: branchesStats, isLoading, refetch } = trpc.branches.getStats.useQuery();
+  const { data: branchApiKeys, refetch: refetchApiKeys } = trpc.apiKeys.list.useQuery(
+    { branchId: apiDialogBranch?.id || 0 },
+    { enabled: !!apiDialogBranch }
+  );
+  const createApiKeyMutation = trpc.apiKeys.create.useMutation({
+    onSuccess: (data) => {
+      setFreshKey(data.key);
+      setNewKeyName("");
+      refetchApiKeys();
+      toast.success("تم إنشاء المفتاح — انسخه الآن، لن يظهر مرة أخرى");
+    },
+    onError: (e) => toast.error(e.message || "فشل إنشاء المفتاح"),
+  });
+  const revokeApiKeyMutation = trpc.apiKeys.revoke.useMutation({
+    onSuccess: () => { refetchApiKeys(); toast.success("تم إلغاء المفتاح"); },
+    onError: (e) => toast.error(e.message || "فشل إلغاء المفتاح"),
+  });
   const { data: maintenanceStatus, refetch: refetchMaintenance } = trpc.maintenance.getStatus.useQuery();
   
   // تحديث بيانات الصيانة عند تحميلها
@@ -338,6 +359,14 @@ export default function SuperAdminDashboard() {
                 >
                   <LogIn className="w-4 h-4 ml-2" />
                   {loginToBranchMutation.isPending ? "جاري الدخول..." : "دخول"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  title="مفاتيح API"
+                  onClick={() => { setApiDialogBranch(branch); setFreshKey(null); }}
+                >
+                  <KeyRound className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="destructive" 
@@ -660,6 +689,98 @@ export default function SuperAdminDashboard() {
               {updateMaintenanceMutation.isPending ? "جاري التحديث..." : "حفظ التغييرات"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* API keys dialog */}
+      <Dialog open={!!apiDialogBranch} onOpenChange={(open) => { if (!open) { setApiDialogBranch(null); setFreshKey(null); } }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5" />
+              مفاتيح API — {apiDialogBranch?.name}
+            </DialogTitle>
+            <DialogDescription>
+              اربط هذا الفرع بنظامك الخارجي: المندوبون وحالاتهم، إنشاء الطلبات، ومتابعتها
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* المفتاح الجديد - يظهر مرة واحدة */}
+          {freshKey && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/40 p-4 space-y-2">
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                انسخ المفتاح الآن — لن يظهر مرة أخرى
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 rounded bg-background border px-3 py-2 text-xs break-all" dir="ltr">{freshKey}</code>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(freshKey); toast.success("تم النسخ"); }}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* إنشاء مفتاح */}
+          <div className="flex gap-2">
+            <Input
+              placeholder="اسم المفتاح (مثال: نظام المطعم)"
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+            />
+            <Button
+              onClick={() => createApiKeyMutation.mutate({ branchId: apiDialogBranch.id, name: newKeyName.trim() })}
+              disabled={createApiKeyMutation.isPending || newKeyName.trim().length < 2}
+            >
+              <Plus className="w-4 h-4 ml-1" />
+              إنشاء مفتاح
+            </Button>
+          </div>
+
+          {/* قائمة المفاتيح */}
+          <div className="space-y-2">
+            {(branchApiKeys || []).length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-2">لا توجد مفاتيح بعد</p>
+            )}
+            {(branchApiKeys || []).map((k: any) => (
+              <div key={k.id} className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <p className="font-medium text-sm">{k.name}</p>
+                  <p className="text-xs text-muted-foreground" dir="ltr">
+                    {k.keyPrefix}•••• — {k.isActive ? (k.lastUsedAt ? `آخر استخدام: ${k.lastUsedAt}` : "لم يُستخدم بعد") : "ملغى"}
+                  </p>
+                </div>
+                {k.isActive === 1 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => revokeApiKeyMutation.mutate({ id: k.id, branchId: apiDialogBranch.id })}
+                    disabled={revokeApiKeyMutation.isPending}
+                  >
+                    إلغاء
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* توثيق مختصر */}
+          <div className="rounded-lg bg-muted/60 p-4 text-xs space-y-2" dir="ltr">
+            <p className="font-bold text-sm" dir="rtl">طريقة الاستخدام — أرسل المفتاح في ترويسة كل طلب:</p>
+            <code className="block">X-API-Key: xn_xxxxxxxx...</code>
+            <p className="font-semibold pt-1">Base URL: {window.location.origin}/api/v1</p>
+            <ul className="space-y-1 font-mono">
+              <li>GET /delivery-persons <span className="text-muted-foreground">— المندوبون وحالاتهم (delivering / idle / offline + الموقع)</span></li>
+              <li>GET /regions <span className="text-muted-foreground">— المناطق لاختيار regionId</span></li>
+              <li>GET /orders?status=pending <span className="text-muted-foreground">— الطلبات</span></li>
+              <li>GET /orders/:id <span className="text-muted-foreground">— حالة طلب</span></li>
+              <li>POST /orders <span className="text-muted-foreground">— إنشاء طلب</span></li>
+            </ul>
+            <p className="text-muted-foreground pt-1">POST /orders body:</p>
+            <code className="block whitespace-pre">{`{ "deliveryPersonId": 1, "regionId": 1, "price": 25000,
+  "address": "...", "note": "...",
+  "customerName": "...", "customerPhone": "07xxxxxxxxx" }`}</code>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

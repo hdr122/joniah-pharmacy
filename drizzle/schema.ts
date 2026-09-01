@@ -460,3 +460,22 @@ export type SiteSetting = typeof siteSettings.$inferSelect;
 export type InsertNotificationSetting = typeof notificationSettings.$inferInsert;
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
 
+
+// External API keys — one per integration, scoped to a branch
+export const apiKeys = mysqlTable("api_keys", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	name: varchar({ length: 100 }).notNull(),
+	keyPrefix: varchar({ length: 12 }).notNull(),
+	keyHash: varchar({ length: 64 }).notNull(),
+	isActive: tinyint().default(1).notNull(),
+	lastUsedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("api_keys_branch_idx").on(table.branchId),
+	index("api_keys_hash_idx").on(table.keyHash),
+]);
+
+export type InsertApiKey = typeof apiKeys.$inferInsert;
+export type ApiKey = typeof apiKeys.$inferSelect;
