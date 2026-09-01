@@ -1387,6 +1387,17 @@ export const appRouter = router({
       }),
   }),
 
+  // Recorded Calls (المكالمات المسجّلة) — تحليل المكالمات المرسل من نظام المطعم عبر X-API-Key
+  callRecordings: router({
+    list: protectedProcedure
+      .input(z.object({ limit: z.number().optional(), q: z.string().optional() }))
+      .query(async ({ ctx, input }) => {
+        const branchId = ctx.user.branchId;
+        if (!branchId) return [];
+        return await db.getCallRecordings(branchId, input);
+      }),
+  }),
+
   // Advanced Reports
   reports: router({
     incompleteOrders: adminProcedure.query(async ({ ctx }) => {

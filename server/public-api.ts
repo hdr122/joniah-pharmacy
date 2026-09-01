@@ -348,3 +348,25 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
     res.status(500).json({ error: "internal_error" });
   }
 });
+
+// استقبال مكالمة محللة من نظام المطعم (النص + بيانات الزبون المستخرجة) بعد تحليل الذكاء الاصطناعي
+publicApiRouter.post("/call-recording", async (req: ApiRequest, res: Response) => {
+  try {
+    const { phone, callerName, customerName, area, address, items, notes, transcript, source } = req.body || {};
+    const { id } = await db.saveCallRecording(req.apiBranchId!, {
+      phone: phone != null ? String(phone) : undefined,
+      callerName: callerName != null ? String(callerName) : undefined,
+      customerName: customerName != null ? String(customerName) : undefined,
+      area: area != null ? String(area) : undefined,
+      address: address != null ? String(address) : undefined,
+      items: items != null ? String(items) : undefined,
+      notes: notes != null ? String(notes) : undefined,
+      transcript: transcript != null ? String(transcript) : undefined,
+      source: source != null ? String(source) : undefined,
+    });
+    res.json({ ok: true, id });
+  } catch (e) {
+    console.error("[API v1] call-recording error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});

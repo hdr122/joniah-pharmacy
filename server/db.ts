@@ -2,7 +2,7 @@ import { eq, and, desc, asc, sql, gte, lte, lt, gt, inArray, isNotNull } from "d
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool } from "mysql2";
 import { notifyOwner } from "./_core/notification";
-import { InsertUser, users, regions, provinces, orders, notifications, messages, InsertRegion, InsertProvince, InsertOrder, customers, deliveryLocations, InsertDeliveryLocation, dailyStats, pushSubscriptions, activityLogs, InsertActivityLog, orderFormSettings, InsertOrderFormSetting, orderLocations, orderRouteTracking, InsertOrderRouteTracking, settings, subscriptionCodes, branches, maintenanceMode, storeProducts, storePurchases, subscriptionActivations, updates, announcements, announcementReads, siteSettings, notificationSettings, notificationLogs } from "../drizzle/schema";
+import { InsertUser, users, regions, provinces, orders, notifications, messages, InsertRegion, InsertProvince, InsertOrder, customers, deliveryLocations, InsertDeliveryLocation, dailyStats, pushSubscriptions, activityLogs, InsertActivityLog, orderFormSettings, InsertOrderFormSetting, orderLocations, orderRouteTracking, InsertOrderRouteTracking, settings, subscriptionCodes, branches, maintenanceMode, storeProducts, storePurchases, subscriptionActivations, updates, announcements, announcementReads, siteSettings, notificationSettings, notificationLogs, callRecordings } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { hash, compare } from 'bcryptjs';
 import { getStartOfDay, getEndOfDay, getTodayRange, getYesterdayRange, getBusinessDateString, getCurrentSqlDatetime, toSqlDatetime as sqlDatetime } from './dateUtils';
@@ -6381,4 +6381,78 @@ export async function getDeliveryPersonsWithStatus(branchId: number) {
       } : null,
     };
   });
+}
+
+// ===== Call Recordings (المكالمات المسجّلة + تحليل الذكاء الاصطناعي) =====
+// الجدول يُنشأ وقت التشغيل (بلا db:push) — نظام المطعم يرسل تحليل المكالمة عبر POST /api/v1/call-recording
+export async function ensureCallRecordingsTable() {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS call_recordings (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      branchId INT NOT NULL,
+      phone VARCHAR(30) DEFAULT '',
+      callerName VARCHAR(255) DEFAULT '',
+      customerName VARCHAR(255) DEFAULT '',
+      area VARCHAR(255) DEFAULT '',
+      address TEXT,
+      items TEXT,
+      notes TEXT,
+      transcript LONGTEXT,
+      source VARCHAR(30) DEFAULT 'call',
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX branch_idx (branchId)
+    )`);
+  } catch (e) {
+    console.warn("[Database] ensureCallRecordingsTable failed:", e);
+  }
+}
+
+export async function saveCallRecording(branchId: number, data: {
+  phone?: string;
+  callerName?: string;
+  customerName?: string;
+  area?: string;
+  address?: string;
+  items?: string;
+  notes?: string;
+  transcript?: string;
+  source?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await ensureCallRecordingsTable();
+  const [result] = await db.insert(callRecordings).values({
+    branchId,
+    phone: data.phone ?? "",
+    callerName: data.callerName ?? "",
+    customerName: data.customerName ?? "",
+    area: data.area ?? "",
+    address: data.address,
+    items: data.items,
+    notes: data.notes,
+    transcript: data.transcript,
+    source: data.source || "call",
+    createdAt: getCurrentSqlDatetime(),
+  });
+  return { id: Number(result.insertId) };
+}
+
+export async function getCallRecordings(branchId: number, opts?: { limit?: number; q?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+  await ensureCallRecordingsTable();
+  const limit = Math.min(Math.max(opts?.limit ?? 100, 1), 500);
+  const conditions = [eq(callRecordings.branchId, branchId)];
+  const q = opts?.q?.trim();
+  if (q) {
+    const like = `%${q}%`;
+    conditions.push(sql`(${callRecordings.phone} LIKE ${like} OR ${callRecordings.callerName} LIKE ${like} OR ${callRecordings.customerName} LIKE ${like} OR ${callRecordings.transcript} LIKE ${like})`);
+  }
+  return await db.select()
+    .from(callRecordings)
+    .where(and(...conditions))
+    .orderBy(desc(callRecordings.id))
+    .limit(limit);
 }

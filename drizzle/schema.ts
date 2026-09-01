@@ -479,3 +479,26 @@ export const apiKeys = mysqlTable("api_keys", {
 
 export type InsertApiKey = typeof apiKeys.$inferInsert;
 export type ApiKey = typeof apiKeys.$inferSelect;
+
+// المكالمات المسجّلة — نظام المطعم يرسل تحليل المكالمة (النص + بيانات الزبون) بعد تحليل الذكاء الاصطناعي
+// ملاحظة: transcript يُنشأ كـ LONGTEXT وقت التشغيل عبر ensureCallRecordingsTable في server/db.ts
+export const callRecordings = mysqlTable("call_recordings", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	phone: varchar({ length: 30 }),
+	callerName: varchar({ length: 255 }),
+	customerName: varchar({ length: 255 }),
+	area: varchar({ length: 255 }),
+	address: text(),
+	items: text(),
+	notes: text(),
+	transcript: text(),
+	source: varchar({ length: 30 }).default('call'),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("call_recordings_branch_idx").on(table.branchId),
+]);
+
+export type InsertCallRecording = typeof callRecordings.$inferInsert;
+export type CallRecording = typeof callRecordings.$inferSelect;

@@ -36,6 +36,7 @@ import {
   Bell,
   Megaphone,
   Palette,
+  Phone,
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -215,6 +216,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: Bell, label: "التحديثات", path: "/admin/updates" },
     { icon: LayoutDashboard, label: "لوحة التحكم", path: "/admin" },
     { icon: UserCircle, label: "الزبائن", path: "/admin/customers", permission: PERMISSIONS.VIEW_CUSTOMERS },
+    { icon: Phone, label: "المكالمات المسجّلة", path: "/admin/call-recordings" },
   ];
 
   // فلترة العناصر الرئيسية (تختفي كلها خارج سياق الفرع)

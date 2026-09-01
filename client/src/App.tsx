@@ -28,6 +28,7 @@ import DeliveryDashboardPage from "./pages/admin/DeliveryDashboard";
 import DeliveryPersonDetailsPage from "./pages/DeliveryPersonDetails";
 import Customers from "./pages/admin/Customers";
 import CustomerDetails from "./pages/admin/CustomerDetails";
+import CallRecordings from "./pages/admin/CallRecordings";
 import IncompleteOrders from "./pages/admin/IncompleteOrders";
 import MonthlyPerformance from "./pages/admin/MonthlyPerformance";
 import CreateOrder from "./pages/admin/CreateOrder";
@@ -413,6 +414,16 @@ function Router() {
           return (
             <AdminLayout>
               <CustomerDetails />
+            </AdminLayout>
+          );
+        }}
+      </Route>
+      <Route path="/admin/call-recordings">
+        {() => {
+          if (!isAdmin) return <Redirect to="/delivery" />;
+          return (
+            <AdminLayout>
+              <CallRecordings />
             </AdminLayout>
           );
         }}
