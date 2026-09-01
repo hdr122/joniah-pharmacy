@@ -42,7 +42,7 @@ export default function RegisterPharmacy() {
     }
 
     if (!formData.pharmacyName.trim()) {
-      toast.error('الرجاء إدخال اسم الصيدلية');
+      toast.error('الرجاء إدخال اسم النظام');
       return;
     }
 
@@ -78,14 +78,14 @@ export default function RegisterPharmacy() {
         password: formData.password,
       });
 
-      toast.success('تم إنشاء الصيدلية بنجاح! يمكنك الآن تسجيل الدخول');
+      toast.success('تم إنشاء نظامك بنجاح! يمكنك الآن تسجيل الدخول');
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
         setLocation('/login');
       }, 2000);
     } catch (error: any) {
-      toast.error(error.message || 'فشل في إنشاء الصيدلية');
+      toast.error(error.message || 'فشل في إنشاء النظام');
     } finally {
       setIsSubmitting(false);
     }
@@ -100,9 +100,9 @@ export default function RegisterPharmacy() {
               <Building2 className="h-12 w-12 text-violet-600 dark:text-violet-400" />
             </div>
           </div>
-          <CardTitle className="text-3xl">إنشاء صيدلية جديدة</CardTitle>
+          <CardTitle className="text-3xl">إنشاء نظام المندوبين الخاص بك</CardTitle>
           <CardDescription className="text-base">
-            قم بإدخال كود التفعيل ومعلومات الصيدلية لبدء الاشتراك
+            أدخل كود التفعيل ومعلومات نظامك لبدء الاشتراك
           </CardDescription>
           {priceData && (
             <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded-lg mt-4">
@@ -134,16 +134,16 @@ export default function RegisterPharmacy() {
             </div>
 
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-lg mb-4">معلومات الصيدلية</h3>
+              <h3 className="font-semibold text-lg mb-4">معلومات النظام</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="pharmacyName">اسم الصيدلية *</Label>
+                  <Label htmlFor="pharmacyName">اسم النظام *</Label>
                   <Input
                     id="pharmacyName"
                     name="pharmacyName"
                     value={formData.pharmacyName}
                     onChange={handleChange}
-                    placeholder="صيدلية الأمل"
+                    placeholder="مثال: مطعم النخيل"
                     required
                   />
                 </div>
@@ -256,7 +256,7 @@ export default function RegisterPharmacy() {
                   </>
                 ) : (
                   <>
-                    إنشاء الصيدلية
+                    إنشاء النظام
                     <ArrowRight className="mr-2 h-4 w-4" />
                   </>
                 )}

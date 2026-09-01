@@ -2462,7 +2462,7 @@ export const appRouter = router({
 
   // Pharmacy registration
   pharmacy: router({
-    // إنشاء صيدلية جديدة
+    // إنشاء نظام/فرع جديد
     register: publicProcedure
       .input(z.object({
         activationCode: z.string(),

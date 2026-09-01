@@ -5558,7 +5558,7 @@ export async function registerPharmacy(params: {
     throw new Error("اسم المستخدم مستخدم بالفعل");
   }
 
-  // إنشاء الفرع (الصيدلية)
+  // إنشاء الفرع
   const branchCode = `PH-${Date.now()}`;
   const subscriptionEndDate = new Date();
   subscriptionEndDate.setDate(subscriptionEndDate.getDate() + subscriptionCode.durationDays);
