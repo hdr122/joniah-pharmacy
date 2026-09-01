@@ -6279,6 +6279,7 @@ export async function getDeliveryPersonsWithStatus(branchId: number) {
     name: users.name,
     username: users.username,
     phone: users.phone,
+    profileImage: users.profileImage,
     isActive: users.isActive,
   })
     .from(users)

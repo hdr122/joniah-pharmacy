@@ -84,6 +84,73 @@ publicApiRouter.get("/delivery-persons", async (req: ApiRequest, res: Response) 
   }
 });
 
+// ---- POS integration additions (نظام زينون للمطاعم) ----------------------
+
+// إنشاء مندوب جديد من نظام المطعم — يظهر فوراً في تطبيق المندوب
+publicApiRouter.post("/delivery-persons", async (req: ApiRequest, res: Response) => {
+  try {
+    const { username, password, name, phone, profileImage } = req.body || {};
+    if (!username || String(username).length < 3 || !password || String(password).length < 4 || !name || String(name).length < 2) {
+      return res.status(400).json({ error: "missing_fields", message: "الحقول المطلوبة: username(3+), password(4+), name(2+)" });
+    }
+    const existing = await db.getUserByUsername(String(username));
+    if (existing) return res.status(400).json({ error: "username_taken", message: "اسم المستخدم محجوز" });
+    const created = await db.createUser({
+      username: String(username), password: String(password), name: String(name),
+      role: "delivery", phone: phone ? String(phone) : undefined,
+      profileImage: profileImage ? String(profileImage) : undefined,
+      branchId: req.apiBranchId!,
+    });
+    res.status(201).json({ id: created.id, username, name });
+  } catch (e) {
+    console.error("[API v1] create delivery-person error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
+// البحث عن زبون برقم الهاتف
+publicApiRouter.get("/customers", async (req: ApiRequest, res: Response) => {
+  try {
+    const phone = String(req.query.phone || "").trim();
+    if (!phone) return res.status(400).json({ error: "missing_phone" });
+    const customer = await db.getCustomerByPhone(phone, req.apiBranchId!);
+    res.json({ customer: customer || null });
+  } catch (e) {
+    console.error("[API v1] customers lookup error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
+// إنشاء/تحديث زبون مباشرةً (بلا طلب) — مطابقة بالهاتف
+publicApiRouter.post("/customers", async (req: ApiRequest, res: Response) => {
+  try {
+    const { name, phone, address1, notes, regionId } = req.body || {};
+    if (!phone) return res.status(400).json({ error: "missing_phone", message: "رقم الهاتف مطلوب" });
+    const existing = await db.getCustomerByPhone(String(phone), req.apiBranchId!);
+    if (existing) {
+      await db.updateCustomer(existing.id, {
+        name: name ? String(name) : undefined,
+        address1: address1 ? String(address1) : undefined,
+        notes: notes ? String(notes) : undefined,
+        regionId: regionId ? Number(regionId) : undefined,
+      });
+      return res.json({ id: existing.id, updated: true });
+    }
+    const created = await db.createCustomer({
+      branchId: req.apiBranchId!,
+      name: name ? String(name) : undefined,
+      phone: String(phone),
+      address1: address1 ? String(address1) : undefined,
+      notes: notes ? String(notes) : undefined,
+      regionId: regionId ? Number(regionId) : null,
+    });
+    res.status(201).json({ id: created.id, created: true });
+  } catch (e) {
+    console.error("[API v1] customers create error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 publicApiRouter.get("/regions", async (req: ApiRequest, res: Response) => {
   try {
     const regions = await db.getAllRegions(req.apiBranchId!);
