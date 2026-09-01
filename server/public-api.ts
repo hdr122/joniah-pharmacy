@@ -175,6 +175,29 @@ publicApiRouter.get("/provinces", async (req: ApiRequest, res: Response) => {
 });
 
 // إنشاء منطقة توصيل جديدة — تظهر فوراً في نظام المطعم وفي نظام المندوبين
+// مسار توصيل طلب (نقاط GPS) — لعرضه على الخريطة في نظام المطعم
+publicApiRouter.get("/orders/:id/route", async (req: ApiRequest, res: Response) => {
+  try {
+    const orderId = Number(req.params.id);
+    if (!orderId) return res.status(400).json({ error: "invalid_id" });
+    const order = await db.getOrderById(orderId);
+    if (!order || order.branchId !== req.apiBranchId) return res.status(404).json({ error: "order_not_found" });
+    const points = await db.getOrderRoutePoints(orderId);
+    res.json({
+      orderId,
+      status: order.status,
+      points: (points || []).map((p: any) => ({
+        latitude: parseFloat(p.latitude),
+        longitude: parseFloat(p.longitude),
+        timestamp: p.timestamp || p.createdAt,
+      })).filter((p: any) => !isNaN(p.latitude) && !isNaN(p.longitude)),
+    });
+  } catch (e) {
+    console.error("[API v1] order route error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 publicApiRouter.post("/regions", async (req: ApiRequest, res: Response) => {
   try {
     const branchId = req.apiBranchId!;

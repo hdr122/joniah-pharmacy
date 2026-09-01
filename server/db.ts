@@ -6329,6 +6329,7 @@ export async function getDeliveryPersonsWithStatus(branchId: number) {
       name: p.name,
       username: p.username,
       phone: p.phone,
+      profileImage: p.profileImage || null,
       isActive: p.isActive === 1,
       online,
       status: online ? (activeOrders > 0 ? "delivering" : "idle") : "offline",
