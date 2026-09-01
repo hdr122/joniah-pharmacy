@@ -137,7 +137,8 @@ interface MapViewProps {
 
 export function MapView({
   className,
-  initialCenter = { lat: 37.7749, lng: -122.4194 },
+  // Baghdad by default — the system operates in Iraq
+  initialCenter = { lat: 33.3152, lng: 44.3661 },
   initialZoom = 12,
   onMapReady,
 }: MapViewProps) {
