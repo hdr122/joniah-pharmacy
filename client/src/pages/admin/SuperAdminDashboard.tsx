@@ -64,6 +64,17 @@ export default function SuperAdminDashboard() {
     onError: (e) => toast.error(e.message || "فشل إلغاء المفتاح"),
   });
   const { data: maintenanceStatus, refetch: refetchMaintenance } = trpc.maintenance.getStatus.useQuery();
+  // Xenon AI
+  const { data: aiAdmin, refetch: refetchAi } = trpc.xenonAi.getAdmin.useQuery();
+  const [aiKeyInput, setAiKeyInput] = useState("");
+  const setAiKeyMutation = trpc.xenonAi.setKey.useMutation({
+    onSuccess: () => { setAiKeyInput(""); refetchAi(); toast.success("تم حفظ مفتاح Xenon AI"); },
+    onError: (e) => toast.error(e.message || "فشل الحفظ"),
+  });
+  const setAiBranchMutation = trpc.xenonAi.setBranch.useMutation({
+    onSuccess: () => { refetchAi(); toast.success("تم تحديث تفعيل Xenon AI للفرع"); },
+    onError: (e) => toast.error(e.message || "فشل"),
+  });
   
   // تحديث بيانات الصيانة عند تحميلها
   useState(() => {
@@ -271,6 +282,36 @@ export default function SuperAdminDashboard() {
         </Card>
       </div>
 
+      {/* Xenon AI — إعدادات عامة */}
+      <Card className="mb-6 border-purple-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">🧠 إعدادات Xenon AI</CardTitle>
+          <CardDescription>
+            نظام تسجيل وتحليل مكالمات التوصيل. مفتاح واحد لكل الفروع، وتُفعّله لكل فرع من زر «🧠 AI» بجانب الفرع.
+            {aiAdmin?.hasKey
+              ? <span className="text-green-600 font-semibold"> — ✅ المفتاح مضبوط ({aiAdmin.keyPreview})</span>
+              : <span className="text-amber-600 font-semibold"> — ⚠️ لم يُضبط المفتاح بعد</span>}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2 items-center">
+            <Input
+              type="password"
+              placeholder="مفتاح Xenon AI"
+              value={aiKeyInput}
+              onChange={(e) => setAiKeyInput(e.target.value)}
+              className="max-w-sm font-mono"
+            />
+            <Button onClick={() => aiKeyInput.trim() && setAiKeyMutation.mutate({ key: aiKeyInput.trim() })} disabled={setAiKeyMutation.isPending || !aiKeyInput.trim()}>
+              حفظ المفتاح
+            </Button>
+            {aiAdmin?.enabledBranches?.length ? (
+              <span className="text-sm text-muted-foreground">فروع مفعّلة: {aiAdmin.enabledBranches.length}</span>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* قائمة الفروع */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {branchesStats?.map((branch: any) => (
@@ -367,6 +408,15 @@ export default function SuperAdminDashboard() {
                   onClick={() => { setApiDialogBranch(branch); setFreshKey(null); }}
                 >
                   <KeyRound className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={aiAdmin?.enabledBranches?.includes(branch.id) ? "default" : "outline"}
+                  size="sm"
+                  title="Xenon AI — تسجيل وتحليل المكالمات"
+                  onClick={() => setAiBranchMutation.mutate({ branchId: branch.id, enabled: !aiAdmin?.enabledBranches?.includes(branch.id) })}
+                  disabled={setAiBranchMutation.isPending}
+                >
+                  🧠 {aiAdmin?.enabledBranches?.includes(branch.id) ? "AI ✓" : "AI"}
                 </Button>
                 <Button 
                   variant="destructive" 

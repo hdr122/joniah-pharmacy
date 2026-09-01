@@ -56,6 +56,18 @@ publicApiRouter.use(authenticateApiKey);
 
 // ---- endpoints ------------------------------------------------------------
 
+// Xenon AI config for this branch (POS calls this with its X-API-Key).
+// Returns the key only when Xenon AI is enabled for the branch by super-admin.
+publicApiRouter.get("/ai-config", async (req: ApiRequest, res: Response) => {
+  try {
+    const cfg = await db.getXenonAiForBranch(req.apiBranchId!);
+    res.json(cfg);
+  } catch (e) {
+    console.error("[API v1] ai-config error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 publicApiRouter.get("/branch", async (req: ApiRequest, res: Response) => {
   try {
     const branch = await db.getBranchById(req.apiBranchId!);

@@ -2241,6 +2241,25 @@ export const appRouter = router({
       }),
   }),
 
+  // Xenon AI (تسجيل وتحليل المكالمات) — global key + per-branch enable
+  xenonAi: router({
+    getAdmin: superAdminProcedure.query(async () => {
+      return await db.getXenonAiAdmin();
+    }),
+    setKey: superAdminProcedure
+      .input(z.object({ key: z.string().optional(), model: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        if (input.key && input.key.trim()) await db.updateSiteSetting("xenon_ai_key", input.key.trim());
+        if (input.model && input.model.trim()) await db.updateSiteSetting("xenon_ai_model", input.model.trim());
+        return { success: true };
+      }),
+    setBranch: superAdminProcedure
+      .input(z.object({ branchId: z.number(), enabled: z.boolean() }))
+      .mutation(async ({ input }) => {
+        return await db.setXenonAiBranch(input.branchId, input.enabled);
+      }),
+  }),
+
   branches: router({
     list: superAdminProcedure.query(async () => {
       return await db.getAllBranches();

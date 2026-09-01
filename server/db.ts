@@ -5860,6 +5860,43 @@ export async function updateSiteSetting(key: string, value: string) {
   return { success: true };
 }
 
+// ===== Xenon AI (call recording + analysis) — global key + per-branch toggle =====
+export async function getSiteSettingValue(key: string): Promise<string> {
+  const db = await getDb();
+  if (!db) return "";
+  const rows = await db.select().from(siteSettings).where(eq(siteSettings.settingKey, key));
+  return rows[0]?.settingValue || "";
+}
+export async function getXenonAiForBranch(branchId: number) {
+  let enabledList: number[] = [];
+  try { enabledList = JSON.parse((await getSiteSettingValue("xenon_ai_enabled_branches")) || "[]"); } catch (_) {}
+  const enabled = Array.isArray(enabledList) && enabledList.includes(Number(branchId));
+  if (!enabled) return { enabled: false, key: "", model: "gemini-3.6-flash" };
+  const key = await getSiteSettingValue("xenon_ai_key");
+  const model = (await getSiteSettingValue("xenon_ai_model")) || "gemini-3.6-flash";
+  return { enabled: true, key, model };
+}
+export async function getXenonAiAdmin() {
+  const key = await getSiteSettingValue("xenon_ai_key");
+  let enabledList: number[] = [];
+  try { enabledList = JSON.parse((await getSiteSettingValue("xenon_ai_enabled_branches")) || "[]"); } catch (_) {}
+  return {
+    hasKey: !!key,
+    keyPreview: key ? key.slice(0, 6) + "••••" + key.slice(-4) : "",
+    model: (await getSiteSettingValue("xenon_ai_model")) || "gemini-3.6-flash",
+    enabledBranches: Array.isArray(enabledList) ? enabledList : [],
+  };
+}
+export async function setXenonAiBranch(branchId: number, enabled: boolean) {
+  let list: number[] = [];
+  try { list = JSON.parse((await getSiteSettingValue("xenon_ai_enabled_branches")) || "[]"); } catch (_) {}
+  if (!Array.isArray(list)) list = [];
+  const id = Number(branchId);
+  list = enabled ? Array.from(new Set([...list, id])) : list.filter(x => x !== id);
+  await updateSiteSetting("xenon_ai_enabled_branches", JSON.stringify(list));
+  return { success: true, enabled };
+}
+
 // ===== Notification Settings =====
 
 export async function getNotificationSettings(branchId: number) {
