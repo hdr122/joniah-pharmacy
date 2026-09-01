@@ -6320,7 +6320,10 @@ export async function getDeliveryPersonsWithStatus(branchId: number) {
     isActive: users.isActive,
   })
     .from(users)
-    .where(and(eq(users.branchId, branchId), eq(users.role, "delivery")));
+    // active couriers only — a deactivated courier must NOT appear as a phantom in
+    // the roster (otherwise orders get assigned to it and the real courier never
+    // sees them).
+    .where(and(eq(users.branchId, branchId), eq(users.role, "delivery"), eq(users.isActive, 1)));
 
   if (persons.length === 0) return [];
 
