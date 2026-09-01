@@ -163,6 +163,68 @@ publicApiRouter.get("/regions", async (req: ApiRequest, res: Response) => {
   }
 });
 
+// قائمة المحافظات
+publicApiRouter.get("/provinces", async (req: ApiRequest, res: Response) => {
+  try {
+    const provinces = await db.getAllProvinces(req.apiBranchId!);
+    res.json({ provinces: provinces.map((p: any) => ({ id: p.id, name: p.name })) });
+  } catch (e) {
+    console.error("[API v1] provinces error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
+// إنشاء منطقة توصيل جديدة — تظهر فوراً في نظام المطعم وفي نظام المندوبين
+publicApiRouter.post("/regions", async (req: ApiRequest, res: Response) => {
+  try {
+    const branchId = req.apiBranchId!;
+    const name = String((req.body && req.body.name) || "").trim();
+    if (!name || name.length < 2) return res.status(400).json({ error: "missing_name", message: "اسم المنطقة مطلوب (حرفان على الأقل)" });
+    // تفادي التكرار داخل نفس الفرع
+    const existingRegions = await db.getAllRegions(branchId);
+    const dup = existingRegions.find((r: any) => String(r.name).trim() === name);
+    if (dup) return res.status(200).json({ id: dup.id, name: dup.name, provinceId: dup.provinceId, existed: true });
+    // المنطقة تحتاج محافظة — استخدم المُعطاة أو أول محافظة أو أنشئ واحدة افتراضية
+    let provinceId = Number((req.body && req.body.provinceId) || 0) || 0;
+    let provinces = await db.getAllProvinces(branchId);
+    if (provinceId) {
+      if (!provinces.find((p: any) => p.id === provinceId)) return res.status(400).json({ error: "invalid_province" });
+    } else if (provinces.length > 0) {
+      provinceId = provinces[0].id;
+    } else {
+      await db.createProvince("المحافظة", branchId);
+      provinces = await db.getAllProvinces(branchId);
+      provinceId = provinces[0].id;
+    }
+    await db.createRegion(name, provinceId, branchId);
+    const after = await db.getAllRegions(branchId);
+    const created = after.find((r: any) => String(r.name).trim() === name) || after[0];
+    res.status(201).json({ id: created.id, name: created.name, provinceId: created.provinceId });
+  } catch (e) {
+    console.error("[API v1] create region error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
+// إنشاء محافظة جديدة (اختياري)
+publicApiRouter.post("/provinces", async (req: ApiRequest, res: Response) => {
+  try {
+    const branchId = req.apiBranchId!;
+    const name = String((req.body && req.body.name) || "").trim();
+    if (!name || name.length < 2) return res.status(400).json({ error: "missing_name" });
+    const existing = await db.getAllProvinces(branchId);
+    const dup = existing.find((p: any) => String(p.name).trim() === name);
+    if (dup) return res.status(200).json({ id: dup.id, name: dup.name, existed: true });
+    await db.createProvince(name, branchId);
+    const after = await db.getAllProvinces(branchId);
+    const created = after.find((p: any) => String(p.name).trim() === name) || after[0];
+    res.status(201).json({ id: created.id, name: created.name });
+  } catch (e) {
+    console.error("[API v1] create province error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 publicApiRouter.get("/orders", async (req: ApiRequest, res: Response) => {
   try {
     const { status, limit, offset } = req.query;
