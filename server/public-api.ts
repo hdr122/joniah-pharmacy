@@ -352,7 +352,7 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
 // استقبال مكالمة محللة من نظام المطعم (النص + بيانات الزبون المستخرجة) بعد تحليل الذكاء الاصطناعي
 publicApiRouter.post("/call-recording", async (req: ApiRequest, res: Response) => {
   try {
-    const { phone, callerName, customerName, area, address, items, notes, transcript, source } = req.body || {};
+    const { phone, callerName, customerName, area, address, items, notes, transcript, source, audioBase64, mimeType } = req.body || {};
     const { id } = await db.saveCallRecording(req.apiBranchId!, {
       phone: phone != null ? String(phone) : undefined,
       callerName: callerName != null ? String(callerName) : undefined,
@@ -363,6 +363,8 @@ publicApiRouter.post("/call-recording", async (req: ApiRequest, res: Response) =
       notes: notes != null ? String(notes) : undefined,
       transcript: transcript != null ? String(transcript) : undefined,
       source: source != null ? String(source) : undefined,
+      audioBase64: audioBase64 != null ? String(audioBase64) : undefined,
+      mimeType: mimeType != null ? String(mimeType) : undefined,
     });
     res.json({ ok: true, id });
   } catch (e) {

@@ -27,6 +27,7 @@ import {
   User,
   Package,
   Calendar,
+  Volume2,
 } from "lucide-react";
 
 interface CallRecording {
@@ -42,6 +43,42 @@ interface CallRecording {
   transcript: string | null;
   source: string | null;
   createdAt: string;
+  hasAudio?: boolean;
+}
+
+// مشغّل صوت المكالمة — يجلب الصوت (base64) عند فتح النافذة فقط ويشغّله.
+function CallAudioPlayer({ recordingId }: { recordingId: number }) {
+  const { data, isLoading } = trpc.callRecordings.audio.useQuery(
+    { id: recordingId },
+    { refetchOnWindowFocus: false }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
+        <Loader2 className="w-4 h-4 animate-spin" /> جارٍ تحميل التسجيل الصوتي…
+      </div>
+    );
+  }
+  if (!data?.audioBase64) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-400 p-3 bg-gray-50 rounded-lg">
+        <Volume2 className="w-4 h-4" /> لا يوجد تسجيل صوتي لهذه المكالمة
+      </div>
+    );
+  }
+  return (
+    <div className="p-3 bg-violet-50 rounded-lg space-y-2">
+      <div className="flex items-center gap-2 text-sm font-medium text-violet-800">
+        <Volume2 className="w-4 h-4" /> التسجيل الصوتي للمكالمة
+      </div>
+      <audio
+        controls
+        className="w-full"
+        src={`data:${data.mimeType || "audio/mp4"};base64,${data.audioBase64}`}
+      />
+    </div>
+  );
 }
 
 function formatDate(value: string | null) {
@@ -258,7 +295,7 @@ export default function CallRecordings() {
                           className="gap-2"
                           onClick={() => setSelected(call)}
                         >
-                          <MessageSquare className="w-4 h-4" />
+                          {call.hasAudio ? <Volume2 className="w-4 h-4 text-violet-600" /> : <MessageSquare className="w-4 h-4" />}
                           عرض المكالمة
                         </Button>
                       </TableCell>
@@ -322,6 +359,9 @@ export default function CallRecordings() {
                   </div>
                 )}
               </div>
+
+              {/* Audio player (loads on demand) */}
+              {selected.hasAudio && <CallAudioPlayer recordingId={selected.id} />}
 
               {/* Transcript */}
               <div className="border-t pt-4">

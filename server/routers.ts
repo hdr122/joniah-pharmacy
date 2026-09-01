@@ -1396,6 +1396,14 @@ export const appRouter = router({
         if (!branchId) return [];
         return await db.getCallRecordings(branchId, input);
       }),
+    // صوت مكالمة واحدة (base64) — يُطلب عند ضغط زر الاستماع فقط.
+    audio: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const branchId = ctx.user.branchId;
+        if (!branchId) return null;
+        return await db.getCallRecordingAudio(branchId, input.id);
+      }),
   }),
 
   // Advanced Reports

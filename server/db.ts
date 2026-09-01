@@ -6409,6 +6409,35 @@ export async function ensureCallRecordingsTable() {
   }
 }
 
+// db.execute في هذا الإعداد يُعيد صفوف SELECT مباشرةً (مصفوفة كائنات)، لكن نحمي
+// أنفسنا من شكل mysql2 التقليدي [rows, fields] أيضاً.
+function rowsOf(r: any): any[] {
+  if (!Array.isArray(r)) return r?.rows || [];
+  if (r.length > 0 && Array.isArray(r[0])) return r[0];
+  return r;
+}
+
+// جدول منفصل لصوت المكالمة (base64) — يُنشأ وقت التشغيل بلا db:push، وبعيداً عن
+// جدول التحليل حتى لا يُثقل قوائم العرض. يُجلب عند الطلب فقط (زر الاستماع).
+export async function ensureCallRecordingAudioTable() {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS call_recording_audio (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      recordingId INT NOT NULL,
+      branchId INT NOT NULL,
+      mimeType VARCHAR(50) DEFAULT 'audio/mp4',
+      audioBase64 LONGTEXT,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX rec_idx (recordingId),
+      INDEX branch_idx (branchId)
+    )`);
+  } catch (e) {
+    console.warn("[Database] ensureCallRecordingAudioTable failed:", e);
+  }
+}
+
 export async function saveCallRecording(branchId: number, data: {
   phone?: string;
   callerName?: string;
@@ -6419,6 +6448,8 @@ export async function saveCallRecording(branchId: number, data: {
   notes?: string;
   transcript?: string;
   source?: string;
+  audioBase64?: string;
+  mimeType?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -6436,7 +6467,35 @@ export async function saveCallRecording(branchId: number, data: {
     source: data.source || "call",
     createdAt: getCurrentSqlDatetime(),
   });
-  return { id: Number(result.insertId) };
+  const id = Number(result.insertId);
+  // خزّن الصوت (إن وُجد) في الجدول المنفصل ليُشغَّل من لوحة المدير.
+  if (data.audioBase64 && data.audioBase64.length > 100) {
+    try {
+      await ensureCallRecordingAudioTable();
+      await db.execute(sql`INSERT INTO call_recording_audio (recordingId, branchId, mimeType, audioBase64)
+        VALUES (${id}, ${branchId}, ${data.mimeType || "audio/mp4"}, ${data.audioBase64})`);
+    } catch (e) {
+      console.warn("[Database] saveCallRecording audio failed:", e);
+    }
+  }
+  return { id };
+}
+
+// صوت مكالمة واحدة (base64) — مقيّد بفرع المستخدم. null إن لا يوجد.
+export async function getCallRecordingAudio(branchId: number, recordingId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  await ensureCallRecordingAudioTable();
+  try {
+    const res: any = await db.execute(sql`SELECT mimeType, audioBase64 FROM call_recording_audio
+      WHERE recordingId = ${recordingId} AND branchId = ${branchId} ORDER BY id DESC LIMIT 1`);
+    const row = rowsOf(res)[0];
+    if (!row || !row.audioBase64) return null;
+    return { mimeType: row.mimeType || "audio/mp4", audioBase64: String(row.audioBase64) };
+  } catch (e) {
+    console.warn("[Database] getCallRecordingAudio failed:", e);
+    return null;
+  }
 }
 
 export async function getCallRecordings(branchId: number, opts?: { limit?: number; q?: string }) {
@@ -6450,9 +6509,22 @@ export async function getCallRecordings(branchId: number, opts?: { limit?: numbe
     const like = `%${q}%`;
     conditions.push(sql`(${callRecordings.phone} LIKE ${like} OR ${callRecordings.callerName} LIKE ${like} OR ${callRecordings.customerName} LIKE ${like} OR ${callRecordings.transcript} LIKE ${like})`);
   }
-  return await db.select()
+  const rows = await db.select()
     .from(callRecordings)
     .where(and(...conditions))
     .orderBy(desc(callRecordings.id))
     .limit(limit);
+
+  // أرفق hasAudio لكل مكالمة (بلا تحميل الصوت نفسه) ليظهر زر الاستماع عند توفره.
+  try {
+    if (rows.length) {
+      await ensureCallRecordingAudioTable();
+      const res: any = await db.execute(sql`SELECT DISTINCT recordingId FROM call_recording_audio WHERE branchId = ${branchId}`);
+      const withAudio = new Set(rowsOf(res).map((r: any) => Number(r.recordingId)));
+      return rows.map((r: any) => ({ ...r, hasAudio: withAudio.has(Number(r.id)) }));
+    }
+  } catch (e) {
+    console.warn("[Database] getCallRecordings hasAudio failed:", e);
+  }
+  return rows.map((r: any) => ({ ...r, hasAudio: false }));
 }
