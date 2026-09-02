@@ -30,6 +30,19 @@ export default function Deliveries() {
   const utils = trpc.useUtils();
   const { data: deliveries, isLoading } = trpc.users.getDeliveryPersons.useQuery();
 
+  // ترجمة أخطاء التحقق الخام (Zod JSON) إلى رسائل عربية مفهومة
+  const friendlyError = (error: any, fallback: string) => {
+    const msg = String(error?.message || "");
+    if (msg.includes("too_small") || msg.includes("Too small")) {
+      if (msg.includes("username")) return "اسم المستخدم قصير — 3 أحرف على الأقل";
+      if (msg.includes("password")) return "كلمة المرور قصيرة — 4 أحرف على الأقل";
+      if (msg.includes("name")) return "الاسم قصير — حرفان على الأقل";
+      return "أحد الحقول أقصر من المطلوب — تحقق من البيانات";
+    }
+    if (msg.startsWith("[") || msg.startsWith("{")) return fallback; // JSON خام آخر
+    return msg || fallback;
+  };
+
   const createMutation = trpc.users.create.useMutation({
     onSuccess: () => {
       toast.success("تم إضافة المندوب بنجاح");
@@ -38,7 +51,7 @@ export default function Deliveries() {
       utils.users.getDeliveryPersons.invalidate();
     },
     onError: (error: any) => {
-      toast.error(error.message || "فشل إضافة المندوب");
+      toast.error(friendlyError(error, "فشل إضافة المندوب"));
     },
   });
 
@@ -59,7 +72,7 @@ export default function Deliveries() {
       toast.success("تم تحديث كلمة السر بنجاح");
     },
     onError: (error: any) => {
-      toast.error(error.message || "فشل تحديث كلمة السر");
+      toast.error(friendlyError(error, "فشل تحديث كلمة السر"));
     },
   });
 
@@ -68,7 +81,7 @@ export default function Deliveries() {
       toast.success("تم تحديث اسم المستخدم بنجاح");
     },
     onError: (error: any) => {
-      toast.error(error.message || "فشل تحديث اسم المستخدم");
+      toast.error(friendlyError(error, "فشل تحديث اسم المستخدم"));
     },
   });
 
@@ -109,13 +122,28 @@ export default function Deliveries() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.name) {
+    // تحقق مسبق برسائل عربية واضحة — بدل خطأ Zod الخام من الخادم
+    // (الخادم يشترط: username ≥3، password ≥4، name ≥2)
+    const uname = formData.username.trim();
+    const fname = formData.name.trim();
+    if (!uname || !fname) {
       toast.error("الرجاء إدخال اسم المستخدم والاسم");
       return;
     }
-
+    if (uname.length < 3) {
+      toast.error("اسم المستخدم قصير — يجب أن يكون 3 أحرف على الأقل");
+      return;
+    }
+    if (fname.length < 2) {
+      toast.error("الاسم قصير — يجب أن يكون حرفين على الأقل");
+      return;
+    }
     if (!editingUser && !formData.password) {
       toast.error("الرجاء إدخال كلمة المرور");
+      return;
+    }
+    if (formData.password && formData.password.trim() !== "" && formData.password.length < 4) {
+      toast.error("كلمة المرور قصيرة — يجب أن تكون 4 أحرف على الأقل");
       return;
     }
 
@@ -143,21 +171,21 @@ export default function Deliveries() {
 
     if (editingUser) {
       // Update username if changed
-      if (formData.username !== editingUser.username) {
+      if (uname !== editingUser.username) {
         updateUsernameMutation.mutate({
           id: editingUser.id,
-          newUsername: formData.username,
+          newUsername: uname,
         });
       }
-      
+
       // Update user info
       updateMutation.mutate({
         id: editingUser.id,
-        name: formData.name,
+        name: fname,
         phone: formData.phone || undefined,
         profileImage: imageUrl || undefined,
       });
-      
+
       // Update password if provided
       if (formData.password && formData.password.trim() !== "") {
         updatePasswordMutation.mutate({
@@ -167,9 +195,9 @@ export default function Deliveries() {
       }
     } else {
       createMutation.mutate({
-        username: formData.username,
+        username: uname,
         password: formData.password,
-        name: formData.name,
+        name: fname,
         role: "delivery" as const,
         phone: formData.phone || undefined,
         profileImage: imageUrl || undefined,
