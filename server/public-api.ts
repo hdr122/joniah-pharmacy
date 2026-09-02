@@ -349,6 +349,68 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
   }
 });
 
+// تعديل طلب من النظام الخارجي (المطعم): ملاحظة/سعر/عنوان محدّثة، تحويل المندوب،
+// أو إلغاء. تحويل المندوب يعيد الطلب لحالة «بانتظار الموافقة» عند المندوب الجديد
+// (يُسحب من قائمة القديم فوراً لأن القوائم تُبنى على deliveryPersonId).
+publicApiRouter.put("/orders/:id", async (req: ApiRequest, res: Response) => {
+  try {
+    const orderId = parseInt(req.params.id);
+    if (!orderId) return res.status(400).json({ error: "invalid_id" });
+    const order = await db.getOrderById(orderId);
+    if (!order || order.branchId !== req.apiBranchId) {
+      return res.status(404).json({ error: "order_not_found" });
+    }
+    if (order.status === "delivered") {
+      return res.status(400).json({ error: "already_delivered", message: "الطلب مُسلَّم — لا يمكن تعديله" });
+    }
+
+    const { deliveryPersonId, note, price, address, status } = req.body || {};
+    const fields: {
+      note?: string; price?: number; address?: string;
+      deliveryPersonId?: number; status?: "pending_approval" | "cancelled"; acceptedAt?: null;
+    } = {};
+    if (note != null) fields.note = String(note);
+    if (price != null && !isNaN(Number(price))) fields.price = Number(price);
+    if (address != null) fields.address = String(address);
+
+    let transferredTo: { id: number; name: string } | null = null;
+    if (deliveryPersonId != null && Number(deliveryPersonId) !== order.deliveryPersonId) {
+      const person = await db.getUserById(Number(deliveryPersonId));
+      if (!person || person.role !== "delivery" || person.branchId !== req.apiBranchId) {
+        return res.status(400).json({ error: "invalid_delivery_person", message: "المندوب غير موجود في هذا الفرع" });
+      }
+      fields.deliveryPersonId = Number(deliveryPersonId);
+      fields.status = "pending_approval"; // المندوب الجديد يوافق من جديد
+      fields.acceptedAt = null;
+      transferredTo = { id: person.id, name: person.name || "" };
+    }
+    if (status === "cancelled") fields.status = "cancelled";
+
+    if (!Object.keys(fields).length) return res.json({ order });
+    await db.updateOrderFieldsExternal(orderId, fields);
+
+    // إشعار المندوب الجديد بالتحويل (best-effort)
+    if (transferredTo) {
+      try {
+        await db.createNotification({
+          branchId: req.apiBranchId!,
+          userId: transferredTo.id,
+          title: "طلب محوّل إليك",
+          message: `تم تحويل الطلب #${orderId} إليك من المطعم — بانتظار موافقتك`,
+          type: "order_assigned",
+          orderId,
+        });
+      } catch (_) { /* الإشعار ثانوي */ }
+    }
+
+    const updated = await db.getOrderById(orderId);
+    res.json({ order: updated });
+  } catch (e) {
+    console.error("[API v1] order update error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 // استقبال مكالمة محللة من نظام المطعم (النص + بيانات الزبون المستخرجة) بعد تحليل الذكاء الاصطناعي
 publicApiRouter.post("/call-recording", async (req: ApiRequest, res: Response) => {
   try {

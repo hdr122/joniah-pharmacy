@@ -587,6 +587,21 @@ export async function getOrdersByDeliveryPerson(deliveryPersonId: number) {
   return result;
 }
 
+// تحديث حقول طلب من الـ API الخارجي (المطعم): ملاحظة/سعر/عنوان/تحويل مندوب/إلغاء.
+// تُستخدم من PUT /api/v1/orders/:id فقط — التحقق من ملكية الفرع يتم في المسار.
+export async function updateOrderFieldsExternal(orderId: number, fields: {
+  note?: string;
+  price?: number;
+  address?: string;
+  deliveryPersonId?: number;
+  status?: "pending_approval" | "cancelled";
+  acceptedAt?: null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(orders).set(fields as any).where(eq(orders.id, orderId));
+}
+
 export async function updateOrderStatus(id: number, status: "pending_approval" | "pending" | "delivered" | "postponed" | "cancelled" | "returned", data?: {
   postponeReason?: string;
   returnReason?: string;
