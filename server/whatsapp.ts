@@ -431,14 +431,41 @@ async function lastSentMinutesAgo(branchId: number, toPhone: string): Promise<nu
   return row?.m == null ? null : Number(row.m);
 }
 
-/** Queue a text message. Resolves with the outcome (never throws). */
-export function send(branchId: number, phone: string, text: string, kind: "courier" | "customer" | "test", orderId: number | null = null): Promise<SendResult> {
+// ── توقيع Xenon ─────────────────────────────────────────────────────────────
+// يُذيَّل كل رسالة واتساب بتوقيع شركة Xenon. يُحرَّر من لوحة مطوّر الموقع فقط
+// (site_settings.whatsapp_footer)؛ صاحب الفرع لا يستطيع تعديله أو حذفه.
+export const DEFAULT_FOOTER = "— نظام شركة Xenon 🛡";
+export async function getFooter(): Promise<string> {
+  try {
+    const v = (await db.getSiteSettingValue("whatsapp_footer")).trim();
+    return v || DEFAULT_FOOTER;
+  } catch { return DEFAULT_FOOTER; }
+}
+export async function setFooter(text: string) {
+  await db.updateSiteSetting("whatsapp_footer", String(text || "").trim() || DEFAULT_FOOTER);
+  return getFooter();
+}
+export async function withFooter(text: string): Promise<string> {
+  const f = await getFooter();
+  const body = String(text || "").trim();
+  return body ? `${body}\n\n${f}` : f;
+}
+
+export type SendKind = "courier" | "customer" | "promo" | "test";
+
+/** Queue a text message (Xenon footer appended automatically). Resolves with the outcome (never throws). */
+export function send(branchId: number, phone: string, text: string, kind: SendKind, orderId: number | null = null): Promise<SendResult> {
   return new Promise<SendResult>((resolve) => {
     const c = getConn(branchId);
     const num = normalizePhone(phone);
     if (!num) { logSend(branchId, kind, phone, orderId, "skipped", "رقم غير صالح"); return resolve({ ok: false, skipped: "رقم غير صالح" }); }
-    c.queue.push({ jid: jidOf(num), text, kind, toPhone: num, orderId, resolve });
-    drain(branchId).catch(() => {});
+    withFooter(text).then((full) => {
+      c.queue.push({ jid: jidOf(num), text: full, kind, toPhone: num, orderId, resolve });
+      drain(branchId).catch(() => {});
+    }).catch(() => {
+      c.queue.push({ jid: jidOf(num), text, kind, toPhone: num, orderId, resolve });
+      drain(branchId).catch(() => {});
+    });
   });
 }
 

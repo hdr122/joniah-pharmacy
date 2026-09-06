@@ -32,6 +32,7 @@ export default function WhatsAppPage() {
   const utils = trpc.useUtils();
   const statusQ = trpc.whatsapp.status.useQuery(undefined, { refetchInterval: 3000, refetchOnWindowFocus: true });
   const logsQ = trpc.whatsapp.logs.useQuery(undefined, { refetchInterval: 10000 });
+  const footerQ = trpc.whatsapp.footer.useQuery();
   const connectM = trpc.whatsapp.connect.useMutation({ onSuccess: () => utils.whatsapp.status.invalidate() });
   const pairM = trpc.whatsapp.pairingCode.useMutation({ onSuccess: () => utils.whatsapp.status.invalidate() });
   const logoutM = trpc.whatsapp.logout.useMutation({ onSuccess: () => { utils.whatsapp.status.invalidate(); toast.success("تم فصل واتساب"); } });
@@ -141,7 +142,10 @@ export default function WhatsAppPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Send className="w-5 h-5 text-emerald-600" /> الإشعارات التلقائية</CardTitle>
-          <CardDescription>المتغيرات المتاحة في القوالب: {VARS.map(v => <code key={v} className="mx-0.5 px-1 rounded bg-gray-100 text-[11px]" dir="ltr">{v}</code>)} — <code dir="ltr">{"{ratingLink}"}</code> محجوز لميزة التقييم مستقبلاً.</CardDescription>
+          <CardDescription>
+            المتغيرات المتاحة في القوالب: {VARS.map(v => <code key={v} className="mx-0.5 px-1 rounded bg-gray-100 text-[11px]" dir="ltr">{v}</code>)} — <code dir="ltr">{"{ratingLink}"}</code> محجوز لميزة التقييم مستقبلاً.
+            <span className="block mt-2 text-xs text-gray-600">🛡 تُذيَّل كل رسالة تلقائياً بتوقيع: <b>{footerQ.data?.footer || "— نظام شركة Xenon 🛡"}</b> (ثابت من شركة Xenon — غير قابل للتعديل من هنا).</span>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <Toggle checked={s.enabled} onChange={(v) => set({ enabled: v })} label="تفعيل إشعارات واتساب لهذا الفرع" hint="مفتاح رئيسي — عند إيقافه لا تُرسل أي رسالة" />

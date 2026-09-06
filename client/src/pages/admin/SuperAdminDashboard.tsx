@@ -64,6 +64,15 @@ export default function SuperAdminDashboard() {
     onError: (e) => toast.error(e.message || "فشل إلغاء المفتاح"),
   });
   const { data: maintenanceStatus, refetch: refetchMaintenance } = trpc.maintenance.getStatus.useQuery();
+  // توقيع واتساب (Xenon) — يُحرَّر هنا فقط
+  const { data: waFooter, refetch: refetchWaFooter } = trpc.whatsapp.superGetFooter.useQuery();
+  const [waFooterInput, setWaFooterInput] = useState<string | null>(null);
+  const setWaFooterMutation = trpc.whatsapp.superSetFooter.useMutation({
+    onSuccess: () => { setWaFooterInput(null); refetchWaFooter(); toast.success("تم حفظ توقيع واتساب"); },
+    onError: (e) => toast.error(e.message),
+  });
+  const waFooterValue = waFooterInput ?? (waFooter?.footer || "");
+
   // Xenon AI
   const { data: aiAdmin, refetch: refetchAi } = trpc.xenonAi.getAdmin.useQuery();
   const [aiKeyInput, setAiKeyInput] = useState("");
@@ -281,6 +290,38 @@ export default function SuperAdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* توقيع رسائل واتساب — شركة Xenon (لا يستطيع أصحاب الفروع تعديله) */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">🛡 توقيع رسائل واتساب (Xenon)</CardTitle>
+          <CardDescription>يُلحَق تلقائياً بنهاية كل رسالة واتساب يرسلها أي فرع (للمندوبين والزبائن والهدايا). أصحاب الفروع يرونه فقط ولا يمكنهم تعديله أو حذفه.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <textarea
+            className="w-full border rounded-md p-2 text-sm h-20"
+            dir="rtl"
+            value={waFooterValue}
+            onChange={(e) => setWaFooterInput(e.target.value)}
+            placeholder={waFooter?.defaultFooter || "— نظام شركة Xenon 🛡"}
+          />
+          <div className="rounded-md border bg-gray-50 p-3">
+            <p className="text-xs text-gray-500 mb-1">معاينة كيف تظهر الرسالة للزبون:</p>
+            <pre className="whitespace-pre-wrap text-sm font-sans text-gray-800" dir="rtl">{`مرحباً أبو أحمد 👋
+تم استلام طلبك رقم #1024 من مطعمنا.
+🍔 الطلب:
+• 2× برجر لحم = 10,000
+💵 الإجمالي: 11,000 د.ع
+
+${waFooterValue || waFooter?.defaultFooter || "— نظام شركة Xenon 🛡"}`}</pre>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" disabled={setWaFooterMutation.isPending || waFooterInput === null}
+              onClick={() => setWaFooterMutation.mutate({ footer: waFooterValue })}>حفظ التوقيع</Button>
+            <Button size="sm" variant="outline" onClick={() => setWaFooterInput(waFooter?.defaultFooter || "— نظام شركة Xenon 🛡")}>استعادة الافتراضي</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Xenon AI — إعدادات عامة */}
       <Card className="mb-6 border-purple-300">

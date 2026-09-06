@@ -419,6 +419,23 @@ publicApiRouter.put("/orders/:id", async (req: ApiRequest, res: Response) => {
 });
 
 // استقبال مكالمة محللة من نظام المطعم (النص + بيانات الزبون المستخرجة) بعد تحليل الذكاء الاصطناعي
+// إرسال رسالة واتساب عبر رقم الفرع المرتبط (يستخدمه نظام المطعم لهدايا البروموكود مثلاً).
+// يمرّ عبر نظام Xenon للحماية ويُذيَّل بتوقيع Xenon تلقائياً.
+publicApiRouter.post("/whatsapp/send", async (req: ApiRequest, res: Response) => {
+  try {
+    const { phone, text, kind } = req.body || {};
+    if (!phone || !text) return res.status(400).json({ error: "missing_fields", message: "phone و text مطلوبان" });
+    const st = whatsapp.status(req.apiBranchId!);
+    if (st.status !== "connected") return res.status(409).json({ error: "whatsapp_not_connected", message: "واتساب الفرع غير متصل — اربطه من لوحة الفرع ← واتساب" });
+    const k = kind === "promo" ? "promo" : "customer";
+    const r = await whatsapp.send(req.apiBranchId!, String(phone), String(text).slice(0, 1500), k as any);
+    res.json(r);
+  } catch (e) {
+    console.error("[API v1] whatsapp/send error:", e);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 publicApiRouter.post("/call-recording", async (req: ApiRequest, res: Response) => {
   try {
     const { phone, callerName, customerName, area, address, items, notes, transcript, source, audioBase64, mimeType } = req.body || {};

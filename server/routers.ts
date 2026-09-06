@@ -1441,13 +1441,20 @@ export const appRouter = router({
       .input(z.object({ phone: z.string().min(8), text: z.string().max(1000).optional() }))
       .mutation(async ({ ctx, input }) => whatsapp.send(getBranchId(ctx.user), input.phone, input.text || "✅ رسالة تجريبية من Xenon Delivery — الربط يعمل", "test")),
     logs: adminProcedure.query(async ({ ctx }) => whatsapp.getLogs(getBranchId(ctx.user), 100)),
+    // توقيع Xenon (للقراءة فقط عند صاحب الفرع)
+    footer: adminProcedure.query(async () => ({ footer: await whatsapp.getFooter() })),
+    // تحرير التوقيع — لوحة المطوّر فقط
+    superGetFooter: superAdminProcedure.query(async () => ({ footer: await whatsapp.getFooter(), defaultFooter: whatsapp.DEFAULT_FOOTER })),
+    superSetFooter: superAdminProcedure
+      .input(z.object({ footer: z.string().max(300) }))
+      .mutation(async ({ input }) => ({ footer: await whatsapp.setFooter(input.footer) })),
     preview: adminProcedure
       .input(z.object({ template: z.string().max(2000) }))
-      .query(({ input }) => whatsapp.renderTemplate(input.template, {
+      .query(async ({ input }) => whatsapp.withFooter(whatsapp.renderTemplate(input.template, {
         order: 1024, name: "أبو أحمد", phone: "07701234567", area: "المنصور", address: "شارع 14 قرب الجامع",
         items: "• 2× برجر لحم = 10,000\n• 1× بيبسي = 1,000", total: "11,000", note: "الاتصال قبل الوصول",
         driver: "كرار", driverPhone: "07709876543", branch: "مطعمنا", ratingLink: "",
-      })),
+      }))),
   }),
 
   // Advanced Reports
