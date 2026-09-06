@@ -1355,7 +1355,7 @@ export const appRouter = router({
     // Filter customers by order count
     filterByOrderCount: adminProcedure
       .input(z.object({
-        operator: z.enum(['gt', 'lt', 'eq']),
+        operator: z.enum(['gt', 'gte', 'lt', 'lte', 'eq']),
         count: z.number(),
       }))
       .query(async ({ input, ctx }) => {
@@ -1376,14 +1376,15 @@ export const appRouter = router({
     // Get customers with combined filters
     filterAdvanced: adminProcedure
       .input(z.object({
-        orderCountOperator: z.enum(['gt', 'lt', 'eq']).optional(),
+        orderCountOperator: z.enum(['gt', 'gte', 'lt', 'lte', 'eq']).optional(),
         orderCount: z.number().optional(),
         inactiveDays: z.number().optional(),
         inactiveMonths: z.number().optional(),
         inactiveSinceDate: z.string().optional(),
       }))
-      .query(async ({ input }) => {
-        return await db.getCustomersWithFilters(input);
+      .query(async ({ input, ctx }) => {
+        // كان بلا تقييد بالفرع — فيعرض زبائن كل الفروع
+        return await db.getCustomersWithFilters(input, getBranchId(ctx.user));
       }),
   }),
 

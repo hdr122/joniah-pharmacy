@@ -29,7 +29,8 @@ export default function Customers() {
   const urlParams = new URLSearchParams(searchParams);
   const initialFilterMode = (urlParams.get('filterMode') as any) || 'all';
   const initialSearchQuery = urlParams.get('search') || '';
-  const initialOrderCountOperator = (urlParams.get('orderCountOp') as any) || 'gt';
+  // الافتراضي ≥ : «زبائن لديهم N طلبات أو أكثر» هو الاستعمال الأشيع
+  const initialOrderCountOperator = (urlParams.get('orderCountOp') as any) || 'gte';
   const initialOrderCount = parseInt(urlParams.get('orderCount') || '5');
   const initialInactiveDays = parseInt(urlParams.get('inactiveDays') || '30');
   const initialInactiveMonths = parseInt(urlParams.get('inactiveMonths') || '0');
@@ -44,7 +45,7 @@ export default function Customers() {
   const [spentRange, setSpentRange] = useState<'all' | 'under50k' | '50k-100k' | '100k-500k' | 'over500k'>(initialSpentRange || 'all');
   
   // Order count filter
-  const [orderCountOperator, setOrderCountOperator] = useState<'gt' | 'lt' | 'eq'>(initialOrderCountOperator);
+  const [orderCountOperator, setOrderCountOperator] = useState<'gt' | 'gte' | 'lt' | 'lte' | 'eq'>(initialOrderCountOperator);
   const [orderCount, setOrderCount] = useState<number>(initialOrderCount);
   
   // Inactive filter
@@ -67,7 +68,7 @@ export default function Customers() {
     const params = new URLSearchParams();
     if (filterMode !== 'all') params.set('filterMode', filterMode);
     if (searchQuery) params.set('search', searchQuery);
-    if (orderCountOperator !== 'gt') params.set('orderCountOp', orderCountOperator);
+    if (orderCountOperator !== 'gte') params.set('orderCountOp', orderCountOperator);
     if (orderCount !== 5) params.set('orderCount', orderCount.toString());
     if (inactiveDays !== 30) params.set('inactiveDays', inactiveDays.toString());
     if (inactiveMonths !== 0) params.set('inactiveMonths', inactiveMonths.toString());
@@ -123,12 +124,13 @@ export default function Customers() {
   const { data: deliveryPersons } = trpc.users.getDeliveryPersons.useQuery();
   const { data: regions } = trpc.regions.list.useQuery();
   
+  // spentRange = 'all' لا يُشغّل استعلام البحث (معطّل) — فنعرض كل الزبائن بدل قائمة فارغة.
   const allCustomers = searchQuery.length > 0 ? searchResults :
                        filterMode === 'orderCount' ? orderCountFiltered :
                        filterMode === 'inactive' ? inactiveFiltered :
                        filterMode === 'advanced' ? advancedFiltered :
                        filterMode === 'orderStatus' ? orderStatusFiltered :
-                       filterMode === 'spentRange' ? searchResults :
+                       filterMode === 'spentRange' ? (spentRange !== 'all' ? searchResults : customers) :
                        customers;
   
   // Apply delivery person and region filters
@@ -314,9 +316,11 @@ export default function Customers() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="gt">أكثر من</SelectItem>
-                      <SelectItem value="lt">أقل من</SelectItem>
-                      <SelectItem value="eq">يساوي</SelectItem>
+                      <SelectItem value="gte">أكثر من أو يساوي (≥)</SelectItem>
+                      <SelectItem value="gt">أكثر من (&gt;)</SelectItem>
+                      <SelectItem value="lte">أقل من أو يساوي (≤)</SelectItem>
+                      <SelectItem value="lt">أقل من (&lt;)</SelectItem>
+                      <SelectItem value="eq">يساوي (=)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -421,9 +425,11 @@ export default function Customers() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="gt">أكثر من</SelectItem>
-                          <SelectItem value="lt">أقل من</SelectItem>
-                          <SelectItem value="eq">يساوي</SelectItem>
+                          <SelectItem value="gte">أكثر من أو يساوي (≥)</SelectItem>
+                          <SelectItem value="gt">أكثر من (&gt;)</SelectItem>
+                          <SelectItem value="lte">أقل من أو يساوي (≤)</SelectItem>
+                          <SelectItem value="lt">أقل من (&lt;)</SelectItem>
+                          <SelectItem value="eq">يساوي (=)</SelectItem>
                         </SelectContent>
                       </Select>
                       <Input

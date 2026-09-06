@@ -3486,15 +3486,27 @@ export async function getOrdersForExport(filters: {
 /**
  * Get customers filtered by order count
  */
+// شرط عدد الطلبات كـ SQL حسب المعامل (gt/gte/lt/lte/eq)
+function orderCountCondition(operator: 'gt' | 'gte' | 'lt' | 'lte' | 'eq', count: number) {
+  switch (operator) {
+    case 'gt':  return sql`COUNT(o.id) > ${count}`;
+    case 'gte': return sql`COUNT(o.id) >= ${count}`;
+    case 'lt':  return sql`COUNT(o.id) < ${count}`;
+    case 'lte': return sql`COUNT(o.id) <= ${count}`;
+    default:    return sql`COUNT(o.id) = ${count}`;
+  }
+}
+
 export async function getCustomersByOrderCount(filters: {
-  operator: 'gt' | 'lt' | 'eq'; // greater than, less than, equal
+  operator: 'gt' | 'gte' | 'lt' | 'lte' | 'eq';
   count: number;
 }, branchId: number) {
   const db = await getDb();
   if (!db) return [];
 
+  // الطلبات المحذوفة لا تُحسب ضمن عدد طلبات الزبون
   const result = await db.execute(sql`
-    SELECT 
+    SELECT
       c.id,
       MAX(c.name) as name,
       MAX(c.phone) as phone,
@@ -3503,17 +3515,15 @@ export async function getCustomersByOrderCount(filters: {
       MAX(c.address2) as address2,
       MAX(c.locationUrl1) as locationUrl1,
       MAX(c.locationUrl2) as locationUrl2,
+      MAX(c.regionId) as regionId,
       MAX(c.createdAt) as createdAt,
       COUNT(o.id) as orderCount,
       MAX(o.createdAt) as lastOrderDate
     FROM customers c
-    LEFT JOIN orders o ON c.id = o.customerId
+    LEFT JOIN orders o ON c.id = o.customerId AND o.isDeleted = 0
     WHERE c.branchId = ${branchId}
     GROUP BY c.id
-    HAVING 
-      ${filters.operator === 'gt' ? sql`COUNT(o.id) > ${filters.count}` :
-        filters.operator === 'lt' ? sql`COUNT(o.id) < ${filters.count}` :
-        sql`COUNT(o.id) = ${filters.count}`}
+    HAVING ${orderCountCondition(filters.operator, filters.count)}
     ORDER BY orderCount DESC
   `);
 
@@ -3572,12 +3582,12 @@ export async function getInactiveCustomers(filters: {
  * Get customers with combined filters
  */
 export async function getCustomersWithFilters(filters: {
-  orderCountOperator?: 'gt' | 'lt' | 'eq';
+  orderCountOperator?: 'gt' | 'gte' | 'lt' | 'lte' | 'eq';
   orderCount?: number;
   inactiveDays?: number;
   inactiveMonths?: number;
   inactiveSinceDate?: string;
-}) {
+}, branchId: number) {
   const db = await getDb();
   if (!db) return [];
 
@@ -3585,13 +3595,7 @@ export async function getCustomersWithFilters(filters: {
 
   // Build order count condition
   if (filters.orderCountOperator && filters.orderCount !== undefined) {
-    if (filters.orderCountOperator === 'gt') {
-      conditions.push(sql`COUNT(o.id) > ${filters.orderCount}`);
-    } else if (filters.orderCountOperator === 'lt') {
-      conditions.push(sql`COUNT(o.id) < ${filters.orderCount}`);
-    } else {
-      conditions.push(sql`COUNT(o.id) = ${filters.orderCount}`);
-    }
+    conditions.push(orderCountCondition(filters.orderCountOperator, filters.orderCount));
   }
 
   // Build inactive condition
@@ -3618,11 +3622,13 @@ export async function getCustomersWithFilters(filters: {
       MAX(c.locationUrl1) as locationUrl1,
       MAX(c.locationUrl2) as locationUrl2,
       MAX(c.createdAt) as createdAt,
+      MAX(c.regionId) as regionId,
       COUNT(o.id) as orderCount,
       MAX(o.createdAt) as lastOrderDate,
       DATEDIFF(NOW(), MAX(o.createdAt)) as daysSinceLastOrder
     FROM customers c
-    LEFT JOIN orders o ON c.id = o.customerId
+    LEFT JOIN orders o ON c.id = o.customerId AND o.isDeleted = 0
+    WHERE c.branchId = ${branchId}
     GROUP BY c.id
     ${havingClause}
     ORDER BY orderCount DESC, lastOrderDate DESC
