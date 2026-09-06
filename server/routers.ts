@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import * as whatsapp from "./whatsapp";
+import * as sentiment from "./sentiment";
 import { storagePut } from "./storage";
 import { getCurrentSqlDatetime } from "./dateUtils";
 import * as oneSignal from "./onesignal";
@@ -1398,6 +1399,22 @@ export const appRouter = router({
   }),
 
   // Recorded Calls (المكالمات المسجّلة) — تحليل المكالمات المرسل من نظام المطعم عبر X-API-Key
+  // ── 🧠 تحليل الزبائن والمكالمات (Xenon AI): الحالة المزاجية وسببها لكل شخص ──
+  sentiment: router({
+    list: adminProcedure
+      .input(z.object({ mood: z.string().optional(), channel: z.string().optional(), q: z.string().optional(), from: z.string().optional(), to: z.string().optional() }).optional())
+      .query(async ({ ctx, input }) => sentiment.list(getBranchId(ctx.user), input || {})),
+    analyzeNow: adminProcedure
+      .input(z.object({ max: z.number().min(1).max(30).optional() }).optional())
+      .mutation(async ({ ctx, input }) => sentiment.analyzePending(getBranchId(ctx.user), input?.max ?? 12)),
+    reanalyze: adminProcedure
+      .input(z.object({ refKey: z.string().min(5) }))
+      .mutation(async ({ ctx, input }) => sentiment.reanalyze(getBranchId(ctx.user), input.refKey)),
+    detail: adminProcedure
+      .input(z.object({ refKey: z.string().min(5) }))
+      .query(async ({ ctx, input }) => sentiment.detail(getBranchId(ctx.user), input.refKey)),
+  }),
+
   callRecordings: router({
     list: protectedProcedure
       .input(z.object({ limit: z.number().optional(), q: z.string().optional() }))
@@ -1441,6 +1458,25 @@ export const appRouter = router({
       .input(z.object({ phone: z.string().min(8), text: z.string().max(1000).optional() }))
       .mutation(async ({ ctx, input }) => whatsapp.send(getBranchId(ctx.user), input.phone, input.text || "✅ رسالة تجريبية من Xenon Delivery — الربط يعمل", "test")),
     logs: adminProcedure.query(async ({ ctx }) => whatsapp.getLogs(getBranchId(ctx.user), 100)),
+    // 📥 صندوق رسائل الزبائن (نظام شركة Xenon للاتصالات)
+    conversations: adminProcedure.query(async ({ ctx }) => {
+      const b = getBranchId(ctx.user);
+      const [list, stats] = await Promise.all([whatsapp.listConversations(b), whatsapp.inboxStats(b)]);
+      return { conversations: list, stats };
+    }),
+    messages: adminProcedure
+      .input(z.object({ phone: z.string().min(6) }))
+      .query(async ({ ctx, input }) => {
+        const b = getBranchId(ctx.user);
+        await whatsapp.markRead(b, input.phone).catch(() => {});
+        return whatsapp.getMessages(b, input.phone);
+      }),
+    reply: adminProcedure
+      .input(z.object({ phone: z.string().min(6), text: z.string().min(1).max(2000) }))
+      .mutation(async ({ ctx, input }) => whatsapp.reply(getBranchId(ctx.user), input.phone, input.text)),
+    summarize: adminProcedure
+      .input(z.object({ phone: z.string().min(6), force: z.boolean().optional() }))
+      .mutation(async ({ ctx, input }) => whatsapp.summarize(getBranchId(ctx.user), input.phone, !!input.force)),
     // توقيع Xenon (للقراءة فقط عند صاحب الفرع)
     footer: adminProcedure.query(async () => ({ footer: await whatsapp.getFooter() })),
     // تحرير التوقيع — لوحة المطوّر فقط

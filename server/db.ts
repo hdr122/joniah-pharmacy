@@ -6409,6 +6409,7 @@ export async function getDeliveryPersonsWithStatus(branchId: number) {
 
 // ===== Call Recordings (المكالمات المسجّلة + تحليل الذكاء الاصطناعي) =====
 // الجدول يُنشأ وقت التشغيل (بلا db:push) — نظام المطعم يرسل تحليل المكالمة عبر POST /api/v1/call-recording
+let callTypeColEnsured = false;
 export async function ensureCallRecordingsTable() {
   const db = await getDb();
   if (!db) return;
@@ -6430,6 +6431,14 @@ export async function ensureCallRecordingsTable() {
     )`);
   } catch (e) {
     console.warn("[Database] ensureCallRecordingsTable failed:", e);
+  }
+  // عمود نوع المكالمة (واتساب | رصيد) — يُضاف مرة واحدة للجداول القديمة بلا db:push
+  if (!callTypeColEnsured) {
+    callTypeColEnsured = true;
+    try {
+      const cols: any = await db.execute(sql`SHOW COLUMNS FROM call_recordings LIKE 'callType'`);
+      if (rowsOf(cols).length === 0) await db.execute(sql`ALTER TABLE call_recordings ADD COLUMN callType VARCHAR(20) DEFAULT ''`);
+    } catch (e) { callTypeColEnsured = false; console.warn("[Database] call_recordings.callType:", e); }
   }
 }
 
@@ -6472,6 +6481,7 @@ export async function saveCallRecording(branchId: number, data: {
   notes?: string;
   transcript?: string;
   source?: string;
+  callType?: string;
   audioBase64?: string;
   mimeType?: string;
 }) {
@@ -6489,6 +6499,7 @@ export async function saveCallRecording(branchId: number, data: {
     notes: data.notes,
     transcript: data.transcript,
     source: data.source || "call",
+    callType: data.callType || "",
     createdAt: getCurrentSqlDatetime(),
   });
   const id = Number(result.insertId);

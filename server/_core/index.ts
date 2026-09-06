@@ -13,6 +13,7 @@ import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
 import { publicApiRouter } from "../public-api";
 import * as whatsapp from "../whatsapp";
+import * as sentiment from "../sentiment";
 import { WebSocketManager } from "../websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -190,6 +191,8 @@ async function startServer() {
   app.use("/api/v1", publicApiRouter);
   // WhatsApp: أعد ربط جلسات الفروع المحفوظة بعد الإقلاع (لا تعطّل الخادم عند الفشل)
   setTimeout(() => { whatsapp.init().catch((e) => console.warn("[whatsapp] init:", e?.message || e)); }, 3000);
+  // 🧠 تحليل الزبائن والمكالمات: يعمل تلقائياً كل 10 دقائق للفروع المفعّل لها Xenon AI
+  try { sentiment.startScheduler(); } catch (e: any) { console.warn("[sentiment] scheduler:", e?.message || e); }
 
   // tRPC API
   app.use(

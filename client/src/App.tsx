@@ -30,6 +30,8 @@ import Customers from "./pages/admin/Customers";
 import CustomerDetails from "./pages/admin/CustomerDetails";
 import CallRecordings from "./pages/admin/CallRecordings";
 import WhatsAppPage from "./pages/admin/WhatsApp";
+import WhatsAppInbox from "./pages/admin/WhatsAppInbox";
+import CustomerAnalysis from "./pages/admin/CustomerAnalysis";
 import IncompleteOrders from "./pages/admin/IncompleteOrders";
 import MonthlyPerformance from "./pages/admin/MonthlyPerformance";
 import CreateOrder from "./pages/admin/CreateOrder";
@@ -435,6 +437,26 @@ function Router() {
           return (
             <AdminLayout>
               <WhatsAppPage />
+            </AdminLayout>
+          );
+        }}
+      </Route>
+      <Route path="/admin/whatsapp-inbox">
+        {() => {
+          if (!isAdmin) return <Redirect to="/delivery" />;
+          return (
+            <AdminLayout>
+              <WhatsAppInbox />
+            </AdminLayout>
+          );
+        }}
+      </Route>
+      <Route path="/admin/customer-analysis">
+        {() => {
+          if (!isAdmin) return <Redirect to="/delivery" />;
+          return (
+            <AdminLayout>
+              <CustomerAnalysis />
             </AdminLayout>
           );
         }}

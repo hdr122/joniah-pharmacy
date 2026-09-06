@@ -494,6 +494,7 @@ export const callRecordings = mysqlTable("call_recordings", {
 	notes: text(),
 	transcript: text(),
 	source: varchar({ length: 30 }).default('call'),
+	callType: varchar({ length: 20 }).default(''), // whatsapp | cellular | ''
 	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
 },
 (table) => [

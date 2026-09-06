@@ -42,8 +42,16 @@ interface CallRecording {
   notes: string | null;
   transcript: string | null;
   source: string | null;
+  callType?: string | null;
   createdAt: string;
   hasAudio?: boolean;
+}
+
+// نوع المكالمة: واتساب أم رصيد (هاتف عادي)
+function CallTypeBadge({ type }: { type?: string | null }) {
+  if (type === "whatsapp") return <Badge className="bg-emerald-600 text-white border-0">📞 واتساب</Badge>;
+  if (type === "cellular") return <Badge className="bg-sky-600 text-white border-0">📱 رصيد</Badge>;
+  return <Badge variant="outline" className="text-gray-500">غير محدد</Badge>;
 }
 
 // مشغّل صوت المكالمة — يجلب الصوت (base64) عند فتح النافذة فقط ويشغّله.
@@ -252,6 +260,7 @@ export default function CallRecordings() {
                   <TableRow>
                     <TableHead>المتصل / الزبون</TableHead>
                     <TableHead>رقم الهاتف</TableHead>
+                    <TableHead>النوع</TableHead>
                     <TableHead>المنطقة</TableHead>
                     <TableHead>العنوان</TableHead>
                     <TableHead>الطلبات</TableHead>
@@ -278,6 +287,7 @@ export default function CallRecordings() {
                           <span className="text-gray-400">غير محدد</span>
                         )}
                       </TableCell>
+                      <TableCell><CallTypeBadge type={call.callType} /></TableCell>
                       <TableCell>
                         {call.area ? (
                           <div className="flex items-center gap-2">

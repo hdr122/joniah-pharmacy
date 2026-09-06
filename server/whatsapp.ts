@@ -86,6 +86,31 @@ async function ensureTables() {
     INDEX branch_created (branchId, createdAt),
     INDEX branch_phone (branchId, toPhone)
   )`);
+  // صندوق رسائل الزبائن: كل رسالة واردة/صادرة على رقم الفرع + ملخص ذكي لكل محادثة
+  await d.execute(sql`CREATE TABLE IF NOT EXISTS whatsapp_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    branchId INT NOT NULL,
+    phone VARCHAR(30) NOT NULL,
+    fromMe TINYINT DEFAULT 0,
+    text TEXT,
+    pushName VARCHAR(191) DEFAULT '',
+    waId VARCHAR(191) DEFAULT '',
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX branch_phone (branchId, phone),
+    INDEX branch_created (branchId, createdAt)
+  )`);
+  await d.execute(sql`CREATE TABLE IF NOT EXISTS whatsapp_conversations (
+    branchId INT NOT NULL,
+    phone VARCHAR(30) NOT NULL,
+    name VARCHAR(191) DEFAULT '',
+    lastText TEXT,
+    lastAt TIMESTAMP NULL,
+    unread INT DEFAULT 0,
+    summary TEXT,
+    summaryAt TIMESTAMP NULL,
+    summaryDirty TINYINT DEFAULT 1,
+    PRIMARY KEY (branchId, phone)
+  )`);
   tablesReady = true;
 }
 
@@ -166,7 +191,7 @@ export async function getLogs(branchId: number, limit = 100) {
   await ensureTables();
   const d = await db.getDb();
   if (!d) return [];
-  return rowsOf(await d.execute(sql`SELECT * FROM whatsapp_log WHERE branchId = ${branchId} ORDER BY id DESC LIMIT ${Math.min(Math.max(limit, 1), 500)}`));
+  return rowsOf(await d.execute(sql`SELECT * FROM whatsapp_log WHERE branchId = ${branchId} ORDER BY id DESC LIMIT ${sql.raw(String(Math.min(Math.max(limit, 1), 500)))}`));
 }
 
 export async function getTodayStats(branchId: number) {
@@ -319,6 +344,22 @@ async function openSocket(branchId: number) {
     c.sock = sock;
 
     sock.ev.on("creds.update", saveCreds);
+    // الرسائل الواردة من الزبائن (والصادرة من الهاتف نفسه) → صندوق الرسائل
+    sock.ev.on("messages.upsert", async (u: any) => {
+      try {
+        if (u?.type && u.type !== "notify" && u.type !== "append") return;
+        for (const m of (u?.messages || [])) {
+          const jid: string = m?.key?.remoteJid || "";
+          if (!jid.endsWith("@s.whatsapp.net")) continue; // تجاهل المجموعات والحالات
+          const phone = jid.split("@")[0];
+          const msg: any = m?.message || {};
+          const text: string = msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
+            || (msg.imageMessage ? "[صورة]" : msg.audioMessage ? "[رسالة صوتية]" : msg.documentMessage ? "[ملف]" : msg.locationMessage ? "[موقع]" : msg.stickerMessage ? "[ملصق]" : "");
+          if (!text) continue;
+          await storeMessage(branchId, phone, !!m?.key?.fromMe, text, m?.pushName || "", m?.key?.id || "");
+        }
+      } catch (e: any) { console.warn("[whatsapp] inbound:", e?.message || e); }
+    });
     sock.ev.on("connection.update", async (u) => {
       const { connection, lastDisconnect, qr } = u;
       if (qr) {
@@ -451,7 +492,7 @@ export async function withFooter(text: string): Promise<string> {
   return body ? `${body}\n\n${f}` : f;
 }
 
-export type SendKind = "courier" | "customer" | "promo" | "test";
+export type SendKind = "courier" | "customer" | "promo" | "reply" | "test";
 
 /** Queue a text message (Xenon footer appended automatically). Resolves with the outcome (never throws). */
 export function send(branchId: number, phone: string, text: string, kind: SendKind, orderId: number | null = null): Promise<SendResult> {
@@ -538,6 +579,7 @@ async function drain(branchId: number) {
         await c.sock!.sendMessage(item.jid, { text: item.text });
         c.sentTimestamps.push(Date.now());
         await logSend(branchId, item.kind, item.toPhone, item.orderId, "sent");
+        storeMessage(branchId, item.toPhone, true, item.text, "", "").catch(() => {});
         item.resolve({ ok: true });
       } catch (e: any) {
         await logSend(branchId, item.kind, item.toPhone, item.orderId, "failed", e?.message || String(e));
@@ -632,4 +674,103 @@ export async function onOrderReassigned(branchId: number, orderId: number) {
     const text = "🔁 طلب محوّل إليك\n" + renderTemplate(s.courierTemplate, ctx.vars);
     send(branchId, ctx.courier.phone, text, "courier", orderId).catch(() => {});
   } catch (e: any) { console.warn("[whatsapp] onOrderReassigned:", e?.message || e); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 📥 صندوق رسائل الزبائن — نظام شركة Xenon للاتصالات
+// ─────────────────────────────────────────────────────────────────────────────
+export async function storeMessage(branchId: number, phone: string, fromMe: boolean, text: string, pushName = "", waId = "") {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) return;
+  const num = normalizePhone(phone) || phone;
+  if (waId) {
+    const dup = rowsOf(await d.execute(sql`SELECT id FROM whatsapp_messages WHERE branchId = ${branchId} AND waId = ${waId} LIMIT 1`))[0];
+    if (dup) return;
+  }
+  await d.execute(sql`INSERT INTO whatsapp_messages (branchId, phone, fromMe, text, pushName, waId)
+    VALUES (${branchId}, ${num}, ${fromMe ? 1 : 0}, ${text.slice(0, 4000)}, ${pushName.slice(0, 190)}, ${waId.slice(0, 190)})`);
+  await d.execute(sql`INSERT INTO whatsapp_conversations (branchId, phone, name, lastText, lastAt, unread, summaryDirty)
+    VALUES (${branchId}, ${num}, ${fromMe ? "" : pushName.slice(0, 190)}, ${text.slice(0, 500)}, NOW(), ${fromMe ? 0 : 1}, 1)
+    ON DUPLICATE KEY UPDATE
+      name = CASE WHEN ${fromMe ? 1 : 0} = 0 AND ${pushName.slice(0, 190)} <> '' THEN ${pushName.slice(0, 190)} ELSE name END,
+      lastText = VALUES(lastText), lastAt = NOW(),
+      unread = unread + ${fromMe ? 0 : 1}, summaryDirty = 1`);
+}
+
+export async function listConversations(branchId: number, limit = 200) {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) return [];
+  return rowsOf(await d.execute(sql`SELECT * FROM whatsapp_conversations WHERE branchId = ${branchId}
+    ORDER BY lastAt DESC LIMIT ${sql.raw(String(Math.min(Math.max(limit, 1), 500)))}`));
+}
+
+export async function getMessages(branchId: number, phone: string, limit = 300) {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) return [];
+  const num = normalizePhone(phone) || phone;
+  const rows = rowsOf(await d.execute(sql`SELECT * FROM whatsapp_messages WHERE branchId = ${branchId} AND phone = ${num}
+    ORDER BY id DESC LIMIT ${sql.raw(String(Math.min(Math.max(limit, 1), 1000)))}`));
+  return rows.reverse();
+}
+
+export async function markRead(branchId: number, phone: string) {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) return;
+  const num = normalizePhone(phone) || phone;
+  await d.execute(sql`UPDATE whatsapp_conversations SET unread = 0 WHERE branchId = ${branchId} AND phone = ${num}`);
+}
+
+/** رد من النظام على زبون — يمرّ عبر الحماية (التأخير والحد الكلي) ويُذيَّل بتوقيع Xenon */
+export async function reply(branchId: number, phone: string, text: string) {
+  const c = getConn(branchId);
+  if (c.status !== "connected") return { ok: false, error: "واتساب الفرع غير متصل" } as SendResult;
+  return send(branchId, phone, text, "reply");
+}
+
+/** ملخص ذكي للمحادثة (Xenon AI). يُعاد الملخص المحفوظ ما لم يكن قديماً (رسائل جديدة) أو force=true. */
+export async function summarize(branchId: number, phone: string, force = false) {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) throw new Error("Database not available");
+  const num = normalizePhone(phone) || phone;
+  const conv = rowsOf(await d.execute(sql`SELECT * FROM whatsapp_conversations WHERE branchId = ${branchId} AND phone = ${num} LIMIT 1`))[0];
+  if (!conv) throw new Error("لا توجد محادثة");
+  if (!force && conv.summary && !Number(conv.summaryDirty)) return { summary: conv.summary, summaryAt: conv.summaryAt, cached: true };
+
+  const cfg = await db.getXenonAiForBranch(branchId);
+  if (!cfg.enabled || !cfg.key) throw new Error("Xenon AI غير مفعّل لهذا الفرع — فعّله من لوحة المطوّر");
+  const model = (cfg.model && cfg.model !== "gemini-3.6-flash") ? cfg.model : "gemini-3.5-flash";
+  const msgs = await getMessages(branchId, num, 80);
+  if (!msgs.length) throw new Error("لا توجد رسائل");
+  const transcript = msgs.map((m: any) => `${Number(m.fromMe) ? "المطعم" : (conv.name || "الزبون")}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 400)}`).join("\n");
+  const prompt = [
+    "أنت مساعد لمطعم/شركة توصيل. لخّص محادثة واتساب التالية بين المطعم والزبون بالعربية في 3 إلى 6 أسطر قصيرة جداً:",
+    "١) من هو الزبون وماذا يريد (طلب/استفسار/شكوى). ٢) أي تفاصيل مهمة (عنوان، منطقة، أصناف، مبلغ، موعد). ٣) الحالة الآن (هل رُدّ عليه؟ ما المطلوب منا؟). ٤) إجراء مقترح في سطر واحد.",
+    "لا تخترع معلومات غير موجودة في المحادثة. اكتب نصاً عادياً بلا JSON.",
+    "— المحادثة —",
+    transcript,
+  ].join("\n");
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cfg.key}`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } }),
+  });
+  const txt = await res.text();
+  if (!res.ok) { let msg = txt.slice(0, 200); try { msg = JSON.parse(txt).error?.message || msg; } catch {} throw new Error("Xenon AI: " + msg); }
+  let data: any = {}; try { data = JSON.parse(txt); } catch {}
+  const summary = String(data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || "").join("") || "").trim().slice(0, 2000);
+  if (!summary) throw new Error("لم يُعِد Xenon AI ملخصاً");
+  await d.execute(sql`UPDATE whatsapp_conversations SET summary = ${summary}, summaryAt = NOW(), summaryDirty = 0 WHERE branchId = ${branchId} AND phone = ${num}`);
+  return { summary, summaryAt: new Date().toISOString(), cached: false };
+}
+
+export async function inboxStats(branchId: number) {
+  await ensureTables();
+  const d = await db.getDb();
+  if (!d) return { conversations: 0, unread: 0 };
+  const row = rowsOf(await d.execute(sql`SELECT COUNT(*) c, COALESCE(SUM(unread),0) u FROM whatsapp_conversations WHERE branchId = ${branchId}`))[0] || {};
+  return { conversations: Number(row.c || 0), unread: Number(row.u || 0) };
 }

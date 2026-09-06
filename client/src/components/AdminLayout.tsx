@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Sparkles } from "lucide-react";
 import { ReactNode, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -135,6 +135,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       ],
     }] : []),
     {
+      icon: Phone,
+      label: "نظام شركة Xenon للاتصالات",
+      items: [
+        { icon: Phone, label: "التسجيلات الصوتية", path: "/admin/call-recordings" },
+        { icon: MessageCircle, label: "ربط واتساب", path: "/admin/whatsapp" },
+        { icon: MessageCircle, label: "رسائل الزبائن", path: "/admin/whatsapp-inbox" },
+        { icon: Sparkles, label: "تحليل الزبائن والمكالمات", path: "/admin/customer-analysis" },
+      ],
+    },
+    {
       icon: Package,
       label: "الطلبات",
       permission: PERMISSIONS.VIEW_ORDERS,
@@ -217,8 +227,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: Bell, label: "التحديثات", path: "/admin/updates" },
     { icon: LayoutDashboard, label: "لوحة التحكم", path: "/admin" },
     { icon: UserCircle, label: "الزبائن", path: "/admin/customers", permission: PERMISSIONS.VIEW_CUSTOMERS },
-    { icon: Phone, label: "المكالمات المسجّلة", path: "/admin/call-recordings" },
-    { icon: MessageCircle, label: "واتساب", path: "/admin/whatsapp" },
   ];
 
   // فلترة العناصر الرئيسية (تختفي كلها خارج سياق الفرع)
