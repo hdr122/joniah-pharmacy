@@ -5,6 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
+import * as whatsapp from "./whatsapp";
 import { storagePut } from "./storage";
 import { getCurrentSqlDatetime } from "./dateUtils";
 import * as oneSignal from "./onesignal";
@@ -515,7 +516,7 @@ export const appRouter = router({
           }
         }
         
-        await db.createOrder({
+        const createdOrder = await db.createOrder({
           ...input,
           branchId: getBranchId(ctx.user), // إضافة معرف الفرع
           provinceId,
@@ -523,6 +524,8 @@ export const appRouter = router({
           hidePhoneFromDelivery: input.hidePhoneFromDelivery || 0,
           createdBy: ctx.user.id, // حفظ معرف المستخدم الذي أنشأ الطلب
         });
+        // واتساب: إشعار المندوب + الزبون (best-effort)
+        if (createdOrder?.id) whatsapp.onOrderCreated(getBranchId(ctx.user), createdOrder.id).catch(() => {});
         
         // Send notification to delivery person
         await db.createNotification({
@@ -703,8 +706,10 @@ export const appRouter = router({
         orderId: z.number(),
         newDeliveryPersonId: z.number(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         await db.reassignOrder(input.orderId, input.newDeliveryPersonId);
+        // واتساب: المندوب الجديد يستلم تفاصيل الطلب
+        whatsapp.onOrderReassigned(getBranchId(ctx.user), input.orderId).catch(() => {});
         return { success: true };
       }),
     
@@ -768,6 +773,10 @@ export const appRouter = router({
         
         // Update order
         await db.updateOrder(orderId, finalUpdateData);
+        // واتساب: تغيّر المندوب ⇒ إشعار الجديد
+        if (input.deliveryPersonId && input.deliveryPersonId !== currentOrder.deliveryPersonId) {
+          whatsapp.onOrderReassigned(getBranchId(ctx.user), orderId).catch(() => {});
+        }
         
         // Send OneSignal notification if order was updated
         if (currentOrder.deliveryPersonId) {
@@ -1405,6 +1414,40 @@ export const appRouter = router({
         if (!branchId) return null;
         return await db.getCallRecordingAudio(branchId, input.id);
       }),
+  }),
+
+  // ── واتساب الفرع: ربط بالباركود/رمز، إشعارات المندوب والزبون، 🛡 نظام Xenon للحماية ──
+  whatsapp: router({
+    status: adminProcedure.query(async ({ ctx }) => {
+      const b = getBranchId(ctx.user);
+      const [settings, today, hasSession] = await Promise.all([whatsapp.getSettings(b), whatsapp.getTodayStats(b), whatsapp.hasSavedSession(b)]);
+      return { ...whatsapp.status(b), settings, today, hasSession };
+    }),
+    connect: adminProcedure.mutation(async ({ ctx }) => whatsapp.connect(getBranchId(ctx.user))),
+    pairingCode: adminProcedure
+      .input(z.object({ phone: z.string().min(8) }))
+      .mutation(async ({ ctx, input }) => ({ code: await whatsapp.requestPairingCode(getBranchId(ctx.user), input.phone) })),
+    logout: adminProcedure.mutation(async ({ ctx }) => { await whatsapp.logout(getBranchId(ctx.user)); return { success: true }; }),
+    saveSettings: adminProcedure
+      .input(z.object({
+        enabled: z.boolean().optional(), notifyCourier: z.boolean().optional(), notifyCustomer: z.boolean().optional(),
+        courierTemplate: z.string().max(2000).optional(), customerTemplate: z.string().max(2000).optional(),
+        protectionEnabled: z.boolean().optional(), minDelaySec: z.number().optional(), maxDelaySec: z.number().optional(),
+        maxPerMinute: z.number().optional(), dailyCapTotal: z.number().optional(), dailyCapPerCustomer: z.number().optional(),
+        customerCooldownMin: z.number().optional(), checkOnWhatsApp: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => whatsapp.saveSettings(getBranchId(ctx.user), input)),
+    testSend: adminProcedure
+      .input(z.object({ phone: z.string().min(8), text: z.string().max(1000).optional() }))
+      .mutation(async ({ ctx, input }) => whatsapp.send(getBranchId(ctx.user), input.phone, input.text || "✅ رسالة تجريبية من Xenon Delivery — الربط يعمل", "test")),
+    logs: adminProcedure.query(async ({ ctx }) => whatsapp.getLogs(getBranchId(ctx.user), 100)),
+    preview: adminProcedure
+      .input(z.object({ template: z.string().max(2000) }))
+      .query(({ input }) => whatsapp.renderTemplate(input.template, {
+        order: 1024, name: "أبو أحمد", phone: "07701234567", area: "المنصور", address: "شارع 14 قرب الجامع",
+        items: "• 2× برجر لحم = 10,000\n• 1× بيبسي = 1,000", total: "11,000", note: "الاتصال قبل الوصول",
+        driver: "كرار", driverPhone: "07709876543", branch: "مطعمنا", ratingLink: "",
+      })),
   }),
 
   // Advanced Reports

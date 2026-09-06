@@ -22,6 +22,7 @@
  */
 import { Router, type Request, type Response, type NextFunction } from "express";
 import * as db from "./db";
+import * as whatsapp from "./whatsapp";
 
 export const publicApiRouter = Router();
 
@@ -342,6 +343,9 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
       customerId,
     });
 
+    // واتساب: أبلغ المندوب والزبون (best-effort، لا يؤخّر الرد)
+    if (order?.id) whatsapp.onOrderCreated(req.apiBranchId!, order.id).catch(() => {});
+
     res.status(201).json({ order });
   } catch (e) {
     console.error("[API v1] order create error:", e);
@@ -402,6 +406,9 @@ publicApiRouter.put("/orders/:id", async (req: ApiRequest, res: Response) => {
         });
       } catch (_) { /* الإشعار ثانوي */ }
     }
+
+    // واتساب: المندوب الجديد يستلم تفاصيل الطلب المحوّل
+    if (transferredTo) whatsapp.onOrderReassigned(req.apiBranchId!, orderId).catch(() => {});
 
     const updated = await db.getOrderById(orderId);
     res.json({ order: updated });

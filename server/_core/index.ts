@@ -12,6 +12,7 @@ import { handleTraccarWebhook } from "../traccar-webhook";
 import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
 import { publicApiRouter } from "../public-api";
+import * as whatsapp from "../whatsapp";
 import { WebSocketManager } from "../websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -187,6 +188,8 @@ async function startServer() {
   app.use("/api/mobile", mobileRouter);
   // External integrations API (X-API-Key)
   app.use("/api/v1", publicApiRouter);
+  // WhatsApp: أعد ربط جلسات الفروع المحفوظة بعد الإقلاع (لا تعطّل الخادم عند الفشل)
+  setTimeout(() => { whatsapp.init().catch((e) => console.warn("[whatsapp] init:", e?.message || e)); }, 3000);
 
   // tRPC API
   app.use(
