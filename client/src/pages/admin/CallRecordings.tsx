@@ -154,7 +154,19 @@ export default function CallRecordings() {
 
   const { data: calls, isLoading } = trpc.callRecordings.list.useQuery({ limit: 200 });
 
+  // فلتر التاريخ (من/إلى) — يُطبَّق على تاريخ التسجيل المحلي
+  const toYmd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const setToday = () => { const t = toYmd(new Date()); setFromDate(t); setToDate(t); };
+  const setYesterday = () => { const d = new Date(); d.setDate(d.getDate() - 1); const y = toYmd(d); setFromDate(y); setToDate(y); };
+
   const filtered = ((calls || []) as CallRecording[]).filter((c) => {
+    if (fromDate || toDate) {
+      const created = c.createdAt ? toYmd(new Date(c.createdAt)) : "";
+      if (fromDate && created < fromDate) return false;
+      if (toDate && created > toDate) return false;
+    }
     const q = search.trim().toLowerCase();
     if (!q) return true;
     return [c.phone, c.callerName, c.customerName, c.area, c.address, c.items, c.transcript]
@@ -191,7 +203,7 @@ export default function CallRecordings() {
           <CardDescription>ابحث بالاسم، رقم الهاتف، المنطقة، أو نص المكالمة</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Search className="w-4 h-4 text-gray-500" />
             <Input
               placeholder="ابحث في المكالمات..."
@@ -199,6 +211,17 @@ export default function CallRecordings() {
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-md"
             />
+            <div className="flex items-center gap-2 flex-wrap border-r pr-3 mr-1">
+              <span className="text-xs text-gray-500">من</span>
+              <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-40" />
+              <span className="text-xs text-gray-500">إلى</span>
+              <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-40" />
+              <Button variant="outline" size="sm" onClick={setToday}>اليوم</Button>
+              <Button variant="outline" size="sm" onClick={setYesterday}>أمس</Button>
+              {(fromDate || toDate) && (
+                <Button variant="ghost" size="sm" onClick={() => { setFromDate(""); setToDate(""); }}>الكل</Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
