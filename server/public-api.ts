@@ -3,9 +3,16 @@
  * ======================
  * REST API for integrating a branch with external systems.
  *
- * Authentication: every request must carry the branch API key
+ * Authentication: every request must carry an API key
  *   Header:  X-API-Key: xn_xxxxxxxx...   (or  Authorization: Bearer xn_...)
- * Keys are created from the developer panel (branch card → "مفاتيح API").
+ * Per-branch keys are created from the developer panel (branch card →
+ * "مفاتيح API") and are scoped to their own branch.
+ *
+ * The cross-branch ERP MASTER key (erp_..., stored in `settings.erp_api_key`
+ * — see erp-api.ts) is also accepted here so the central Xenon ERP can drive
+ * the control endpoints for ANY branch. With the master key the branch is not
+ * carried by the key; it is taken from the request:
+ *   Header:  x-branch-id: <branchId>    (or  ?branch_id=<branchId>)
  *
  * Endpoints (all JSON, scoped to the key's branch):
  *   GET  /api/v1/branch                 branch info
@@ -16,13 +23,14 @@
  *   GET  /api/v1/orders                orders (query: status, limit, offset)
  *   GET  /api/v1/orders/:id            single order
  *   POST /api/v1/orders                create order
- *        body: { deliveryPersonId, regionId, price,
+ *        body: { deliveryPersonId, regionId, price, discount?,
  *                address?, note?, locationLink?,
  *                customerName?, customerPhone? }
  */
 import { Router, type Request, type Response, type NextFunction } from "express";
 import * as db from "./db";
 import * as whatsapp from "./whatsapp";
+import { verifyErpMasterKey } from "./erp-api";
 
 export const publicApiRouter = Router();
 
@@ -33,11 +41,44 @@ interface ApiRequest extends Request {
   apiKeyName?: string;
 }
 
+/** Branch id for a master-key request: header x-branch-id or ?branch_id. */
+function resolveErpBranchId(req: Request): number | null {
+  const raw = req.header("x-branch-id") ?? req.query.branch_id;
+  const id = Number(Array.isArray(raw) ? raw[0] : raw);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 async function authenticateApiKey(req: ApiRequest, res: Response, next: NextFunction) {
   const header = req.header("x-api-key")
     || (req.header("authorization")?.startsWith("Bearer ")
       ? req.header("authorization")!.slice(7)
       : undefined);
+
+  // ERP master key: cross-branch, so the branch is taken from the request
+  // (x-branch-id / ?branch_id) rather than from the key itself. Same key
+  // lookup + constant-time compare as /api/erp (verifyErpMasterKey).
+  if (header && header.startsWith("erp_")) {
+    if (!(await verifyErpMasterKey(header))) {
+      return res.status(401).json({ error: "invalid_api_key", message: "مفتاح API غير صحيح أو ملغى" });
+    }
+    const branchId = resolveErpBranchId(req);
+    if (branchId == null) {
+      return res.status(400).json({ error: "missing_branch_id", message: "حدّد الفرع في الترويسة x-branch-id أو المعامل branch_id" });
+    }
+    // Defensive: confirm the branch exists; never crash if the DB is down.
+    try {
+      const branch = await db.getBranchById(branchId);
+      if (!branch) {
+        return res.status(404).json({ error: "branch_not_found", message: "الفرع غير موجود" });
+      }
+    } catch (e) {
+      console.error("[API v1] erp branch lookup error:", e);
+      return res.status(503).json({ error: "db_unavailable", message: "قاعدة البيانات غير متاحة" });
+    }
+    req.apiBranchId = branchId;
+    req.apiKeyName = "xenon-erp";
+    return next();
+  }
 
   if (!header || !header.startsWith("xn_")) {
     return res.status(401).json({ error: "missing_api_key", message: "أرسل مفتاح API في الترويسة X-API-Key" });
@@ -293,7 +334,7 @@ publicApiRouter.get("/orders/:id", async (req: ApiRequest, res: Response) => {
 publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
   try {
     const {
-      deliveryPersonId, regionId, price,
+      deliveryPersonId, regionId, price, discount,
       address, note, locationLink,
       customerName, customerPhone,
     } = req.body || {};
@@ -337,6 +378,8 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
       regionId: Number(regionId),
       provinceId: region.provinceId,
       price: Number(price),
+      // خصم اختياري بالدينار — لا يتجاوز سعر الطلب
+      discount: Math.min(Math.max(Number(discount) || 0, 0), Number(price)),
       address: address ? String(address) : undefined,
       note: note ? String(note) : undefined,
       locationLink: locationLink ? String(locationLink) : undefined,
@@ -368,13 +411,14 @@ publicApiRouter.put("/orders/:id", async (req: ApiRequest, res: Response) => {
       return res.status(400).json({ error: "already_delivered", message: "الطلب مُسلَّم — لا يمكن تعديله" });
     }
 
-    const { deliveryPersonId, note, price, address, status } = req.body || {};
+    const { deliveryPersonId, note, price, discount, address, status } = req.body || {};
     const fields: {
-      note?: string; price?: number; address?: string;
+      note?: string; price?: number; discount?: number; address?: string;
       deliveryPersonId?: number; status?: "pending_approval" | "cancelled"; acceptedAt?: null;
     } = {};
     if (note != null) fields.note = String(note);
     if (price != null && !isNaN(Number(price))) fields.price = Number(price);
+    if (discount != null && !isNaN(Number(discount))) fields.discount = Math.max(Number(discount), 0);
     if (address != null) fields.address = String(address);
 
     let transferredTo: { id: number; name: string } | null = null;

@@ -40,6 +40,7 @@ export default function CreateOrder() {
     regionId: "",
     provinceId: "",
     price: "",
+    discount: "",
     notes: "",
   });
 
@@ -88,6 +89,11 @@ export default function CreateOrder() {
     }
   }, [formData.customerPhone]);
 
+  // الصافي بعد الخصم — يظهر فوراً تحت حقل الخصم
+  const netTotal = formData.price
+    ? (parseInt(formData.price) || 0) - (parseInt(formData.discount) || 0)
+    : null;
+
   // Filter regions by selected province
   const filteredRegions = regions?.filter(
     (r: any) => formData.provinceId && r.provinceId === parseInt(formData.provinceId)
@@ -119,10 +125,18 @@ export default function CreateOrder() {
       return;
     }
 
+    const priceValue = parseInt(formData.price) || 0;
+    const discountValue = formData.discount ? parseInt(formData.discount) || 0 : 0;
+    if (discountValue > priceValue) {
+      toast.error("الخصم لا يمكن أن يتجاوز سعر الطلب");
+      return;
+    }
+
     createMutation.mutate({
       deliveryPersonId: parseInt(formData.deliveryPersonId),
       regionId: parseInt(formData.regionId),
       price: parseInt(formData.price),
+      discount: formData.discount ? parseInt(formData.discount) : undefined,
       note: formData.notes || undefined,
       locationLink: formData.customerLocationUrl1 || undefined, // رابط الموقع للطلب
       hidePhoneFromDelivery: 0,
@@ -380,15 +394,50 @@ export default function CreateOrder() {
               </div>
             </div>
 
+            {/* 💸 الخصم — اختياري، يُخصم من سعر الطلب */}
+            <div>
+              <Label htmlFor="discount">الخصم (دينار) — اختياري</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="discount"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={formatNumberWithCommas(formData.discount)}
+                  onChange={(e) => {
+                    const value = removeCommas(e.target.value);
+                    setFormData({ ...formData, discount: value });
+                  }}
+                  className="mt-1 text-lg font-medium"
+                />
+                {formData.discount && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">
+                    د.ع
+                  </div>
+                )}
+              </div>
+              {netTotal !== null && (
+                <p
+                  className={`mt-2 text-sm font-semibold ${
+                    netTotal < 0 ? "text-red-600" : "text-emerald-600 dark:text-emerald-400"
+                  }`}
+                >
+                  {netTotal < 0
+                    ? "⚠️ الخصم أكبر من سعر الطلب"
+                    : `الصافي بعد الخصم: ${formatNumberWithCommas(netTotal)} د.ع`}
+                </p>
+              )}
+            </div>
+
             <div>
               <Label htmlFor="notes">ملاحظات (اختياري)</Label>
               <Textarea
                 id="notes"
-                placeholder="أي ملاحظات إضافية..."
+                placeholder="أي ملاحظات إضافية عن الطلب أو الزبون أو طريقة التوصيل..."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="mt-1"
-                rows={3}
+                className="mt-1 min-h-[180px] text-base leading-relaxed resize-y"
+                rows={8}
               />
             </div>
           </CardContent>

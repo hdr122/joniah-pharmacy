@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,37 +54,48 @@ function CallTypeBadge({ type }: { type?: string | null }) {
   return <Badge variant="outline" className="text-gray-500">غير محدد</Badge>;
 }
 
-// مشغّل صوت المكالمة — يجلب الصوت (base64) عند فتح النافذة فقط ويشغّله.
+// مشغّل صوت المكالمة — يبثّ الصوت من الخادم عبر /api/call-audio/:id.
+// الخادم يحوّل تسجيلات AMR (صيغة تسجيل مكالمات أندرويد) إلى MP3، لأن أي متصفّح
+// — كروم على الحاسوب أو WebView على أندرويد — لا يستطيع تشغيل AMR إطلاقاً.
 function CallAudioPlayer({ recordingId }: { recordingId: number }) {
-  const { data, isLoading } = trpc.callRecordings.audio.useQuery(
-    { id: recordingId },
-    { refetchOnWindowFocus: false }
-  );
+  const src = `/api/call-audio/${recordingId}`;
+  const [error, setError] = useState<string | null>(null);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
-        <Loader2 className="w-4 h-4 animate-spin" /> جارٍ تحميل التسجيل الصوتي…
-      </div>
-    );
-  }
-  if (!data?.audioBase64) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-400 p-3 bg-gray-50 rounded-lg">
-        <Volume2 className="w-4 h-4" /> لا يوجد تسجيل صوتي لهذه المكالمة
-      </div>
-    );
-  }
+  // نعيد ضبط الحالة عند تغيّر المكالمة المعروضة
+  useEffect(() => { setError(null); }, [recordingId]);
+
   return (
-    <div className="p-3 bg-violet-50 rounded-lg space-y-2">
-      <div className="flex items-center gap-2 text-sm font-medium text-violet-800">
-        <Volume2 className="w-4 h-4" /> التسجيل الصوتي للمكالمة
+    <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-violet-800 dark:text-violet-200">
+          <Volume2 className="w-4 h-4" /> التسجيل الصوتي للمكالمة
+        </div>
+        <a
+          href={src}
+          download={`call-${recordingId}.mp3`}
+          className="text-xs text-violet-700 dark:text-violet-300 underline underline-offset-2 hover:opacity-80 shrink-0"
+        >
+          تنزيل
+        </a>
       </div>
+
       <audio
+        key={recordingId}
         controls
+        preload="metadata"
+        playsInline
         className="w-full"
-        src={`data:${data.mimeType || "audio/mp4"};base64,${data.audioBase64}`}
+        src={src}
+        onError={() =>
+          setError(
+            "تعذّر تشغيل هذا التسجيل في المتصفّح. استخدم زر التنزيل لسماعه على جهازك."
+          )
+        }
       />
+
+      {error && (
+        <div className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">{error}</div>
+      )}
     </div>
   );
 }

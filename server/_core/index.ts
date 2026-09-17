@@ -12,6 +12,8 @@ import { handleTraccarWebhook } from "../traccar-webhook";
 import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
 import { publicApiRouter } from "../public-api";
+import { registerCallAudioRoutes } from "../call-audio";
+import { erpApiRouter, handleErpSsoConsume, initErpApiKey } from "../erp-api";
 import * as whatsapp from "../whatsapp";
 import * as sentiment from "../sentiment";
 import { WebSocketManager } from "../websocket";
@@ -44,6 +46,9 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   
+  // 🎧 بثّ تسجيلات المكالمات (مع تحويل AMR تلقائياً) — قبل tRPC كي لا يبتلعه
+  registerCallAudioRoutes(app);
+
   // Traccar webhook endpoint (GET request from Traccar Client app)
   app.get("/api/traccar", handleTraccarWebhook);
   
@@ -189,6 +194,12 @@ async function startServer() {
   app.use("/api/mobile", mobileRouter);
   // External integrations API (X-API-Key)
   app.use("/api/v1", publicApiRouter);
+  // Xenon ERP connector (cross-branch master key, X-API-Key)
+  app.use("/api/erp", erpApiRouter);
+  // ERP SSO: consumes a one-time ticket, sets the native session cookie, → /admin
+  app.get("/api/sso/consume", handleErpSsoConsume);
+  // Ensure + log the ERP master key on boot (best-effort; retried lazily on demand)
+  initErpApiKey().catch((e) => console.warn("[ERP] key init:", e?.message || e));
   // WhatsApp: أعد ربط جلسات الفروع المحفوظة بعد الإقلاع (لا تعطّل الخادم عند الفشل)
   setTimeout(() => { whatsapp.init().catch((e) => console.warn("[whatsapp] init:", e?.message || e)); }, 3000);
   // 🧠 تحليل الزبائن والمكالمات: يعمل تلقائياً كل 10 دقائق للفروع المفعّل لها Xenon AI

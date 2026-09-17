@@ -34,8 +34,8 @@ function getBranchId(user: { branchId: number | null }): number {
   return user.branchId || 1;
 }
 
-// Custom login helper
-async function createSession(userId: number, branchId: number | null, res: any, req: any) {
+// Custom login helper (also reused by the ERP SSO route in server/erp-api.ts)
+export async function createSession(userId: number, branchId: number | null, res: any, req: any) {
   const secret = new TextEncoder().encode(ENV.cookieSecret);
   const token = await new SignJWT({ userId, branchId })
     .setProtectedHeader({ alg: "HS256" })
@@ -470,6 +470,7 @@ export const appRouter = router({
           regionId: z.number(),
           provinceId: z.number().optional(),
           price: z.number(),
+          discount: z.number().int().min(0).optional(), // خصم بالدينار (0 = لا خصم)
           customerId: z.number().optional(),
           note: z.string().optional(),
           locationLink: z.string().optional(),
@@ -523,6 +524,7 @@ export const appRouter = router({
           provinceId,
           customerId,
           hidePhoneFromDelivery: input.hidePhoneFromDelivery || 0,
+          discount: Math.min(Math.max(input.discount ?? 0, 0), input.price), // لا يتجاوز الخصم السعر
           createdBy: ctx.user.id, // حفظ معرف المستخدم الذي أنشأ الطلب
         });
         // واتساب: إشعار المندوب + الزبون (best-effort)

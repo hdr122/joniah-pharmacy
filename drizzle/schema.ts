@@ -162,6 +162,7 @@ export const orders = mysqlTable("orders", {
 	regionId: int().notNull(),
 	provinceId: int().notNull(),
 	price: int().notNull(),
+	discount: int().default(0).notNull(),
 	note: text(),
 	locationLink: text(),
 	address: text(),

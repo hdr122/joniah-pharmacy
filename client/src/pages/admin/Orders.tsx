@@ -674,8 +674,16 @@ export default function Orders() {
                               </TableCell>
                               <TableCell className="text-center">
                                 <span className="font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                                  {formatCurrency(order.price)}
+                                  {formatCurrency(order.price - (order.discount || 0))}
                                 </span>
+                                {(order.discount || 0) > 0 && (
+                                  <div className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                                    <span className="line-through">{formatCurrency(order.price)}</span>
+                                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold mr-1">
+                                      خصم {formatCurrency(order.discount)}
+                                    </span>
+                                  </div>
+                                )}
                               </TableCell>
                               <TableCell className="text-center hidden md:table-cell">
                                 {getStatusBadge(order.status)}
@@ -1043,10 +1051,21 @@ export default function Orders() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm text-violet-600 dark:text-violet-400">السعر</Label>
+                    <Label className="text-sm text-violet-600 dark:text-violet-400">
+                      {(orderDetails.discount || 0) > 0 ? "السعر بعد الخصم" : "السعر"}
+                    </Label>
                     <p className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                      {formatCurrency(orderDetails.price)}
+                      {formatCurrency(orderDetails.price - (orderDetails.discount || 0))}
                     </p>
+                    {(orderDetails.discount || 0) > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        السعر الأصلي <span className="line-through">{formatCurrency(orderDetails.price)}</span>
+                        {" — "}
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          خصم {formatCurrency(orderDetails.discount)}
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-sm text-violet-600 dark:text-violet-400">الحالة</Label>

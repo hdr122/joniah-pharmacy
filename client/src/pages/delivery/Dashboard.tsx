@@ -17,31 +17,35 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import EnableNotificationsModal from "@/components/EnableNotificationsModal";
 import { compressImage } from "@/lib/imageCompress";
 
-// دالة لفلترة الطلبات - إخفاء الطلبات بعد الساعة 5 فجراً (بداية اليوم الجديد)
+// حالات الطلب المنتهية — هذه وحدها تُخفى مع انتهاء يوم العمل.
+const FINISHED_STATUSES = ["delivered", "returned", "cancelled"];
+
+// بداية يوم العمل (5 فجراً) بالتوقيت المحلي للجهاز.
+function businessDayStart(now: Date = new Date()): Date {
+  const start = new Date(now);
+  start.setHours(5, 0, 0, 0);
+  if (now.getHours() < 5) start.setDate(start.getDate() - 1);
+  return start;
+}
+
+// فلترة طلبات المندوب.
+//
+// ⚠️ مهم: الطلبات غير المكتملة (بانتظار الموافقة / قيد التوصيل / مؤجلة) تبقى ظاهرة
+// دائماً مهما كان عمرها. كانت النسخة السابقة تُخفي كل طلب أُنشئ قبل 5 فجر اليوم،
+// فتختفي طلبات الأمس غير المكتملة من صفحة المندوب ولا يستطيع إنهاءها أبداً —
+// وتختفي أيضاً أمام عينيه عند تجاوز الحدّ الزمني حتى بعد التحديث.
 function filterOrdersByTime(orders: any[]) {
-  const now = new Date();
-  const currentHour = now.getHours();
-  
-  // إذا كانت الساعة بعد 5 صباحاً، نخفي طلبات الأمس
-  if (currentHour >= 5) {
-    const todayStart = new Date(now);
-    todayStart.setHours(5, 0, 0, 0); // الساعة 5 فجراً اليوم
-    
-    return orders.filter((order: any) => {
-      const orderDate = new Date(order.createdAt);
-      return orderDate >= todayStart;
-    });
-  } else {
-    // إذا كانت الساعة قبل 5 صباحاً، نعرض طلبات الأمس (من الساعة 5 فجراً الأمس)
-    const yesterdayStart = new Date(now);
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-    yesterdayStart.setHours(5, 0, 0, 0);
-    
-    return orders.filter((order: any) => {
-      const orderDate = new Date(order.createdAt);
-      return orderDate >= yesterdayStart;
-    });
-  }
+  const dayStart = businessDayStart().getTime();
+
+  return orders.filter((order: any) => {
+    if (!FINISHED_STATUSES.includes(order.status)) return true; // غير مكتمل ⇒ يظهر دائماً
+
+    const finishedAtRaw = order.deliveredAt || order.updatedAt || order.createdAt;
+    const finishedAt = finishedAtRaw ? new Date(finishedAtRaw).getTime() : NaN;
+    // تاريخ غير صالح ⇒ نُبقي الطلب ظاهراً بدل إخفائه بالخطأ
+    if (!Number.isFinite(finishedAt)) return true;
+    return finishedAt >= dayStart;
+  });
 }
 
 export default function DeliveryDashboard() {
@@ -660,29 +664,44 @@ export default function DeliveryDashboard() {
               <div className="space-y-4">
                 {orders
                   .filter((order: any) => {
-                    // إخفاء الطلبات المسلمة بعد 5 دقائق من التسليم
-                    if (order.status === 'delivered' && order.deliveredAt) {
-                      const deliveredTime = new Date(order.deliveredAt).getTime();
-                      const now = Date.now();
-                      const fiveMinutesInMs = 5 * 60 * 1000;
-                      return (now - deliveredTime) < fiveMinutesInMs;
-                    }
-                    return true;
+                    // الطلبات المسلّمة تبقى ظاهرة 5 دقائق بعد التسليم ثم تُخفى.
+                    // أي طلب غير مسلّم يظهر دائماً — لا يُخفى بحكم الوقت إطلاقاً.
+                    if (order.status !== 'delivered') return true;
+                    if (!order.deliveredAt) return true;
+                    const deliveredTime = new Date(order.deliveredAt).getTime();
+                    if (!Number.isFinite(deliveredTime)) return true;
+                    return (Date.now() - deliveredTime) < 5 * 60 * 1000;
                   })
                   .map((order: any) => {
                   // تحديد ما إذا كان الطلب مقبولاً أم لا
                   const isAccepted = order.status !== "pending_approval";
-                  
+                  // طلب متأخّر: أُنشئ قبل يوم العمل الحالي ولم يُنجز بعد
+                  const createdTs = new Date(order.createdAt).getTime();
+                  const isOverdue =
+                    !FINISHED_STATUSES.includes(order.status) &&
+                    Number.isFinite(createdTs) &&
+                    createdTs < businessDayStart().getTime();
+
                   return (
                     <div
                       key={order.id}
-                      className="p-5 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-xl transition-all duration-200"
+                      className={`p-5 bg-white dark:bg-gray-800 rounded-xl border-2 hover:shadow-xl transition-all duration-200 ${
+                        isOverdue
+                          ? "border-amber-400 dark:border-amber-500/60"
+                          : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600"
+                      }`}
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-3">
                             <h3 className="text-xl font-bold text-foreground">طلب #{order.id}</h3>
                             {getStatusBadge(order.status)}
+                            {isOverdue && (
+                              <Badge className="bg-amber-500 text-white border-0">
+                                <Clock className="w-3 h-3 ml-1" />
+                                طلب سابق غير مكتمل
+                              </Badge>
+                            )}
                           </div>
                           <div className="space-y-2 text-sm">
                             {/* المنطقة - تظهر دائماً */}
@@ -748,10 +767,18 @@ export default function DeliveryDashboard() {
                                 )}
                           </div>
                         </div>
-                        <div className="text-left">
+                        <div className="text-left shrink-0">
                           <p className="text-2xl font-bold text-violet-600">
-                            {order.price.toLocaleString('en-US')} د.ع
+                            {(order.price - (order.discount || 0)).toLocaleString('en-US')} د.ع
                           </p>
+                          {(order.discount || 0) > 0 && (
+                            <p className="text-xs text-muted-foreground mt-0.5 whitespace-nowrap">
+                              <span className="line-through">{order.price.toLocaleString('en-US')}</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold mr-1">
+                                خصم {order.discount.toLocaleString('en-US')}
+                              </span>
+                            </p>
+                          )}
                         </div>
                       </div>
 

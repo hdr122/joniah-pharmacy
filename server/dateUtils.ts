@@ -150,3 +150,30 @@ export function toSqlDatetime(value: Date | string | number): string {
 export function getCurrentSqlDatetime(): string {
   return toSqlDatetime(new Date());
 }
+
+// ── بداية يوم العمل بتوقيت بغداد ────────────────────────────────────────────
+// الخادم على Railway يعمل بتوقيت UTC بينما الفرع يعمل بتوقيت بغداد (UTC+3).
+// استخدام HOUR(NOW()) في SQL كان يعني "الساعة 5 بتوقيت UTC" أي 8 صباحاً بغداد،
+// فتختلف حدود اليوم بين الخادم والمتصفّح وتظهر الطلبات ثم تختفي.
+// هذه الدوال تحسب الحدّ بتوقيت بغداد دائماً مهما كان توقيت الخادم.
+export const BUSINESS_DAY_START_HOUR = 5;
+const BAGHDAD_OFFSET_MS = 3 * 60 * 60 * 1000; // UTC+3 بلا توقيت صيفي في العراق
+
+/** بداية يوم العمل الحالي (5 فجراً بتوقيت بغداد) كـ Date بتوقيت UTC الحقيقي. */
+export function getBusinessDayStart(now: Date = new Date()): Date {
+  const baghdad = new Date(now.getTime() + BAGHDAD_OFFSET_MS);
+  const startBaghdad = new Date(baghdad);
+  startBaghdad.setUTCHours(BUSINESS_DAY_START_HOUR, 0, 0, 0);
+  if (baghdad.getUTCHours() < BUSINESS_DAY_START_HOUR) {
+    startBaghdad.setUTCDate(startBaghdad.getUTCDate() - 1);
+  }
+  return new Date(startBaghdad.getTime() - BAGHDAD_OFFSET_MS);
+}
+
+/** بداية يوم العمل الحالي بصيغة DATETIME صالحة لـ MySQL (بتوقيت الخادم/UTC). */
+export function getBusinessDayStartSql(now: Date = new Date()): string {
+  const d = getBusinessDayStart(now);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ` +
+    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}

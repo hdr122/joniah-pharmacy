@@ -5,7 +5,7 @@ import { notifyOwner } from "./_core/notification";
 import { InsertUser, users, regions, provinces, orders, notifications, messages, InsertRegion, InsertProvince, InsertOrder, customers, deliveryLocations, InsertDeliveryLocation, dailyStats, pushSubscriptions, activityLogs, InsertActivityLog, orderFormSettings, InsertOrderFormSetting, orderLocations, orderRouteTracking, InsertOrderRouteTracking, settings, subscriptionCodes, branches, maintenanceMode, storeProducts, storePurchases, subscriptionActivations, updates, announcements, announcementReads, siteSettings, notificationSettings, notificationLogs, callRecordings } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { hash, compare } from 'bcryptjs';
-import { getStartOfDay, getEndOfDay, getTodayRange, getYesterdayRange, getBusinessDateString, getCurrentSqlDatetime, toSqlDatetime as sqlDatetime } from './dateUtils';
+import { getStartOfDay, getEndOfDay, getTodayRange, getYesterdayRange, getBusinessDateString, getCurrentSqlDatetime, toSqlDatetime as sqlDatetime, getBusinessDayStartSql } from './dateUtils';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _pool: ReturnType<typeof createPool> | null = null;
@@ -134,7 +134,7 @@ export async function createUser(data: {
   username: string;
   password: string;
   name: string;
-  role: "admin" | "delivery";
+  role: "admin" | "delivery" | "branch_admin";
   phone?: string;
   profileImage?: string;
   branchId?: number | null;
@@ -344,6 +344,7 @@ export async function getOrderById(id: number) {
       id: orders.id,
       branchId: orders.branchId,
       price: orders.price,
+      discount: orders.discount,
       status: orders.status,
       note: orders.note,
       address: orders.address,
@@ -434,6 +435,7 @@ export async function getAllOrders(options?: {
     .select({
       id: orders.id,
       price: orders.price,
+      discount: orders.discount,
       status: orders.status,
       note: orders.note,
       address: orders.address,
@@ -539,6 +541,7 @@ export async function getOrdersByDeliveryPerson(deliveryPersonId: number) {
       provinceId: orders.provinceId,
       provinceName: provinces.name,
       price: orders.price,
+      discount: orders.discount,
       note: orders.note,
       address: orders.address,
       locationLink: orders.locationLink,
@@ -571,15 +574,12 @@ export async function getOrdersByDeliveryPerson(deliveryPersonId: number) {
     .where(and(
       eq(orders.deliveryPersonId, deliveryPersonId),
       eq(orders.isDeleted, 0),
-      // عرض فقط الطلبات غير المسلمة أو التي سلمت في اليوم الحالي (بعد 5 صباحاً)
-      // اليوم يبدأ من 5 صباحاً وينتهي 5 صباحاً اليوم التالي
+      // الطلبات غير المنتهية تظهر دائماً مهما كان عمرها — المندوب مسؤول عن إكمالها.
+      // أما المنتهية (تسليم/إرجاع/إلغاء) فتظهر ليوم العمل الحالي فقط،
+      // ويوم العمل يبدأ 5 فجراً بتوقيت بغداد لا بتوقيت الخادم (UTC).
       sql`(
-        ${orders.status} != 'delivered' 
-        OR ${orders.deliveredAt} >= 
-          CASE 
-            WHEN HOUR(NOW()) >= 5 THEN DATE_FORMAT(NOW(), '%Y-%m-%d 05:00:00')
-            ELSE DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 DAY), '%Y-%m-%d 05:00:00')
-          END
+        ${orders.status} NOT IN ('delivered', 'returned', 'cancelled')
+        OR COALESCE(${orders.deliveredAt}, ${orders.updatedAt}) >= ${getBusinessDayStartSql()}
       )`
     ))
     .orderBy(desc(orders.createdAt));
@@ -592,6 +592,7 @@ export async function getOrdersByDeliveryPerson(deliveryPersonId: number) {
 export async function updateOrderFieldsExternal(orderId: number, fields: {
   note?: string;
   price?: number;
+  discount?: number;
   address?: string;
   deliveryPersonId?: number;
   status?: "pending_approval" | "cancelled";
@@ -5094,12 +5095,31 @@ export async function getAllSettings() {
 export async function updateSetting(key: string, value: string) {
   const db = await getDb();
   if (!db) return false;
-  
+
   try {
     await db.update(settings).set({ value }).where(eq(settings.key, key));
     return true;
   } catch (error) {
     console.error('[Database] Error updating setting:', error);
+    return false;
+  }
+}
+
+// Insert-or-update a settings row (updateSetting only updates existing rows)
+export async function upsertSetting(key: string, value: string) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const existing = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+    if (existing.length > 0) {
+      await db.update(settings).set({ value }).where(eq(settings.key, key));
+    } else {
+      await db.insert(settings).values({ key, value });
+    }
+    return true;
+  } catch (error) {
+    console.error('[Database] Error upserting setting:', error);
     return false;
   }
 }
