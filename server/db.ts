@@ -1367,6 +1367,30 @@ export async function getCustomerByPhone(phone: string, branchId: number) {
   return result[0] || null;
 }
 
+// أحدث طلب نشط لزبون (بانتظار الموافقة/التوصيل) — لربط موقع الواتساب به
+export async function getActiveOrderByCustomer(customerId: number, branchId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select({ id: orders.id, deliveryPersonId: orders.deliveryPersonId, status: orders.status })
+    .from(orders)
+    .where(and(
+      eq(orders.customerId, customerId), eq(orders.branchId, branchId), eq(orders.isDeleted, 0),
+      inArray(orders.status, ['pending_approval', 'pending']),
+    ))
+    .orderBy(desc(orders.id)).limit(1);
+  return result[0] || null;
+}
+
+// حفظ آخر موقع تسليم للزبون (يُعاد عرضه للكاشير عند طلب جديد من نفس الرقم)
+export async function updateCustomerLocation(customerId: number, branchId: number, url: string) {
+  const db = await getDb();
+  if (!db) return;
+  const cust = await getCustomerById(customerId, branchId);
+  const data: any = { lastDeliveryLocation: url, lastDeliveryAt: getCurrentSqlDatetime() };
+  if (cust && !(cust as any).locationUrl1) data.locationUrl1 = url;
+  await db.update(customers).set(data).where(and(eq(customers.id, customerId), eq(customers.branchId, branchId)));
+}
+
 export async function getCustomerById(customerId: number, branchId: number) {
   const db = await getDb();
   if (!db) return null;

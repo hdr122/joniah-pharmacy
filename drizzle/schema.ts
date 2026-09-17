@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, int, mysqlEnum, text, varchar, timestamp, index, tinyint, decimal } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, int, mysqlEnum, text, varchar, timestamp, index, tinyint, decimal, primaryKey, unique, longtext } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 // جدول الفروع
@@ -504,3 +504,126 @@ export const callRecordings = mysqlTable("call_recordings", {
 
 export type InsertCallRecording = typeof callRecordings.$inferInsert;
 export type CallRecording = typeof callRecordings.$inferSelect;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ⚠️ جداول كانت تُنشأ وقت التشغيل فقط (CREATE TABLE IF NOT EXISTS) ولم تكن
+// معرّفة هنا. أمر النشر يُشغّل `drizzle-kit push --force` الذي يُطابق قاعدة
+// البيانات مع هذا الملف — فكان يحذف كل جدول غير موجود هنا مع بياناته في كل نشر:
+//   • ربط واتساب (whatsapp_auth) ⇒ انقطاع الاتصال وطلب مسح الباركود من جديد
+//   • محادثات ورسائل وإعدادات واتساب
+//   • التسجيلات الصوتية للمكالمات
+//   • تحليل مشاعر الزبائن
+// تعريفها هنا يجعل push يحافظ عليها بدل حذفها.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// الصوت الخام للمكالمة (base64) — منفصل عن call_recordings كي لا تثقل الاستعلامات
+export const callRecordingAudio = mysqlTable("call_recording_audio", {
+	id: int().autoincrement().primaryKey().notNull(),
+	recordingId: int().notNull(),
+	branchId: int().notNull(),
+	mimeType: varchar({ length: 50 }).default('audio/mp4'),
+	audioBase64: longtext(), // LONGTEXT: الملف الصوتي base64 يتجاوز 64KB بكثير
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("rec_idx").on(table.recordingId),
+	index("branch_idx").on(table.branchId),
+]);
+
+// جلسة واتساب المحفوظة لكل فرع (baileys auth state)
+export const whatsappAuth = mysqlTable("whatsapp_auth", {
+	branchId: int().notNull(),
+	k: varchar({ length: 191 }).notNull(),
+	v: longtext(), // LONGTEXT: مفاتيح جلسة baileys قد تكون كبيرة
+},
+(table) => [
+	primaryKey({ columns: [table.branchId, table.k], name: "whatsapp_auth_pk" }),
+]);
+
+export const whatsappSettings = mysqlTable("whatsapp_settings", {
+	branchId: int().primaryKey().notNull(),
+	enabled: tinyint().default(0),
+	notifyCourier: tinyint().default(1),
+	notifyCustomer: tinyint().default(1),
+	courierTemplate: text(),
+	customerTemplate: text(),
+	protectionEnabled: tinyint().default(1),
+	minDelaySec: int().default(3),
+	maxDelaySec: int().default(8),
+	maxPerMinute: int().default(8),
+	dailyCapTotal: int().default(300),
+	dailyCapPerCustomer: int().default(3),
+	customerCooldownMin: int().default(2),
+	checkOnWhatsApp: tinyint().default(1),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const whatsappLog = mysqlTable("whatsapp_log", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	kind: varchar({ length: 20 }).notNull(),
+	toPhone: varchar({ length: 30 }).default(''),
+	orderId: int(),
+	status: varchar({ length: 20 }).notNull(),
+	error: text(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("branch_created").on(table.branchId, table.createdAt),
+	index("branch_phone").on(table.branchId, table.toPhone),
+]);
+
+export const whatsappMessages = mysqlTable("whatsapp_messages", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	phone: varchar({ length: 30 }).notNull(),
+	fromMe: tinyint().default(0),
+	text: text(),
+	pushName: varchar({ length: 191 }).default(''),
+	waId: varchar({ length: 191 }).default(''),
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	index("branch_phone").on(table.branchId, table.phone),
+	index("branch_created").on(table.branchId, table.createdAt),
+]);
+
+export const whatsappConversations = mysqlTable("whatsapp_conversations", {
+	branchId: int().notNull(),
+	phone: varchar({ length: 30 }).notNull(),
+	name: varchar({ length: 191 }).default(''),
+	lastText: text(),
+	lastAt: timestamp({ mode: 'string' }),
+	unread: int().default(0),
+	summary: text(),
+	summaryAt: timestamp({ mode: 'string' }),
+	summaryDirty: tinyint().default(1),
+},
+(table) => [
+	primaryKey({ columns: [table.branchId, table.phone], name: "whatsapp_conversations_pk" }),
+]);
+
+export const customerSentiment = mysqlTable("customer_sentiment", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	refKey: varchar({ length: 80 }).notNull(),
+	refType: varchar({ length: 12 }).notNull(),
+	refId: int().default(0),
+	phone: varchar({ length: 30 }).default(''),
+	name: varchar({ length: 191 }).default(''),
+	channel: varchar({ length: 20 }).default('call'),
+	mood: varchar({ length: 12 }).default('neutral'),
+	score: int().default(0),
+	reason: text(),
+	wants: text(),
+	summary: text(),
+	lastMsgId: int().default(0),
+	msgCount: int().default(0),
+	sourceAt: timestamp({ mode: 'string' }),
+	analyzedAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	unique("branch_ref").on(table.branchId, table.refKey),
+	index("branch_phone").on(table.branchId, table.phone),
+	index("branch_source").on(table.branchId, table.sourceAt),
+]);

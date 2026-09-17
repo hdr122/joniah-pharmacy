@@ -353,6 +353,12 @@ async function openSocket(branchId: number) {
           if (!jid.endsWith("@s.whatsapp.net")) continue; // تجاهل المجموعات والحالات
           const phone = jid.split("@")[0];
           const msg: any = m?.message || {};
+          // موقع من الزبون (لقطة أو موقع مباشر) → أرفقه بطلبه النشط ليتنقّل إليه المندوب مباشرةً
+          const locMsg = msg.locationMessage || msg.liveLocationMessage;
+          if (locMsg && !m?.key?.fromMe && locMsg.degreesLatitude != null && locMsg.degreesLongitude != null) {
+            onCustomerLocation(branchId, phone, Number(locMsg.degreesLatitude), Number(locMsg.degreesLongitude))
+              .catch((e: any) => console.warn("[whatsapp] location:", e?.message || e));
+          }
           const text: string = msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
             || (msg.imageMessage ? "[صورة]" : msg.audioMessage ? "[رسالة صوتية]" : msg.documentMessage ? "[ملف]" : msg.locationMessage ? "[موقع]" : msg.stickerMessage ? "[ملصق]" : "");
           if (!text) continue;
@@ -662,6 +668,28 @@ export async function onOrderCreated(branchId: number, orderId: number) {
       send(branchId, String(ctx.vars.phone), renderTemplate(s.customerTemplate, ctx.vars), "customer", orderId).catch(() => {});
     }
   } catch (e: any) { console.warn("[whatsapp] onOrderCreated:", e?.message || e); }
+}
+
+/** Customer sent a WhatsApp location → attach it to their active order (so the courier navigates
+ *  there) + remember it as their last delivery location + DM the assigned courier. */
+export async function onCustomerLocation(branchId: number, phone: string, lat: number, lng: number) {
+  const num = normalizePhone(phone);
+  if (!num) return;
+  const cust = await db.getCustomerByPhone(num, branchId);
+  if (!cust) return; // زبون غير معروف — لا شيء لربطه
+  const url = `https://maps.google.com/?q=${lat},${lng}`;
+  await db.updateCustomerLocation((cust as any).id, branchId, url);
+  const order = await db.getActiveOrderByCustomer((cust as any).id, branchId);
+  if (!order) return; // لا طلب مفتوح — حُفظ كآخر موقع فقط
+  await db.updateOrder((order as any).id, { locationLink: url });
+  if ((order as any).deliveryPersonId) {
+    try {
+      const courier = await db.getUserById((order as any).deliveryPersonId);
+      if ((courier as any)?.phone) {
+        await send(branchId, (courier as any).phone, `📍 وصل موقع الزبون للطلب #${(order as any).id}:\n${url}`, "courier", (order as any).id);
+      }
+    } catch { /* تجاهل فشل إبلاغ المندوب */ }
+  }
 }
 
 /** Order moved to another courier: notify the NEW courier only. */
