@@ -36,6 +36,7 @@ export const customers = mysqlTable("customers", {
 	branchId: int().notNull(),
 	name: varchar({ length: 255 }),
 	phone: varchar({ length: 20 }),
+	whatsappUsername: varchar({ length: 191 }).default(''),
 	email: varchar({ length: 320 }),
 	address1: text(),
 	address2: text(),

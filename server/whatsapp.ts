@@ -32,6 +32,16 @@ import QRCode from "qrcode";
 import pino from "pino";
 import { sql } from "drizzle-orm";
 import * as db from "./db";
+import { xenonAiError } from "./_core/aiError";
+
+// اسم المستخدم (pushName) الظاهر لكل jid — يُملأ من الرسائل ويُستعمل مع المكالمات.
+// المفتاح: `${branchId}:${jid}`.
+const pushNameCache = new Map<string, string>();
+// الرقم المحلي المخزّن للزبائن (07…) من رقم الواتساب الدولي (964…).
+function waLocalPhone(intlOrJidNumber: string): string {
+  const n = String(intlOrJidNumber || "").replace(/@.*/, "");
+  return n.startsWith("964") ? "0" + n.slice(3) : n;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Storage (runtime CREATE TABLE IF NOT EXISTS — no db:push needed)
@@ -352,7 +362,14 @@ async function openSocket(branchId: number) {
           const jid: string = m?.key?.remoteJid || "";
           if (!jid.endsWith("@s.whatsapp.net")) continue; // تجاهل المجموعات والحالات
           const phone = jid.split("@")[0];
-          const msg: any = m?.message || {};
+          // فُكّ الأغلفة الشائعة قبل القراءة، وإلا سقطت رسائل الزبائن صمتاً:
+          // الرسائل المؤقتة/المختفية (ephemeral) تغلّف كل رسالة، وكذلك «مرة واحدة» والمستند-مع-تعليق.
+          const raw: any = m?.message || {};
+          const msg: any = raw.ephemeralMessage?.message
+            || raw.viewOnceMessageV2?.message || raw.viewOnceMessageV2Extension?.message || raw.viewOnceMessage?.message
+            || raw.documentWithCaptionMessage?.message
+            || raw.deviceSentMessage?.message
+            || raw;
           // موقع من الزبون (لقطة أو موقع مباشر) → أرفقه بطلبه النشط ليتنقّل إليه المندوب مباشرةً
           const locMsg = msg.locationMessage || msg.liveLocationMessage;
           if (locMsg && !m?.key?.fromMe && locMsg.degreesLatitude != null && locMsg.degreesLongitude != null) {
@@ -360,11 +377,31 @@ async function openSocket(branchId: number) {
               .catch((e: any) => console.warn("[whatsapp] location:", e?.message || e));
           }
           const text: string = msg.conversation || msg.extendedTextMessage?.text || msg.imageMessage?.caption || msg.videoMessage?.caption
-            || (msg.imageMessage ? "[صورة]" : msg.audioMessage ? "[رسالة صوتية]" : msg.documentMessage ? "[ملف]" : msg.locationMessage ? "[موقع]" : msg.stickerMessage ? "[ملصق]" : "");
-          if (!text) continue;
+            || (msg.imageMessage ? "[صورة]" : msg.audioMessage ? "[رسالة صوتية]" : msg.documentMessage ? "[ملف]" : msg.locationMessage ? "[موقع]" : msg.stickerMessage ? "[ملصق]" : msg.contactMessage ? "[جهة اتصال]" : msg.reactionMessage ? ("تفاعل " + (msg.reactionMessage.text || "")) : "");
+          if (!text) continue; // إطارات تحكّم فارغة فقط تُتجاهَل الآن
+          // خزّن اسم المستخدم الظاهر (pushName) لهذا الرقم + أثرِ سجل الزبون به
+          if (!m?.key?.fromMe && m?.pushName) {
+            pushNameCache.set(`${branchId}:${jid}`, m.pushName);
+            db.setCustomerWhatsappUsername(waLocalPhone(phone), branchId, m.pushName).catch(() => {});
+          }
           await storeMessage(branchId, phone, !!m?.key?.fromMe, text, m?.pushName || "", m?.key?.id || "");
         }
       } catch (e: any) { console.warn("[whatsapp] inbound:", e?.message || e); }
+    });
+    // مكالمات واتساب الواردة (Baileys) → التقط رقم/يوزر المتصل وأثرِ سجل الزبون.
+    // الرقم الحقيقي يتوفّر فقط من jid بصيغة @s.whatsapp.net؛ المتصل المخفي (@lid) بلا رقم.
+    sock.ev.on("call", async (calls: any[]) => {
+      try {
+        for (const call of (calls || [])) {
+          if (call?.status && call.status !== "offer") continue;
+          const from = String(call?.from || "");
+          const pushName = pushNameCache.get(`${branchId}:${from}`) || "";
+          if (!from.endsWith("@s.whatsapp.net")) { console.log("[whatsapp] call (hidden/@lid)", pushName || from); continue; }
+          const local = waLocalPhone(from);
+          if (pushName) db.setCustomerWhatsappUsername(local, branchId, pushName).catch(() => {});
+          console.log("[whatsapp] call from", local, pushName ? `(${pushName})` : "");
+        }
+      } catch (e: any) { console.warn("[whatsapp] call:", e?.message || e); }
     });
     sock.ev.on("connection.update", async (u) => {
       const { connection, lastDisconnect, qr } = u;
@@ -582,10 +619,12 @@ async function drain(branchId: number) {
       }
 
       try {
-        await c.sock!.sendMessage(item.jid, { text: item.text });
+        // خزّن الرسالة الصادرة بمعرّفها الحقيقي (key.id) كي يُتعرّف على صداها القادم
+        // من messages.upsert كنسخة مكرّرة فيُهمَل — وإلا ظهرت الرسالة (مثل «تم استلام الطلب») مرتين.
+        const sent: any = await c.sock!.sendMessage(item.jid, { text: item.text });
         c.sentTimestamps.push(Date.now());
         await logSend(branchId, item.kind, item.toPhone, item.orderId, "sent");
-        storeMessage(branchId, item.toPhone, true, item.text, "", "").catch(() => {});
+        storeMessage(branchId, item.toPhone, true, item.text, "", sent?.key?.id || "").catch(() => {});
         item.resolve({ ok: true });
       } catch (e: any) {
         await logSend(branchId, item.kind, item.toPhone, item.orderId, "failed", e?.message || String(e));
@@ -673,9 +712,13 @@ export async function onOrderCreated(branchId: number, orderId: number) {
 /** Customer sent a WhatsApp location → attach it to their active order (so the courier navigates
  *  there) + remember it as their last delivery location + DM the assigned courier. */
 export async function onCustomerLocation(branchId: number, phone: string, lat: number, lng: number) {
-  const num = normalizePhone(phone);
-  if (!num) return;
-  const cust = await db.getCustomerByPhone(num, branchId);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return; // إحداثيات غير صالحة
+  // رقم الواتساب يصل بصيغة دولية (964…) لكن أرقام الزبائن مخزّنة محليًا (07…)،
+  // وgetCustomerByPhone مطابقة حرفية — لذا جرّب الصيغتين وإلا فشل الربط دائمًا.
+  const intl = normalizePhone(phone);
+  if (!intl) return;
+  const local = intl.startsWith("964") ? "0" + intl.slice(3) : intl;
+  const cust = (await db.getCustomerByPhone(local, branchId)) || (await db.getCustomerByPhone(intl, branchId));
   if (!cust) return; // زبون غير معروف — لا شيء لربطه
   const url = `https://maps.google.com/?q=${lat},${lng}`;
   await db.updateCustomerLocation((cust as any).id, branchId, url);
@@ -787,7 +830,7 @@ export async function summarize(branchId: number, phone: string, force = false) 
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } }),
   });
   const txt = await res.text();
-  if (!res.ok) { let msg = txt.slice(0, 200); try { msg = JSON.parse(txt).error?.message || msg; } catch {} throw new Error("Xenon AI: " + msg); }
+  if (!res.ok) { throw xenonAiError(res.status, txt); } // لا يتسرّب نص المزوّد للعميل
   let data: any = {}; try { data = JSON.parse(txt); } catch {}
   const summary = String(data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || "").join("") || "").trim().slice(0, 2000);
   if (!summary) throw new Error("لم يُعِد Xenon AI ملخصاً");

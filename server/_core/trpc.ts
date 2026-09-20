@@ -2,9 +2,14 @@ import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
+import { sanitizeAiMessage } from "./aiError";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  // دفاع بالعمق: نظّف أي رسالة خطأ قد تحمل نص مزوّد الذكاء قبل خروجها للعميل.
+  errorFormatter({ shape }) {
+    return { ...shape, message: sanitizeAiMessage(shape.message) };
+  },
 });
 
 export const router = t.router;

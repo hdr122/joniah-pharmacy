@@ -717,11 +717,13 @@ export default function DeliveryDashboard() {
                                     <span><strong>الزبون:</strong> {order.customerName}</span>
                                   </div>
                                 )}
-                                {order.customerPhone && !order.hidePhoneFromDelivery && (
+                                {(order.customerPhone || order.customerWaUsername) && !order.hidePhoneFromDelivery && (
                                   <div className="space-y-2">
                                     <div dir="ltr" className="text-right flex items-center gap-2">
                                       <Phone className="w-4 h-4 text-green-600" />
-                                      <span><strong>الهاتف:</strong> {order.customerPhone}</span>
+                                      {order.customerPhone
+                                        ? <span><strong>الهاتف:</strong> {order.customerPhone}</span>
+                                        : <span><strong>يوزر واتساب:</strong> {order.customerWaUsername}</span>}
                                     </div>
                                     <div className="flex gap-2">
                                       <Button
@@ -729,24 +731,28 @@ export default function DeliveryDashboard() {
                                         variant="outline"
                                         className="gap-2 text-green-600 border-green-300 hover:bg-green-50"
                                         onClick={() => {
-                                          const phone = order.customerPhone.replace(/^0/, '964');
-                                          window.open(`https://wa.me/${phone}`, '_blank');
+                                          const url = order.customerPhone
+                                            ? `https://wa.me/${order.customerPhone.replace(/^0/, '964')}`
+                                            : `https://wa.me/${encodeURIComponent(order.customerWaUsername || '')}`;
+                                          window.open(url, '_blank');
                                         }}
                                       >
                                         <MessageCircle className="w-4 h-4" />
                                         واتساب
                                       </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="gap-2 text-blue-600 border-blue-300 hover:bg-blue-50"
-                                        onClick={() => {
-                                          window.open(`tel:${order.customerPhone}`, '_self');
-                                        }}
-                                      >
-                                        <Phone className="w-4 h-4" />
-                                        مكالمة
-                                      </Button>
+                                      {order.customerPhone && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="gap-2 text-blue-600 border-blue-300 hover:bg-blue-50"
+                                          onClick={() => {
+                                            window.open(`tel:${order.customerPhone}`, '_self');
+                                          }}
+                                        >
+                                          <Phone className="w-4 h-4" />
+                                          مكالمة
+                                        </Button>
+                                      )}
                                     </div>
                                   </div>
                                 )}

@@ -13,6 +13,7 @@
 import { sql } from "drizzle-orm";
 import * as db from "./db";
 import { getMessages } from "./whatsapp";
+import { xenonAiError, sanitizeAiMessage } from "./_core/aiError";
 
 function rowsOf(r: any): any[] {
   if (!Array.isArray(r)) return r?.rows || [];
@@ -89,7 +90,7 @@ export async function analyzeWithAi(cfg: { key: string; model: string }, kind: "
     }),
   });
   const txt = await res.text();
-  if (!res.ok) { let msg = txt.slice(0, 200); try { msg = JSON.parse(txt).error?.message || msg; } catch {} throw new Error("Xenon AI: " + msg); }
+  if (!res.ok) { throw xenonAiError(res.status, txt); } // لا يتسرّب نص المزوّد للعميل
   let data: any = {}; try { data = JSON.parse(txt); } catch {}
   const raw = String(data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || "").join("") || "").trim();
   let j: any = {};
@@ -200,7 +201,7 @@ export async function analyzePending(branchId: number, max = 12) {
     }
   } finally { inFlight.delete(branchId); }
   const remaining = (await pendingCount(branchId)).total;
-  return { analyzed, failed, remaining, error: failed && !analyzed ? lastError : "" };
+  return { analyzed, failed, remaining, error: failed && !analyzed ? sanitizeAiMessage(lastError) : "" };
 }
 
 /** إعادة تحليل عنصر واحد (زر «إعادة التحليل»). */

@@ -366,6 +366,7 @@ export async function getOrderById(id: number) {
       // Customer fields
       customerName: customers.name,
       customerPhone: customers.phone,
+      customerWaUsername: customers.whatsappUsername,
       customerEmail: customers.email,
       customerAddress1: customers.address1,
       customerAddress2: customers.address2,
@@ -460,6 +461,7 @@ export async function getAllOrders(options?: {
       regionName: regions.name,
       customerName: customers.name,
       customerPhone: customers.phone,
+      customerWaUsername: customers.whatsappUsername,
       customerEmail: customers.email,
       customerAddress1: customers.address1,
       customerAddress2: customers.address2,
@@ -560,6 +562,7 @@ export async function getOrdersByDeliveryPerson(deliveryPersonId: number) {
       // Customer data from customers table
       customerName: customers.name,
       customerPhone: customers.phone,
+      customerWaUsername: customers.whatsappUsername,
       customerEmail: customers.email,
       customerAddress1: customers.address1,
       customerAddress2: customers.address2,
@@ -1342,6 +1345,7 @@ export async function createCustomer(data: {
   branchId: number;
   name?: string;
   phone?: string;
+  whatsappUsername?: string;
   email?: string;
   address1?: string;
   address2?: string;
@@ -1352,7 +1356,7 @@ export async function createCustomer(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const { customers } = await import("../drizzle/schema");
   const [result] = await db.insert(customers).values(data);
   return { id: Number(result.insertId) };
@@ -1361,10 +1365,30 @@ export async function createCustomer(data: {
 export async function getCustomerByPhone(phone: string, branchId: number) {
   const db = await getDb();
   if (!db) return null;
-  
+
   const { customers } = await import("../drizzle/schema");
   const result = await db.select().from(customers).where(and(eq(customers.phone, phone), eq(customers.branchId, branchId))).limit(1);
   return result[0] || null;
+}
+
+// ربط زبون واتساب-فقط (بلا رقم) عبر اسم مستخدم الواتساب
+export async function getCustomerByWhatsappUsername(username: string, branchId: number) {
+  const db = await getDb();
+  if (!db || !username) return null;
+  const { customers } = await import("../drizzle/schema");
+  const result = await db.select().from(customers)
+    .where(and(eq(customers.whatsappUsername, username), eq(customers.branchId, branchId))).limit(1);
+  return result[0] || null;
+}
+
+// إثراء سجلّ الزبون بيوزر الواتساب من رسائله/مكالماته (يملأ الفارغ فقط، بلا دوس)
+export async function setCustomerWhatsappUsername(phone: string, branchId: number, username: string) {
+  const db = await getDb();
+  if (!db || !username) return;
+  const cust = await getCustomerByPhone(phone, branchId);
+  if (!cust || (cust as any).whatsappUsername) return; // موجود مسبقاً أو زبون غير معروف
+  await db.update(customers).set({ whatsappUsername: username.slice(0, 190) })
+    .where(and(eq(customers.id, (cust as any).id), eq(customers.branchId, branchId)));
 }
 
 // أحدث طلب نشط لزبون (بانتظار الموافقة/التوصيل) — لربط موقع الواتساب به

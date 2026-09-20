@@ -336,7 +336,7 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
     const {
       deliveryPersonId, regionId, price, discount,
       address, note, locationLink,
-      customerName, customerPhone,
+      customerName, customerPhone, customerWaUsername,
     } = req.body || {};
 
     if (!deliveryPersonId || !regionId || price == null) {
@@ -356,17 +356,32 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
       return res.status(400).json({ error: "invalid_region", message: "المنطقة غير موجودة في هذا الفرع" });
     }
 
-    // Optional customer
+    // Optional customer — بالرقم إن وُجد، وإلا بيوزر الواتساب (زبون واتساب-فقط بلا رقم)
     let customerId: number | undefined;
     if (customerPhone) {
       const existing = await db.getCustomerByPhone(String(customerPhone), req.apiBranchId!);
       if (existing) {
         customerId = existing.id;
+        // أثرِ يوزر الواتساب على السجل الموجود إن كان فارغاً
+        if (customerWaUsername) await db.setCustomerWhatsappUsername(String(customerPhone), req.apiBranchId!, String(customerWaUsername)).catch(() => {});
       } else {
         const created = await db.createCustomer({
           branchId: req.apiBranchId!,
           name: customerName ? String(customerName) : undefined,
           phone: String(customerPhone),
+          whatsappUsername: customerWaUsername ? String(customerWaUsername) : undefined,
+        });
+        customerId = created.id;
+      }
+    } else if (customerWaUsername) {
+      const existing = await db.getCustomerByWhatsappUsername(String(customerWaUsername), req.apiBranchId!);
+      if (existing) {
+        customerId = existing.id;
+      } else {
+        const created = await db.createCustomer({
+          branchId: req.apiBranchId!,
+          name: customerName ? String(customerName) : String(customerWaUsername),
+          whatsappUsername: String(customerWaUsername),
         });
         customerId = created.id;
       }
