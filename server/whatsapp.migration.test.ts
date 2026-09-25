@@ -122,6 +122,31 @@ describe("ترحيل جداول واتساب إلى الخطّين", () => {
     expect(String(rows[0].v)).toBe("v2"); // وقيمته الأحدث
   });
 
+  it("يُزيل الصفوف المكرّرة محتفظاً بالأحدث عند إعادة بناء المفتاح", async () => {
+    // هذا ما وُجد فعلاً على الإنتاج: 87 صف creds مكرّراً لفرع واحد بعد أن أسقط
+    // push المفتاح — فدخل الواتساب في حلقة إعادة اتصال.
+    await d.execute(sql`ALTER TABLE whatsapp_auth DROP PRIMARY KEY`);
+    await d.execute(sql`DELETE FROM whatsapp_auth WHERE branchId = ${B}`);
+    for (const v of ["قديم1", "قديم2", "الأحدث"]) {
+      await d.execute(sql`INSERT INTO whatsapp_auth (branchId, line, k, v) VALUES (${B}, 'main', 'creds', ${v})`);
+    }
+    await d.execute(sql`INSERT INTO whatsapp_auth (branchId, line, k, v) VALUES (${B}, 'followup', 'creds', 'خط المتابعة')`);
+    expect(rowsOf(await d.execute(sql`SELECT v FROM whatsapp_auth WHERE branchId = ${B}`)).length).toBe(4);
+
+    const fresh = await import(`./whatsapp?dedup=${Date.now()}`);
+    await fresh.getLogs(B);
+
+    const keys = rowsOf(await d.execute(sql`SHOW KEYS FROM whatsapp_auth WHERE Key_name = 'PRIMARY'`))
+      .sort((a: any, b: any) => Number(a.Seq_in_index) - Number(b.Seq_in_index));
+    expect(keys.map((k: any) => k.Column_name)).toEqual(["branchId", "line", "k"]);
+
+    const rows = rowsOf(await d.execute(sql`SELECT line, v FROM whatsapp_auth WHERE branchId = ${B} ORDER BY line`));
+    expect(rows.length).toBe(2);                    // صف واحد لكل خط
+    const main = rows.find((r: any) => r.line === "main");
+    expect(String(main.v)).toBe("الأحدث");          // لا «قديم1» — الجلسة تبقى صالحة
+    expect(String(rows.find((r: any) => r.line === "followup").v)).toBe("خط المتابعة");
+  });
+
   it("الترحيل قابل للتكرار — تشغيله مرّتين لا يُسقط شيئاً", async () => {
     const whatsapp = await import("./whatsapp");
     // أجبر إعادة التنفيذ بإسقاط علامة الجاهزية عبر وحدة جديدة غير ممكن هنا،

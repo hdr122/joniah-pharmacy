@@ -169,16 +169,25 @@ async function ensurePrimaryKey(d: any, table: string, cols: string[]) {
     }
     try {
       await d.execute(sql.raw(`ALTER TABLE \`${table}\` ADD PRIMARY KEY (${keyCols})`));
-    } catch (e: any) {
-      // فشل الإنشاء يعني تكراراً تسلّل أثناء غياب المفتاح. نُعيد بناء الجدول
-      // محتفظين بصف واحد لكل مفتاح — الترتيب يضمن بقاء الأحدث حيث يوجد عمود يدلّ عليه.
-      if (!/duplicate/i.test(String(e?.message))) throw e;
+    } catch (_) {
+      // الفشل هنا سببه عملياً واحد: صفوف مكرّرة تسلّلت أثناء غياب المفتاح
+      // (ON DUPLICATE KEY UPDATE تتحوّل إلى INSERT عادي بلا مفتاح). لا نفحص نص
+      // الخطأ لأن drizzle يستبدله بنصّ الاستعلام، فنمضي مباشرةً إلى إعادة البناء.
       console.warn(`[whatsapp] صفوف مكرّرة في ${table} — يُعاد بناؤه`);
+
+      // الأعمدة غير المفتاحية تُحدَّث من الصف اللاحق، فيبقى الأحدث لا الأقدم.
+      // هذا حاسم لمفاتيح جلسة الواتساب: الاحتفاظ بأقدم creds يُفقد الجلسة.
+      const allCols = rowsOf(await d.execute(sql.raw(`SHOW COLUMNS FROM \`${table}\``)))
+        .map((r: any) => String(r.Field));
+      const dataCols = allCols.filter((c) => !cols.includes(c));
+      const onDup = dataCols.length
+        ? ` ON DUPLICATE KEY UPDATE ${dataCols.map((c) => `\`${c}\` = VALUES(\`${c}\`)`).join(", ")}`
+        : "";
+
       await d.execute(sql.raw(`DROP TABLE IF EXISTS \`${table}__dedup\``));
       await d.execute(sql.raw(`CREATE TABLE \`${table}__dedup\` LIKE \`${table}\``));
-      // المفتاح يُضاف للجدول الجديد أولاً كي يُسقط INSERT IGNORE المكرّر
       await d.execute(sql.raw(`ALTER TABLE \`${table}__dedup\` ADD PRIMARY KEY (${keyCols})`));
-      await d.execute(sql.raw(`INSERT IGNORE INTO \`${table}__dedup\` SELECT * FROM \`${table}\``));
+      await d.execute(sql.raw(`INSERT INTO \`${table}__dedup\` SELECT * FROM \`${table}\`${onDup}`));
       await d.execute(sql.raw(`DROP TABLE \`${table}\``));
       await d.execute(sql.raw(`RENAME TABLE \`${table}__dedup\` TO \`${table}\``));
     }
