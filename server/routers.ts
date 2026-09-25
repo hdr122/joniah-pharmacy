@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import * as whatsapp from "./whatsapp";
+import * as followup from "./followup";
 import * as sentiment from "./sentiment";
 import { storagePut } from "./storage";
 import { getCurrentSqlDatetime } from "./dateUtils";
@@ -529,6 +530,8 @@ export const appRouter = router({
         });
         // واتساب: إشعار المندوب + الزبون (best-effort)
         if (createdOrder?.id) whatsapp.onOrderCreated(getBranchId(ctx.user), createdOrder.id).catch(() => {});
+        // 📣 قسم المتابعة: جدولة رسالة المتابعة للزبون
+        if (createdOrder?.id) followup.onOrderCreated(getBranchId(ctx.user), createdOrder.id).catch(() => {});
         
         // Send notification to delivery person
         await db.createNotification({
@@ -634,6 +637,9 @@ export const appRouter = router({
         }
         
         await db.updateOrderStatus(id, status, updateData);
+        // 📣 قسم المتابعة
+        if (status === "delivered") followup.onOrderDelivered(getBranchId(ctx.user), id).catch(() => {});
+        if (status === "cancelled" || status === "returned") followup.onOrderCancelled(getBranchId(ctx.user), id).catch(() => {});
         return { success: true };
       }),
     
@@ -692,6 +698,8 @@ export const appRouter = router({
         }
         
         await db.updateOrderStatus(input.orderId, "delivered", updateData);
+        // 📣 قسم المتابعة: الطلب سُلِّم — ابدأ مؤقّت رسالة المتابعة
+        followup.onOrderDelivered(getBranchId(ctx.user), input.orderId).catch(() => {});
         
         // Update customer's last delivery location if customer exists
         if (currentOrder?.customerId && input.deliveryLocationUrl) {
@@ -1493,6 +1501,98 @@ export const appRouter = router({
         items: "• 2× برجر لحم = 10,000\n• 1× بيبسي = 1,000", total: "11,000", note: "الاتصال قبل الوصول",
         driver: "كرار", driverPhone: "07709876543", branch: "مطعمنا", ratingLink: "",
       }))),
+  }),
+
+  // ── 📣 قسم المتابعة: واتساب ثانٍ لمتابعة الزبائن بعد الطلب ──
+  followup: router({
+    // الحالة الكاملة: الاتصال + الإعدادات + الإحصاءات + حالة العامل
+    status: adminProcedure.query(async ({ ctx }) => {
+      const b = getBranchId(ctx.user);
+      const [settings, stats, hasSession, today] = await Promise.all([
+        followup.getSettings(b),
+        followup.stats(b),
+        whatsapp.hasSavedSession(b, "followup"),
+        whatsapp.getTodayStats(b, "followup"),
+      ]);
+      return { ...whatsapp.status(b, "followup"), settings, stats, hasSession, today, runner: followup.runnerInfo(b) };
+    }),
+
+    // ربط الرقم الثاني بالباركود
+    connect: adminProcedure.mutation(async ({ ctx }) => whatsapp.connect(getBranchId(ctx.user), "followup")),
+    // أو برمز ربط رقمي بدل الباركود
+    pairingCode: adminProcedure
+      .input(z.object({ phone: z.string().min(8) }))
+      .mutation(async ({ ctx, input }) => ({ code: await whatsapp.requestPairingCode(getBranchId(ctx.user), input.phone, "followup") })),
+    logout: adminProcedure.mutation(async ({ ctx }) => { await whatsapp.logout(getBranchId(ctx.user), "followup"); return { success: true }; }),
+
+    saveSettings: adminProcedure
+      .input(z.object({
+        enabled: z.boolean().optional(),
+        autoEnabled: z.boolean().optional(),
+        template: z.string().max(2000).optional(),
+        anchor: z.enum(["delivered", "created"]).optional(),
+        delayHours: z.number().optional(),
+        intervalSec: z.number().optional(),
+        jitterSec: z.number().optional(),
+        batchSize: z.number().optional(),
+        batchPauseMin: z.number().optional(),
+        dailyCap: z.number().optional(),
+        checkOnWhatsApp: z.boolean().optional(),
+        quietFromHour: z.number().optional(),
+        quietToHour: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => followup.saveSettings(getBranchId(ctx.user), input)),
+
+    // معاينة نص الرسالة كما سيصل الزبون
+    preview: adminProcedure
+      .input(z.object({ template: z.string().max(2000) }))
+      .query(async ({ input }) => whatsapp.withFooter(followup.render(input.template, {
+        name: "أبو أحمد", phone: "07701234567", order: 1024, total: "11,000",
+        area: "المنصور", address: "شارع 14 قرب الجامع", branch: "مطعمنا",
+      }))),
+
+    // ── الحملات اليدوية ──
+    audience: adminProcedure
+      .input(z.object({ target: z.enum(["all", "ordered"]), limitCount: z.number().optional() }))
+      .query(async ({ ctx, input }) => followup.audienceCount(getBranchId(ctx.user), input.target, input.limitCount ?? 0)),
+    campaigns: adminProcedure.query(async ({ ctx }) => followup.listCampaigns(getBranchId(ctx.user))),
+    createCampaign: adminProcedure
+      .input(z.object({
+        name: z.string().max(190).optional(),
+        template: z.string().max(2000).optional(),
+        target: z.enum(["all", "ordered"]),
+        limitCount: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => followup.createCampaign(getBranchId(ctx.user), { ...input, createdBy: ctx.user.id })),
+    cancelCampaign: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => followup.cancelCampaign(getBranchId(ctx.user), input.id)),
+
+    // قائمة الانتظار
+    jobs: adminProcedure
+      .input(z.object({ status: z.string().optional(), limit: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => followup.listJobs(getBranchId(ctx.user), input)),
+    logs: adminProcedure.query(async ({ ctx }) => whatsapp.getLogs(getBranchId(ctx.user), 100, "followup")),
+
+    // ── صندوق رسائل قسم المتابعة (منفصل عن صندوق الرقم الأساسي) ──
+    conversations: adminProcedure.query(async ({ ctx }) => {
+      const b = getBranchId(ctx.user);
+      const [list, st] = await Promise.all([
+        whatsapp.listConversations(b, 200, "followup"),
+        whatsapp.inboxStats(b, "followup"),
+      ]);
+      return { conversations: list, stats: st };
+    }),
+    messages: adminProcedure
+      .input(z.object({ phone: z.string().min(6) }))
+      .query(async ({ ctx, input }) => {
+        const b = getBranchId(ctx.user);
+        await whatsapp.markRead(b, input.phone, "followup").catch(() => {});
+        return whatsapp.getMessages(b, input.phone, 300, "followup");
+      }),
+    reply: adminProcedure
+      .input(z.object({ phone: z.string().min(6), text: z.string().min(1).max(2000) }))
+      .mutation(async ({ ctx, input }) => whatsapp.reply(getBranchId(ctx.user), input.phone, input.text, "followup")),
   }),
 
   // Advanced Reports

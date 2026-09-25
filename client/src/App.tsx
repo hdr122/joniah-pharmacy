@@ -31,6 +31,7 @@ import CustomerDetails from "./pages/admin/CustomerDetails";
 import CallRecordings from "./pages/admin/CallRecordings";
 import WhatsAppPage from "./pages/admin/WhatsApp";
 import WhatsAppInbox from "./pages/admin/WhatsAppInbox";
+import WhatsAppFollowup from "./pages/admin/WhatsAppFollowup";
 import CustomerAnalysis from "./pages/admin/CustomerAnalysis";
 import IncompleteOrders from "./pages/admin/IncompleteOrders";
 import MonthlyPerformance from "./pages/admin/MonthlyPerformance";
@@ -447,6 +448,16 @@ function Router() {
           return (
             <AdminLayout>
               <WhatsAppInbox />
+            </AdminLayout>
+          );
+        }}
+      </Route>
+      <Route path="/admin/whatsapp-followup">
+        {() => {
+          if (!isAdmin) return <Redirect to="/delivery" />;
+          return (
+            <AdminLayout>
+              <WhatsAppFollowup />
             </AdminLayout>
           );
         }}

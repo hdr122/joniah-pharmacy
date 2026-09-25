@@ -534,11 +534,12 @@ export const callRecordingAudio = mysqlTable("call_recording_audio", {
 // جلسة واتساب المحفوظة لكل فرع (baileys auth state)
 export const whatsappAuth = mysqlTable("whatsapp_auth", {
 	branchId: int().notNull(),
+	line: varchar({ length: 16 }).default('main').notNull(),
 	k: varchar({ length: 191 }).notNull(),
 	v: longtext(), // LONGTEXT: مفاتيح جلسة baileys قد تكون كبيرة
 },
 (table) => [
-	primaryKey({ columns: [table.branchId, table.k], name: "whatsapp_auth_pk" }),
+	primaryKey({ columns: [table.branchId, table.line, table.k], name: "whatsapp_auth_pk" }),
 ]);
 
 export const whatsappSettings = mysqlTable("whatsapp_settings", {
@@ -562,6 +563,7 @@ export const whatsappSettings = mysqlTable("whatsapp_settings", {
 export const whatsappLog = mysqlTable("whatsapp_log", {
 	id: int().autoincrement().primaryKey().notNull(),
 	branchId: int().notNull(),
+	line: varchar({ length: 16 }).default('main').notNull(),
 	kind: varchar({ length: 20 }).notNull(),
 	toPhone: varchar({ length: 30 }).default(''),
 	orderId: int(),
@@ -577,6 +579,7 @@ export const whatsappLog = mysqlTable("whatsapp_log", {
 export const whatsappMessages = mysqlTable("whatsapp_messages", {
 	id: int().autoincrement().primaryKey().notNull(),
 	branchId: int().notNull(),
+	line: varchar({ length: 16 }).default('main').notNull(),
 	phone: varchar({ length: 30 }).notNull(),
 	fromMe: tinyint().default(0),
 	text: text(),
@@ -591,6 +594,7 @@ export const whatsappMessages = mysqlTable("whatsapp_messages", {
 
 export const whatsappConversations = mysqlTable("whatsapp_conversations", {
 	branchId: int().notNull(),
+	line: varchar({ length: 16 }).default('main').notNull(),
 	phone: varchar({ length: 30 }).notNull(),
 	name: varchar({ length: 191 }).default(''),
 	lastText: text(),
@@ -601,7 +605,7 @@ export const whatsappConversations = mysqlTable("whatsapp_conversations", {
 	summaryDirty: tinyint().default(1),
 },
 (table) => [
-	primaryKey({ columns: [table.branchId, table.phone], name: "whatsapp_conversations_pk" }),
+	primaryKey({ columns: [table.branchId, table.line, table.phone], name: "whatsapp_conversations_pk" }),
 ]);
 
 export const customerSentiment = mysqlTable("customer_sentiment", {
@@ -627,4 +631,62 @@ export const customerSentiment = mysqlTable("customer_sentiment", {
 	unique("branch_ref").on(table.branchId, table.refKey),
 	index("branch_phone").on(table.branchId, table.phone),
 	index("branch_source").on(table.branchId, table.sourceAt),
+]);
+
+// ── 📣 قسم المتابعة: واتساب ثانٍ يتابع الزبائن بعد الطلب ────────────────────
+export const followupSettings = mysqlTable("followup_settings", {
+	branchId: int().primaryKey().notNull(),
+	enabled: tinyint().default(0),
+	autoEnabled: tinyint().default(1),
+	template: text(),
+	anchor: varchar({ length: 12 }).default('delivered'),
+	delayHours: int().default(24),
+	intervalSec: int().default(60),
+	jitterSec: int().default(15),
+	batchSize: int().default(5),
+	batchPauseMin: int().default(5),
+	dailyCap: int().default(200),
+	checkOnWhatsApp: tinyint().default(1),
+	quietFromHour: int().default(22),
+	quietToHour: int().default(9),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const followupCampaigns = mysqlTable("followup_campaigns", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	name: varchar({ length: 191 }).default(''),
+	template: text(),
+	target: varchar({ length: 16 }).default('all'),
+	limitCount: int().default(0),
+	status: varchar({ length: 12 }).default('running'),
+	total: int().default(0),
+	createdBy: int(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+	finishedAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("branch_created").on(table.branchId, table.createdAt),
+]);
+
+export const followupJobs = mysqlTable("followup_jobs", {
+	id: int().autoincrement().primaryKey().notNull(),
+	branchId: int().notNull(),
+	campaignId: int(),
+	orderId: int(),
+	customerId: int(),
+	phone: varchar({ length: 30 }).notNull(),
+	name: varchar({ length: 191 }).default(''),
+	body: text(),
+	dueAt: timestamp({ mode: 'string' }).notNull(),
+	status: varchar({ length: 12 }).default('pending').notNull(),
+	error: text(),
+	claimedAt: timestamp({ mode: 'string' }),
+	sentAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	unique("uniq_branch_order").on(table.branchId, table.orderId),
+	index("due_idx").on(table.branchId, table.status, table.dueAt),
+	index("campaign_idx").on(table.campaignId, table.status),
 ]);

@@ -141,6 +141,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { icon: Phone, label: "التسجيلات الصوتية", path: "/admin/call-recordings" },
         { icon: MessageCircle, label: "ربط واتساب", path: "/admin/whatsapp" },
         { icon: MessageCircle, label: "رسائل الزبائن", path: "/admin/whatsapp-inbox" },
+        { icon: Megaphone, label: "ربط واتساب قسم المتابعة", path: "/admin/whatsapp-followup" },
         { icon: Sparkles, label: "تحليل الزبائن والمكالمات", path: "/admin/customer-analysis" },
       ],
     },

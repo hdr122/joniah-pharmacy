@@ -30,6 +30,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import * as db from "./db";
 import * as whatsapp from "./whatsapp";
+import * as followup from "./followup";
 import { verifyErpMasterKey } from "./erp-api";
 
 export const publicApiRouter = Router();
@@ -403,6 +404,8 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
 
     // واتساب: أبلغ المندوب والزبون (best-effort، لا يؤخّر الرد)
     if (order?.id) whatsapp.onOrderCreated(req.apiBranchId!, order.id).catch(() => {});
+    // 📣 قسم المتابعة: جدولة رسالة المتابعة للزبون
+    if (order?.id) followup.onOrderCreated(req.apiBranchId!, order.id).catch(() => {});
 
     res.status(201).json({ order });
   } catch (e) {

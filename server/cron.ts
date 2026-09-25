@@ -3,6 +3,7 @@ import { saveDailyStatsSnapshot, checkDeliveryAnomalies, getAllOrdersForBackup, 
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import * as followup from './followup';
 
 /**
  * Schedule daily statistics snapshot at 5:00 AM every day
@@ -14,6 +15,12 @@ import { execSync } from 'child_process';
  * - Day of week: * (every day of week)
  */
 export function initializeCronJobs() {
+  // 📣 قسم المتابعة: نبضة كل دقيقة تُشغّل عامل الإرسال لكل فرع مفعَّل.
+  // العامل نفسه يتولّى الإيقاع (فاصل زمني، دفعات، استراحة) ويحمي من التشغيل المزدوج.
+  cron.schedule('* * * * *', () => {
+    followup.tick().catch((e: any) => console.warn('[followup] tick:', e?.message || e));
+  });
+
   // Save daily statistics at 5:00 AM
   cron.schedule('0 5 * * *', async () => {
     try {
