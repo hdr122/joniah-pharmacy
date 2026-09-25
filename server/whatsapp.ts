@@ -140,13 +140,52 @@ async function ensureTables() {
   // إن كانت مطبّقة سلفاً (MySQL لا يدعم ADD COLUMN IF NOT EXISTS).
   const tryExec = async (q: any) => { try { await d.execute(q); } catch (_) { /* مطبّق سلفاً */ } };
   await tryExec(sql`ALTER TABLE whatsapp_auth ADD COLUMN line VARCHAR(16) NOT NULL DEFAULT 'main'`);
-  await tryExec(sql`ALTER TABLE whatsapp_auth DROP PRIMARY KEY, ADD PRIMARY KEY (branchId, line, k)`);
   await tryExec(sql`ALTER TABLE whatsapp_log ADD COLUMN line VARCHAR(16) NOT NULL DEFAULT 'main'`);
   await tryExec(sql`ALTER TABLE whatsapp_messages ADD COLUMN line VARCHAR(16) NOT NULL DEFAULT 'main'`);
   await tryExec(sql`ALTER TABLE whatsapp_conversations ADD COLUMN line VARCHAR(16) NOT NULL DEFAULT 'main'`);
-  await tryExec(sql`ALTER TABLE whatsapp_conversations DROP PRIMARY KEY, ADD PRIMARY KEY (branchId, line, phone)`);
+
+  // المفاتيح الأوّلية المركّبة.
+  // ⚠️ `drizzle-kit push` (يعمل عند كل نشر) يُسقط هذه المفاتيح لأن MySQL يسمّي
+  // المفتاح الأوّلي PRIMARY دائماً بينما schema.ts يسمّيه باسم آخر. وبلا مفتاح
+  // أوّلي تتوقّف ON DUPLICATE KEY UPDATE عن العمل فتتكرّر صفوف جلسة الواتساب
+  // وتفسد. لذلك نتحقّق من المفتاح ونُعيد بناءه عند كل إقلاع.
+  await ensurePrimaryKey(d, "whatsapp_auth", ["branchId", "line", "k"]);
+  await ensurePrimaryKey(d, "whatsapp_conversations", ["branchId", "line", "phone"]);
 
   tablesReady = true;
+}
+
+/** يضمن أن المفتاح الأوّلي للجدول هو الأعمدة المطلوبة بالضبط — يُصلحه إن نقص أو اختلف. */
+async function ensurePrimaryKey(d: any, table: string, cols: string[]) {
+  try {
+    const cur = rowsOf(await d.execute(sql.raw(`SHOW KEYS FROM \`${table}\` WHERE Key_name = 'PRIMARY'`)))
+      .sort((a: any, b: any) => Number(a.Seq_in_index) - Number(b.Seq_in_index))
+      .map((r: any) => String(r.Column_name));
+    if (cur.length === cols.length && cur.every((c, i) => c === cols[i])) return; // سليم
+
+    const keyCols = cols.map((c) => `\`${c}\``).join(", ");
+    if (cur.length) {
+      try { await d.execute(sql.raw(`ALTER TABLE \`${table}\` DROP PRIMARY KEY`)); } catch (_) { /* لا مفتاح */ }
+    }
+    try {
+      await d.execute(sql.raw(`ALTER TABLE \`${table}\` ADD PRIMARY KEY (${keyCols})`));
+    } catch (e: any) {
+      // فشل الإنشاء يعني تكراراً تسلّل أثناء غياب المفتاح. نُعيد بناء الجدول
+      // محتفظين بصف واحد لكل مفتاح — الترتيب يضمن بقاء الأحدث حيث يوجد عمود يدلّ عليه.
+      if (!/duplicate/i.test(String(e?.message))) throw e;
+      console.warn(`[whatsapp] صفوف مكرّرة في ${table} — يُعاد بناؤه`);
+      await d.execute(sql.raw(`DROP TABLE IF EXISTS \`${table}__dedup\``));
+      await d.execute(sql.raw(`CREATE TABLE \`${table}__dedup\` LIKE \`${table}\``));
+      // المفتاح يُضاف للجدول الجديد أولاً كي يُسقط INSERT IGNORE المكرّر
+      await d.execute(sql.raw(`ALTER TABLE \`${table}__dedup\` ADD PRIMARY KEY (${keyCols})`));
+      await d.execute(sql.raw(`INSERT IGNORE INTO \`${table}__dedup\` SELECT * FROM \`${table}\``));
+      await d.execute(sql.raw(`DROP TABLE \`${table}\``));
+      await d.execute(sql.raw(`RENAME TABLE \`${table}__dedup\` TO \`${table}\``));
+    }
+    console.log(`[whatsapp] أُعيد بناء المفتاح الأوّلي لـ ${table} (${cols.join(", ")})`);
+  } catch (e: any) {
+    console.warn(`[whatsapp] تعذّر ضبط المفتاح الأوّلي لـ ${table}:`, e?.message || e);
+  }
 }
 
 export const DEFAULT_COURIER_TEMPLATE =

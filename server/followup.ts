@@ -100,6 +100,18 @@ export async function ensureTables() {
   // ترحيل: أعمدة أُضيفت بعد أول إصدار (MySQL لا يدعم ADD COLUMN IF NOT EXISTS)
   try { await d.execute(sql`ALTER TABLE followup_jobs ADD COLUMN claimedAt TIMESTAMP NULL`); } catch (_) { /* مطبّق سلفاً */ }
 
+  // ضمانة «متابعة واحدة لكل طلب»: لو أسقط `drizzle-kit push` هذا المفتاح عند النشر
+  // لأُرسلت للزبون رسالتان عن الطلب نفسه — لذا نتحقّق منه عند كل إقلاع.
+  try {
+    const keys = rowsOf(await d.execute(sql`SHOW KEYS FROM followup_jobs WHERE Key_name = 'uniq_branch_order'`));
+    if (!keys.length) {
+      await d.execute(sql`ALTER TABLE followup_jobs ADD UNIQUE KEY uniq_branch_order (branchId, orderId)`);
+      console.log("[followup] أُعيد بناء مفتاح «متابعة واحدة لكل طلب»");
+    }
+  } catch (e: any) {
+    console.warn("[followup] تعذّر ضبط مفتاح التفرّد:", e?.message || e);
+  }
+
   tablesReady = true;
 }
 

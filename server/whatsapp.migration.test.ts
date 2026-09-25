@@ -89,6 +89,39 @@ describe("ترحيل جداول واتساب إلى الخطّين", () => {
     expect(convs.length).toBe(2);
   });
 
+  it("يُعيد بناء المفتاح الأوّلي الذي يُسقطه drizzle-kit push عند كل نشر", async () => {
+    // هذا ما يحدث فعلياً في الإنتاج: push يُسقط المفتاح لأن MySQL يسمّيه PRIMARY
+    // بينما schema.ts يسمّيه باسم آخر. بلا مفتاح تتوقّف ON DUPLICATE KEY UPDATE
+    // فتتكرّر صفوف جلسة الواتساب ويفسد الربط.
+    await d.execute(sql`ALTER TABLE whatsapp_auth DROP PRIMARY KEY`);
+    await d.execute(sql`ALTER TABLE whatsapp_conversations DROP PRIMARY KEY`);
+    let keys = rowsOf(await d.execute(sql`SHOW KEYS FROM whatsapp_auth WHERE Key_name = 'PRIMARY'`));
+    expect(keys.length).toBe(0); // تأكيد أن المفتاح سقط فعلاً
+
+    // أعِد تحميل الوحدة كي تُنفَّذ ensureTables من جديد
+    (await import("./whatsapp"));
+    const fresh = await import(`./whatsapp?reload=${Date.now()}`);
+    await fresh.getLogs(B);
+
+    keys = rowsOf(await d.execute(sql`SHOW KEYS FROM whatsapp_auth WHERE Key_name = 'PRIMARY'`))
+      .sort((a: any, b: any) => Number(a.Seq_in_index) - Number(b.Seq_in_index));
+    expect(keys.map((k: any) => k.Column_name)).toEqual(["branchId", "line", "k"]);
+
+    const convKeys = rowsOf(await d.execute(sql`SHOW KEYS FROM whatsapp_conversations WHERE Key_name = 'PRIMARY'`))
+      .sort((a: any, b: any) => Number(a.Seq_in_index) - Number(b.Seq_in_index));
+    expect(convKeys.map((k: any) => k.Column_name)).toEqual(["branchId", "line", "phone"]);
+  });
+
+  it("ON DUPLICATE KEY UPDATE تعمل بعد إصلاح المفتاح — لا صفوف مكرّرة للجلسة", async () => {
+    for (let i = 0; i < 3; i++) {
+      await d.execute(sql`INSERT INTO whatsapp_auth (branchId, line, k, v) VALUES (${B}, 'main', 'creds', ${'v' + i})
+        ON DUPLICATE KEY UPDATE v = VALUES(v)`);
+    }
+    const rows = rowsOf(await d.execute(sql`SELECT v FROM whatsapp_auth WHERE branchId = ${B} AND line = 'main' AND k = 'creds'`));
+    expect(rows.length).toBe(1);      // صف واحد لا ثلاثة
+    expect(String(rows[0].v)).toBe("v2"); // وقيمته الأحدث
+  });
+
   it("الترحيل قابل للتكرار — تشغيله مرّتين لا يُسقط شيئاً", async () => {
     const whatsapp = await import("./whatsapp");
     // أجبر إعادة التنفيذ بإسقاط علامة الجاهزية عبر وحدة جديدة غير ممكن هنا،
