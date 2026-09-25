@@ -209,7 +209,10 @@ export default function WhatsAppFollowupPage() {
                   اليوم: أُرسلت <b>{st?.today?.sent ?? 0}</b> • فشلت <b>{st?.today?.failed ?? 0}</b> • تخطّتها الحماية <b>{st?.today?.skipped ?? 0}</b>
                 </p>
               </div>
-              <Button variant="outline" className="text-rose-600 border-rose-300" disabled={logoutM.isPending} onClick={() => logoutM.mutate()}>
+              <Button variant="outline" className="text-rose-600 border-rose-300" disabled={logoutM.isPending}
+                onClick={() => {
+                  if (confirm("فصل رقم المتابعة؟\n\nالمحادثات والرسائل ورسائل المتابعة المجدولة كلها تبقى محفوظة — يُمسح ربط الرقم فقط، وعند إعادة الربط يُستأنف الإرسال من حيث توقّف.")) logoutM.mutate();
+                }}>
                 <LogOut className="w-4 h-4 ml-1" /> فصل الرقم
               </Button>
             </div>
@@ -499,6 +502,7 @@ export default function WhatsAppFollowupPage() {
       <p className="text-xs text-muted-foreground flex items-start gap-2 leading-relaxed">
         <MessageCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
         ردود الزبائن على رقم المتابعة تصل إلى صندوق رسائل منفصل عن صندوق الرقم الأساسي.
+        فصل الرقم لا يحذف شيئاً: المحادثات والرسائل المجدولة تبقى، وتُستأنف عند إعادة الربط.
       </p>
     </div>
   );

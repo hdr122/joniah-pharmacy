@@ -129,7 +129,9 @@ export default function WhatsAppPage() {
                   })}>
                   <Send className="w-4 h-4 ml-1" /> إرسال تجريبي
                 </Button>
-                <Button variant="destructive" onClick={() => { if (confirm("فصل واتساب من هذا الفرع؟")) logoutM.mutate(); }}>
+                <Button variant="destructive" onClick={() => {
+                  if (confirm("فصل واتساب من هذا الفرع؟\n\nالرسائل والمحادثات وتسجيلات المكالمات كلها تبقى محفوظة — يُمسح ربط الرقم فقط، وعند إعادة الربط تعود كما هي.")) logoutM.mutate();
+                }}>
                   <LogOut className="w-4 h-4 ml-1" /> فصل
                 </Button>
               </div>

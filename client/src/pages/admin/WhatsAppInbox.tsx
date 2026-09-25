@@ -68,6 +68,13 @@ export default function WhatsAppInbox() {
         </div>
       </div>
 
+      {!connected && (convQ.data?.stats?.conversations ?? 0) > 0 && (
+        <p className="text-sm text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md px-3 py-2 leading-relaxed">
+          الرقم غير مربوط حالياً، لكن كل المحادثات والرسائل السابقة محفوظة هنا ويمكنك قراءتها.
+          فصل الرقم لا يحذف أي رسالة أو مكالمة — عند إعادة الربط تعود المحادثات كما هي ويستأنف الاستقبال.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: "70vh" }}>
         {/* قائمة المحادثات */}
         <Card className="lg:col-span-1 flex flex-col">
@@ -79,7 +86,11 @@ export default function WhatsAppInbox() {
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto space-y-1 p-2" style={{ maxHeight: "70vh" }}>
             {filtered.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-10">{connected ? "لا توجد رسائل بعد — ستظهر هنا كل رسالة تصل رقم الفرع" : "اربط واتساب الفرع أولاً من صفحة «ربط واتساب»"}</p>
+              <p className="text-sm text-gray-500 text-center py-10 leading-relaxed">
+                {connected
+                  ? "لا توجد رسائل بعد — ستظهر هنا كل رسالة تصل رقم الفرع"
+                  : "لا توجد رسائل محفوظة. اربط واتساب الفرع من صفحة «ربط واتساب» لتبدأ الرسائل بالوصول."}
+              </p>
             ) : filtered.map((c) => (
               <button key={c.phone} onClick={() => setActive(c.phone)}
                 className={`w-full text-right rounded-lg p-3 border transition ${active === c.phone ? "bg-emerald-50 border-emerald-300" : "bg-white hover:bg-gray-50 border-gray-200"}`}>
