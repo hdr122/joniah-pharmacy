@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Package, CheckCircle, Clock, XCircle, Loader2, Upload, MapPin, ExternalLink, LogOut, Bell, Navigation, NavigationOff, ChevronDown, Settings, User, Phone, MessageCircle, Image as ImageIcon, Download } from "lucide-react";
+import { Package, CheckCircle, Clock, XCircle, Loader2, Upload, MapPin, ExternalLink, LogOut, Bell, Navigation, NavigationOff, ChevronDown, Settings, User, Phone, MessageCircle, Image as ImageIcon, Download, ScanLine } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 
@@ -17,6 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import EnableNotificationsModal from "@/components/EnableNotificationsModal";
 import OrderLocationPreview from "@/components/OrderLocationPreview";
+import BarcodeScanner from "@/components/BarcodeScanner";
 import { compressImage } from "@/lib/imageCompress";
 
 // حالات الطلب المنتهية — هذه وحدها تُخفى مع انتهاء يوم العمل.
@@ -77,6 +78,26 @@ export default function DeliveryDashboard() {
   const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const utils = trpc.useUtils();
+
+  // ── مسح الباركود: يتحوّل الطلب للمندوب الماسح ويُقبل فوراً — تبقى الكاميرا مفتوحة ──
+  const [scanOpen, setScanOpen] = useState(false);
+  const acceptByScanMutation = trpc.orders.acceptByScan.useMutation();
+  const onScanDetect = useCallback((text: string) => {
+    const m = /(?:XNO-)?(\d+)/i.exec(String(text || ""));
+    if (!m) return;
+    const orderId = parseInt(m[1], 10);
+    if (!orderId) return;
+    acceptByScanMutation.mutate(
+      { orderId },
+      {
+        onSuccess: () => {
+          toast.success(`تم قبول طلب رقم ${orderId} ✅`);
+          try { utils.orders.list.invalidate(); } catch (_) {}
+        },
+        onError: (e: any) => { toast.error(e?.message || "تعذّر قبول الطلب"); },
+      }
+    );
+  }, [acceptByScanMutation, utils]);
   const { data: ordersRaw, isLoading } = trpc.orders.list.useQuery(undefined, {
     refetchInterval: 10000, // تحديث تلقائي كل 10 ثواني
   });
@@ -1406,9 +1427,10 @@ export default function DeliveryDashboard() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       dir="rtl"
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-5">
         {[
           { key: "home", label: "الرئيسية", Icon: Package, active: ordersView === "home", onClick: () => { setOrdersView("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }, badge: 0 },
+          { key: "scan", label: "مسح", Icon: ScanLine, active: false, onClick: () => setScanOpen(true), badge: 0 },
           { key: "log", label: "السجل", Icon: Clock, active: ordersView === "log", onClick: () => { setOrdersView("log"); window.scrollTo({ top: 0, behavior: "smooth" }); }, badge: 0 },
           { key: "map", label: "الخريطة", Icon: MapPin, active: false, onClick: () => setLocation("/delivery/map"), badge: 0 },
           { key: "notif", label: "الإشعارات", Icon: Bell, active: false, onClick: () => setLocation("/delivery/notifications"), badge: unreadCount || 0 },
@@ -1432,6 +1454,14 @@ export default function DeliveryDashboard() {
         ))}
       </div>
     </nav>
+
+    {scanOpen && (
+      <BarcodeScanner
+        title="مسح باركود الطلب"
+        onDetect={onScanDetect}
+        onClose={() => setScanOpen(false)}
+      />
+    )}
     </>
   );
 }

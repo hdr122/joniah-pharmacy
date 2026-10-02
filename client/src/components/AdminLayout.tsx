@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import BarcodeScanner from "@/components/BarcodeScanner";
 import {
   LayoutDashboard,
   Package,
@@ -38,6 +39,7 @@ import {
   Megaphone,
   Palette,
   Phone,
+  ScanLine,
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -72,6 +74,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [location, setLocation] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, hasPermission, hasAnyPermission, isOwner, isSuperAdmin } = useCustomAuth();
+
+  // ── مسح الباركود: يقبل الطلب فوراً عند مسح باركود فاتورة الدلفري ──
+  const scanUtils = trpc.useUtils();
+  const [scanOpen, setScanOpen] = useState(false);
+  const acceptByScanMutation = trpc.orders.acceptByScan.useMutation();
+  const onScanDetect = (text: string) => {
+    const m = /(?:XNO-)?(\d+)/i.exec(String(text || ""));
+    if (!m) return;
+    const orderId = parseInt(m[1], 10);
+    if (!orderId) return;
+    acceptByScanMutation.mutate(
+      { orderId },
+      {
+        onSuccess: () => { toast.success(`تم قبول طلب رقم ${orderId} ✅`); try { scanUtils.orders.list.invalidate(); } catch (_) {} },
+        onError: (e: any) => { toast.error(e?.message || "تعذّر قبول الطلب"); },
+      }
+    );
+  };
   
   // حالة فتح/إغلاق الأقسام
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -312,6 +332,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </Link>
               );
             })}
+
+            {/* زر مسح الباركود — بجانب الصفحة الرئيسية؛ أي باركود يُمسح يُقبل الطلب مباشرة */}
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 text-sky-700 hover:bg-sky-50"
+              onClick={() => { setScanOpen(true); setSidebarOpen(false); }}
+            >
+              <ScanLine className="w-5 h-5" />
+              مسح الباركود
+            </Button>
+            {scanOpen && (
+              <BarcodeScanner title="مسح باركود الطلب" onDetect={onScanDetect} onClose={() => setScanOpen(false)} />
+            )}
 
             {/* الأقسام المنسدلة */}
             {filteredMenuSections.map((section, idx) => {

@@ -338,19 +338,25 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
       deliveryPersonId, regionId, price, discount,
       address, note, locationLink,
       customerName, customerPhone, customerWaUsername,
+      imageData, imageMime,
     } = req.body || {};
 
-    if (!deliveryPersonId || !regionId || price == null) {
+    if (!regionId || price == null) {
       return res.status(400).json({
         error: "missing_fields",
-        message: "الحقول المطلوبة: deliveryPersonId, regionId, price",
+        message: "الحقول المطلوبة: regionId, price",
       });
     }
 
-    // The delivery person and region must belong to the key's branch
-    const person = await db.getUserById(Number(deliveryPersonId));
-    if (!person || person.role !== "delivery" || person.branchId !== req.apiBranchId) {
-      return res.status(400).json({ error: "invalid_delivery_person", message: "المندوب غير موجود في هذا الفرع" });
+    // المندوب اختياري: مع «إلغاء اختيار المندوبين» يُنشأ الطلب غير مُسنَد (0)
+    // ليستلمه مندوب بمسح الباركود. وإن أُرسل مندوب فيجب أن يكون من نفس الفرع.
+    let personId = 0;
+    if (deliveryPersonId) {
+      const person = await db.getUserById(Number(deliveryPersonId));
+      if (!person || person.role !== "delivery" || person.branchId !== req.apiBranchId) {
+        return res.status(400).json({ error: "invalid_delivery_person", message: "المندوب غير موجود في هذا الفرع" });
+      }
+      personId = person.id;
     }
     const region = await db.getRegionById(Number(regionId));
     if (!region || region.branchId !== req.apiBranchId) {
@@ -390,7 +396,7 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
 
     const order = await db.createOrder({
       branchId: req.apiBranchId!,
-      deliveryPersonId: Number(deliveryPersonId),
+      deliveryPersonId: personId,
       regionId: Number(regionId),
       provinceId: region.provinceId,
       price: Number(price),
@@ -406,6 +412,11 @@ publicApiRouter.post("/orders", async (req: ApiRequest, res: Response) => {
     if (order?.id) whatsapp.onOrderCreated(req.apiBranchId!, order.id).catch(() => {});
     // 📣 قسم المتابعة: جدولة رسالة المتابعة للزبون
     if (order?.id) followup.onOrderCreated(req.apiBranchId!, order.id).catch(() => {});
+
+    // صورة الفاتورة من المطعم (يراها المندوب في تفاصيل الطلب)
+    if (order?.id && imageData) {
+      await db.saveOrderImage(req.apiBranchId!, order.id, String(imageData), imageMime ? String(imageMime) : "image/png").catch(() => {});
+    }
 
     res.status(201).json({ order });
   } catch (e) {
@@ -430,6 +441,11 @@ publicApiRouter.put("/orders/:id", async (req: ApiRequest, res: Response) => {
     }
 
     const { deliveryPersonId, note, price, discount, address, status } = req.body || {};
+    // صورة الفاتورة (ترفعها المحطة الرئيسية في المطعم بعد الإنشاء) — تُحفظ ويُكمَّل الباقي
+    const { imageData, imageMime } = req.body || {};
+    if (imageData) {
+      await db.saveOrderImage(req.apiBranchId!, orderId, String(imageData), imageMime ? String(imageMime) : "image/png").catch(() => {});
+    }
     const fields: {
       note?: string; price?: number; discount?: number; address?: string;
       deliveryPersonId?: number; status?: "pending_approval" | "cancelled"; acceptedAt?: null;

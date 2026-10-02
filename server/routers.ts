@@ -973,9 +973,66 @@ export const appRouter = router({
         
         return { success: true };
       }),
-    
+
+    // قبول بالباركود: المندوب يمسح باركود الفاتورة ⇒ يتحوّل الطلب له ويُقبل مباشرة.
+    // مندوب آخر يمسح نفس الباركود ⇒ يتحوّل له هو. الأدمِن يمسح ⇒ قبول فقط بلا تحويل.
+    acceptByScan: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
+        accuracy: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const order = await db.getOrderById(input.orderId);
+        if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "الطلب غير موجود" });
+        if (ctx.user.branchId && order.branchId !== ctx.user.branchId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "الطلب من فرع آخر" });
+        }
+        if (order.status === "delivered") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "الطلب مُسلَّم مسبقاً" });
+        }
+        const isDelivery = ctx.user.role === "delivery";
+        if (isDelivery) {
+          // تحويل الطلب للمندوب الماسح (إن لم يكن له أصلاً) ثم قبوله
+          if (order.deliveryPersonId !== ctx.user.id) {
+            await db.reassignOrder(input.orderId, ctx.user.id);
+          }
+          await db.updateOrderStatus(input.orderId, "pending", { acceptedAt: new Date() });
+          if (input.latitude && input.longitude) {
+            await db.saveOrderLocation({
+              branchId: getBranchId(ctx.user),
+              orderId: input.orderId,
+              deliveryPersonId: ctx.user.id,
+              locationType: "accept",
+              latitude: input.latitude,
+              longitude: input.longitude,
+              accuracy: input.accuracy,
+            }).catch(() => {});
+          }
+        } else {
+          // أدمِن/مدير يمسح ⇒ قبول فقط (بلا تغيير المندوب)
+          await db.updateOrderStatus(input.orderId, "pending", { acceptedAt: new Date() });
+        }
+        // إشعار الإدارة
+        try {
+          const adminUsers = await db.getUsersByRole("admin");
+          for (const admin of adminUsers) {
+            await db.createNotification({
+              branchId: getBranchId(ctx.user),
+              userId: admin.id,
+              title: "قبول بالباركود",
+              message: `${ctx.user.name} قبِل الطلب #${input.orderId} بمسح الباركود`,
+              type: "order_accepted",
+            });
+          }
+        } catch (_) {}
+        const updated = await db.getOrderById(input.orderId);
+        return { success: true, orderId: input.orderId, order: updated };
+      }),
+
     rejectOrder: protectedProcedure
-      .input(z.object({ 
+      .input(z.object({
         orderId: z.number(),
         reason: z.string().optional(),
       }))
