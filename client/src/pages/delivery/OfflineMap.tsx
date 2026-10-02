@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,8 +42,10 @@ export default function OfflineMap() {
   const watchIdRef = useRef<number | null>(null);
 
   const [selected, setSelected] = useState<string>(() => {
-    try { return localStorage.getItem("riderProvince") || "baghdad"; } catch { return "baghdad"; }
+    try { return localStorage.getItem("riderProvince") || "anbar"; } catch { return "anbar"; }
   });
+  // المحافظة التي حدّدها المطوّر لهذا الفرع — هي الهدف الأساسي للتنزيل التلقائي
+  const branchProvinceQ = trpc.branches.myMapProvince.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
   const [preset, setPreset] = useState<string>("streets");
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
   const [downloaded, setDownloaded] = useState<Record<string, { name: string; tiles: number; at: string }>>({});
@@ -63,6 +66,16 @@ export default function OfflineMap() {
     setCachedCount(await cachedTileCount());
     setMetaLoaded(true);
   }, []);
+
+  // المحافظة التي حدّدها المطوّر للفرع هي الهدف المعتمد للتنزيل التلقائي
+  useEffect(() => {
+    const p = branchProvinceQ.data?.province;
+    if (!p) return;
+    if (!IRAQ_PROVINCES.some((x) => x.key === p)) return;
+    confirmedRef.current = p;
+    setSelected(p);
+    try { localStorage.setItem("riderProvince", p); } catch {}
+  }, [branchProvinceQ.data?.province]);
 
   // إنشاء الخريطة مرّة واحدة
   useEffect(() => {
@@ -131,12 +144,11 @@ export default function OfflineMap() {
               radius: 8, color: "#fff", weight: 2, fillColor: "#7c3aed", fillOpacity: 1,
             }).addTo(map);
             map.setView(ll, 16);
-            // اقترح محافظة المندوب تلقائياً
-            const p = provinceContaining(latitude, longitude);
-            if (p) {
-              setSelected(p.key);
-              confirmedRef.current = p.key; // محافظة مؤكّدة من الموقع ⇒ يسمح بالتنزيل التلقائي
-              try { localStorage.setItem("riderProvince", p.key); } catch {}
+            // المحافظة يحدّدها المطوّر للفرع (branches.myMapProvince)؛ لا نغيّرها من الموقع.
+            // نكتفي بالاكتشاف كبديل احتياطي إن لم تُحدَّد محافظة بعد.
+            if (!confirmedRef.current) {
+              const p = provinceContaining(latitude, longitude);
+              if (p) { confirmedRef.current = p.key; setSelected(p.key); }
             }
           } else {
             meMarkerRef.current.setLatLng(ll);

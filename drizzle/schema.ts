@@ -9,6 +9,7 @@ export const branches = mysqlTable("branches", {
 	address: text(),
 	phone: varchar({ length: 20 }),
 	isActive: tinyint().default(1).notNull(),
+	mapProvince: varchar({ length: 40 }).default('anbar'), // المحافظة التي يُنزّلها مندوبو الفرع للخرائط offline
 	subscriptionStartDate: timestamp({ mode: 'string' }),
 	subscriptionEndDate: timestamp({ mode: 'string' }),
 	deletedAt: timestamp({ mode: 'string' }),

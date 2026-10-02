@@ -16,6 +16,7 @@ import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import EnableNotificationsModal from "@/components/EnableNotificationsModal";
+import OrderLocationPreview from "@/components/OrderLocationPreview";
 import { compressImage } from "@/lib/imageCompress";
 
 // حالات الطلب المنتهية — هذه وحدها تُخفى مع انتهاء يوم العمل.
@@ -66,6 +67,8 @@ export default function DeliveryDashboard() {
   });
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [pendingSync, setPendingSync] = useState(0);
+  const [ordersView, setOrdersView] = useState<"home" | "log">("home"); // الرئيسية (جديدة/حالية) أو سجل اليوم
+  const [previewOrder, setPreviewOrder] = useState<any>(null); // معاينة موقع الطلب على الخريطة
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const [notificationSound, setNotificationSound] = useState(() => {
     return localStorage.getItem("notificationSound") !== "false";
@@ -88,11 +91,16 @@ export default function DeliveryDashboard() {
   
   const { data: monthlyStats } = trpc.stats.byDeliveryPerson.useQuery(
     { deliveryPersonId: user?.id || 0 },
-    { 
+    {
       enabled: !!user?.id,
       refetchInterval: 30000, // تحديث تلقائي كل 30 ثانية
     }
   );
+  // ملخّص التسليمات: اليوم (يُصفَّر عند ساعة بدء اليوم) + الشهر (يبقى حتى نهاية الشهر)
+  const { data: riderSummary } = trpc.stats.riderSummary.useQuery(undefined, {
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+  });
   
   useEffect(() => {
     if (unreadCount && unreadCount > previousUnreadCount && previousUnreadCount > 0 && notificationSound) {
@@ -538,204 +546,14 @@ export default function DeliveryDashboard() {
   
   const stats = {
     ...todayStats,
-    monthlyDelivered: Array.isArray(monthlyStats) ? monthlyStats[0]?.deliveredOrders || 0 : 0,
+    // تسليمات اليوم تُصفَّر عند ساعة بدء اليوم (إعداد المدير)، وتسليمات الشهر تبقى حتى نهاية الشهر
+    delivered: riderSummary?.todayDelivered ?? todayStats.delivered,
+    monthlyDelivered: riderSummary?.monthDelivered ?? (Array.isArray(monthlyStats) ? monthlyStats[0]?.deliveredOrders || 0 : 0),
   };
 
-  return (
-    <PullToRefresh onRefresh={handleRefresh} className="min-h-screen">
-      {user && user.branchId && (
-        <EnableNotificationsModal userId={user.id} branchId={user.branchId} />
-      )}
-      
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-[#120b26] dark:to-[#1c1136] p-4 lg:p-8" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header - هوية Xenon */}
-        <div className="relative overflow-hidden bg-[#170f2e] rounded-2xl shadow-lg p-6 text-white ring-1 ring-white/10">
-          <div className="pointer-events-none absolute -top-16 left-1/4 h-48 w-48 rounded-full bg-fuchsia-600/25 blur-[80px]" />
-          <div className="pointer-events-none absolute -bottom-16 right-1/4 h-48 w-48 rounded-full bg-violet-600/25 blur-[80px]" />
-          <div className="relative flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <img src="/xenon-logo.svg" alt="Xenon" className="w-12 h-12 sm:w-14 sm:h-14 xenon-logo-glow shrink-0" />
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold truncate">مرحباً {user?.name} 👋</h1>
-                <p className="text-violet-200/70 text-sm mt-0.5">
-                  لوحة المندوب — <span className="xenon-gradient-text font-bold">Xenon</span>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <ThemeToggle />
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="الخريطة ومساري"
-                className="border-white/30 text-white hover:bg-white/10"
-                onClick={() => setLocation("/delivery/map")}
-              >
-                <MapPin className="w-5 h-5" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="الإشعارات"
-                    className="relative border-white/30 text-white hover:bg-white/10"
-                  >
-                    <Bell className="w-5 h-5" />
-                    {(unreadCount || 0) > 0 && (
-                      <Badge className="absolute -top-1.5 -left-1.5 bg-red-500 text-white px-1.5 py-0.5 text-[10px] min-w-[18px] justify-center">
-                        {unreadCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  {recentNotifications && recentNotifications.length > 0 ? (
-                    <>
-                      {recentNotifications.map((notif: any) => (
-                        <DropdownMenuItem
-                          key={notif.id}
-                          className="flex flex-col items-start gap-1 p-3 cursor-pointer"
-                          onClick={() => setLocation("/delivery/notifications")}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="font-semibold text-sm">{notif.title}</span>
-                            {!notif.isRead && (
-                              <Badge className="bg-violet-500 text-white text-xs px-1.5 py-0.5">جديد</Badge>
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground">{notif.message}</span>
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-center text-violet-600 font-medium cursor-pointer"
-                        onClick={() => setLocation("/delivery/notifications")}
-                      >
-                        عرض جميع الإشعارات
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <div className="p-4 text-center text-muted-foreground">
-                      لا توجد إشعارات جديدة
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="الحساب" className="border-white/30 text-white hover:bg-white/10">
-                    <User className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setLocation("/delivery/map")}>
-                    <MapPin className="w-4 h-4 ml-2" />
-                    خريطة المحافظة ومساري
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/delivery/profile")}>
-                    <User className="w-4 h-4 ml-2" />
-                    الملف الشخصي
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/delivery/notification-settings")}>
-                    <Settings className="w-4 h-4 ml-2" />
-                    إعدادات الإشعارات
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => logoutMutation.mutate()}
-                    className="text-red-600"
-                  >
-                    <LogOut className="w-4 h-4 ml-2" />
-                    تسجيل الخروج
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
+  // بطاقة طلب واحدة — تُستخدم في أقسام الرئيسية وفي سجل اليوم
+  const renderOrderCard = (order: any) => {
 
-        {/* شريط حالة العمل — الإجراء الأساسي للمندوب */}
-        <div className={`rounded-2xl p-4 ring-1 flex items-center justify-between gap-3 flex-wrap transition-colors ${
-          locationTracking
-            ? "bg-emerald-500/10 ring-emerald-400/30"
-            : "bg-white/80 dark:bg-white/5 ring-border/60"
-        }`}>
-          <div className="flex items-center gap-3 min-w-0">
-            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${locationTracking ? "bg-emerald-500/20" : "bg-muted"}`}>
-              {locationTracking
-                ? <Navigation className="w-5 h-5 text-emerald-600 animate-pulse" />
-                : <NavigationOff className="w-5 h-5 text-muted-foreground" />}
-            </span>
-            <div className="min-w-0">
-              <p className="font-bold text-foreground">{locationTracking ? "جارٍ العمل — التتبّع نشط" : "أنت غير نشط"}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {locationTracking ? "موقعك ومسارك يُحفظان ويُرسلان للإدارة" : "اضغط «ابدأ العمل» لبدء التتبّع واستقبال الطلبات"}
-                {pendingSync > 0 && <span className="text-amber-600 dark:text-amber-400"> • {pendingSync} نقطة بانتظار المزامنة</span>}
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={toggleLocationTracking}
-            className={locationTracking
-              ? "bg-rose-600 hover:bg-rose-700 text-white shrink-0"
-              : "bg-gradient-to-l from-violet-600 to-fuchsia-600 hover:opacity-90 text-white shrink-0"}
-          >
-            {locationTracking
-              ? (<><NavigationOff className="w-4 h-4 ml-2" /> إيقاف العمل</>)
-              : (<><Navigation className="w-4 h-4 ml-2" /> ابدأ العمل</>)}
-          </Button>
-        </div>
-
-        {/* Statistics - هوية Xenon */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "إجمالي الطلبات", value: stats.total, Icon: Package, chip: "bg-violet-500/15 text-violet-500 dark:text-violet-300" },
-            { label: "قيد التنفيذ", value: stats.pending, Icon: Clock, chip: "bg-amber-500/15 text-amber-600 dark:text-amber-300" },
-            { label: "تم التسليم اليوم", value: stats.delivered, Icon: CheckCircle, chip: "bg-green-500/15 text-green-600 dark:text-green-300" },
-            { label: "تسليمات الشهر", value: stats.monthlyDelivered || 0, Icon: Package, chip: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-300" },
-          ].map(({ label, value, Icon, chip }) => (
-            <Card
-              key={label}
-              className="group relative overflow-hidden border-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-fuchsia-400/40"
-            >
-              <CardContent className="flex items-center gap-4 p-5">
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${chip}`}>
-                  <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-3xl font-extrabold tabular-nums text-foreground">{value}</p>
-                  <p className="text-sm text-muted-foreground">{label}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Orders List - تصميم جديد */}
-        <Card className="shadow-lg">
-          <CardHeader className="bg-accent/50 dark:from-gray-800 dark:to-gray-700">
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-violet-600" />
-              طلباتي
-            </CardTitle>
-            <CardDescription>جميع الطلبات المعينة لك</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {orders && orders.length > 0 ? (
-              <div className="space-y-4">
-                {orders
-                  .filter((order: any) => {
-                    // الطلبات المسلّمة تبقى ظاهرة 5 دقائق بعد التسليم ثم تُخفى.
-                    // أي طلب غير مسلّم يظهر دائماً — لا يُخفى بحكم الوقت إطلاقاً.
-                    if (order.status !== 'delivered') return true;
-                    if (!order.deliveredAt) return true;
-                    const deliveredTime = new Date(order.deliveredAt).getTime();
-                    if (!Number.isFinite(deliveredTime)) return true;
-                    return (Date.now() - deliveredTime) < 5 * 60 * 1000;
-                  })
-                  .map((order: any) => {
                   // تحديد ما إذا كان الطلب مقبولاً أم لا
                   const isAccepted = order.status !== "pending_approval";
                   // طلب متأخّر: أُنشئ قبل يوم العمل الحالي ولم يُنجز بعد
@@ -758,6 +576,13 @@ export default function DeliveryDashboard() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-3">
                             <h3 className="text-xl font-bold text-foreground">طلب #{order.id}</h3>
+                            {order.status !== "pending_approval" && (
+                              <Button type="button" size="sm" variant="outline"
+                                className="h-7 border-violet-300 text-violet-700 dark:text-violet-300 dark:border-violet-700"
+                                onClick={() => setPreviewOrder(order)}>
+                                <MapPin className="w-3.5 h-3.5 ml-1" /> معاينة الموقع
+                              </Button>
+                            )}
                             {getStatusBadge(order.status)}
                             {isOverdue && (
                               <Badge className="bg-amber-500 text-white border-0">
@@ -1084,14 +909,256 @@ export default function DeliveryDashboard() {
                       </div>
                     </div>
                   );
-                })}
+  };
+
+  return (
+    <PullToRefresh onRefresh={handleRefresh} className="min-h-screen">
+      {user && user.branchId && (
+        <EnableNotificationsModal userId={user.id} branchId={user.branchId} />
+      )}
+
+      <OrderLocationPreview order={previewOrder} open={!!previewOrder} onClose={() => setPreviewOrder(null)} />
+      
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-[#120b26] dark:to-[#1c1136] p-4 lg:p-8" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header - هوية Xenon */}
+        <div className="relative overflow-hidden bg-[#170f2e] rounded-2xl shadow-lg p-6 text-white ring-1 ring-white/10">
+          <div className="pointer-events-none absolute -top-16 left-1/4 h-48 w-48 rounded-full bg-fuchsia-600/25 blur-[80px]" />
+          <div className="pointer-events-none absolute -bottom-16 right-1/4 h-48 w-48 rounded-full bg-violet-600/25 blur-[80px]" />
+          <div className="relative flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <img src="/xenon-logo.svg" alt="Xenon" className="w-12 h-12 sm:w-14 sm:h-14 xenon-logo-glow shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">مرحباً {user?.name} 👋</h1>
+                <p className="text-violet-200/70 text-sm mt-0.5">
+                  لوحة المندوب — <span className="xenon-gradient-text font-bold">Xenon</span>
+                </p>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-lg text-muted-foreground">لا توجد طلبات حالياً</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="الخريطة ومساري"
+                className="border-white/30 text-white hover:bg-white/10"
+                onClick={() => setLocation("/delivery/map")}
+              >
+                <MapPin className="w-5 h-5" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="الإشعارات"
+                    className="relative border-white/30 text-white hover:bg-white/10"
+                  >
+                    <Bell className="w-5 h-5" />
+                    {(unreadCount || 0) > 0 && (
+                      <Badge className="absolute -top-1.5 -left-1.5 bg-red-500 text-white px-1.5 py-0.5 text-[10px] min-w-[18px] justify-center">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  {recentNotifications && recentNotifications.length > 0 ? (
+                    <>
+                      {recentNotifications.map((notif: any) => (
+                        <DropdownMenuItem
+                          key={notif.id}
+                          className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                          onClick={() => setLocation("/delivery/notifications")}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="font-semibold text-sm">{notif.title}</span>
+                            {!notif.isRead && (
+                              <Badge className="bg-violet-500 text-white text-xs px-1.5 py-0.5">جديد</Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{notif.message}</span>
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-center text-violet-600 font-medium cursor-pointer"
+                        onClick={() => setLocation("/delivery/notifications")}
+                      >
+                        عرض جميع الإشعارات
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">
+                      لا توجد إشعارات جديدة
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label="الحساب" className="border-white/30 text-white hover:bg-white/10">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setLocation("/delivery/map")}>
+                    <MapPin className="w-4 h-4 ml-2" />
+                    خريطة المحافظة ومساري
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/delivery/profile")}>
+                    <User className="w-4 h-4 ml-2" />
+                    الملف الشخصي
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/delivery/notification-settings")}>
+                    <Settings className="w-4 h-4 ml-2" />
+                    إعدادات الإشعارات
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => logoutMutation.mutate()}
+                    className="text-red-600"
+                  >
+                    <LogOut className="w-4 h-4 ml-2" />
+                    تسجيل الخروج
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+
+        {/* شريط حالة العمل — الإجراء الأساسي للمندوب */}
+        <div className={`rounded-2xl p-4 ring-1 flex items-center justify-between gap-3 flex-wrap transition-colors ${
+          locationTracking
+            ? "bg-emerald-500/10 ring-emerald-400/30"
+            : "bg-white/80 dark:bg-white/5 ring-border/60"
+        }`}>
+          <div className="flex items-center gap-3 min-w-0">
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${locationTracking ? "bg-emerald-500/20" : "bg-muted"}`}>
+              {locationTracking
+                ? <Navigation className="w-5 h-5 text-emerald-600 animate-pulse" />
+                : <NavigationOff className="w-5 h-5 text-muted-foreground" />}
+            </span>
+            <div className="min-w-0">
+              <p className="font-bold text-foreground">{locationTracking ? "جارٍ العمل — التتبّع نشط" : "أنت غير نشط"}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {locationTracking ? "موقعك ومسارك يُحفظان ويُرسلان للإدارة" : "اضغط «ابدأ العمل» لبدء التتبّع واستقبال الطلبات"}
+                {pendingSync > 0 && <span className="text-amber-600 dark:text-amber-400"> • {pendingSync} نقطة بانتظار المزامنة</span>}
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={toggleLocationTracking}
+            className={locationTracking
+              ? "bg-rose-600 hover:bg-rose-700 text-white shrink-0"
+              : "bg-gradient-to-l from-violet-600 to-fuchsia-600 hover:opacity-90 text-white shrink-0"}
+          >
+            {locationTracking
+              ? (<><NavigationOff className="w-4 h-4 ml-2" /> إيقاف العمل</>)
+              : (<><Navigation className="w-4 h-4 ml-2" /> ابدأ العمل</>)}
+          </Button>
+        </div>
+
+        {/* Statistics - هوية Xenon */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "إجمالي الطلبات", value: stats.total, Icon: Package, chip: "bg-violet-500/15 text-violet-500 dark:text-violet-300" },
+            { label: "قيد التنفيذ", value: stats.pending, Icon: Clock, chip: "bg-amber-500/15 text-amber-600 dark:text-amber-300" },
+            { label: "تم التسليم اليوم", value: stats.delivered, Icon: CheckCircle, chip: "bg-green-500/15 text-green-600 dark:text-green-300" },
+            { label: "تسليمات الشهر", value: stats.monthlyDelivered || 0, Icon: Package, chip: "bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-300" },
+          ].map(({ label, value, Icon, chip }) => (
+            <Card
+              key={label}
+              className="group relative overflow-hidden border-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-fuchsia-400/40"
+            >
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${chip}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-3xl font-extrabold tabular-nums text-foreground">{value}</p>
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Orders List - تصميم جديد */}
+        <Card className="shadow-lg">
+          <CardHeader className="bg-accent/50 dark:from-gray-800 dark:to-gray-700">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-violet-600" />
+                طلباتي
+              </CardTitle>
+              <div className="inline-flex rounded-lg border border-border/60 bg-background p-1">
+                <button
+                  type="button"
+                  onClick={() => setOrdersView("home")}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${ordersView === "home" ? "bg-violet-600 text-white" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  الرئيسية
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrdersView("log")}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${ordersView === "log" ? "bg-violet-600 text-white" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  السجل
+                </button>
               </div>
-            )}
+            </div>
+            <CardDescription>{ordersView === "log" ? "طلبات اليوم (الجديدة والمكتملة)" : "الطلبات الجديدة والحالية المعيّنة لك"}</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {(() => {
+              const all = orders || [];
+              const dayStart = businessDayStart().getTime();
+              const newOrders = all.filter((o: any) => o.status === "pending_approval");
+              const currentOrders = all.filter((o: any) => o.status === "pending" || o.status === "postponed");
+              const todayOrders = all.filter((o: any) => {
+                const c = new Date(o.createdAt).getTime();
+                const d = o.deliveredAt ? new Date(o.deliveredAt).getTime() : NaN;
+                return (Number.isFinite(c) && c >= dayStart) || (Number.isFinite(d) && d >= dayStart);
+              });
+              const emptyBox = (text: string) => (
+                <div className="text-center py-10">
+                  <Package className="w-14 h-14 mx-auto text-gray-400 mb-3" />
+                  <p className="text-muted-foreground">{text}</p>
+                </div>
+              );
+
+              if (ordersView === "log") {
+                return todayOrders.length > 0
+                  ? <div className="space-y-4">{todayOrders.map(renderOrderCard)}</div>
+                  : emptyBox("لا توجد طلبات اليوم");
+              }
+
+              return (
+                <div className="space-y-6">
+                  <section>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-300 text-xs font-bold">{newOrders.length}</span>
+                      <h3 className="font-bold text-foreground">الطلبات الجديدة</h3>
+                    </div>
+                    {newOrders.length > 0
+                      ? <div className="space-y-4">{newOrders.map(renderOrderCard)}</div>
+                      : <p className="text-sm text-muted-foreground px-1 pb-2">لا توجد طلبات جديدة بانتظار الموافقة</p>}
+                  </section>
+                  <section>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-300 text-xs font-bold">{currentOrders.length}</span>
+                      <h3 className="font-bold text-foreground">الطلبات الحالية</h3>
+                    </div>
+                    {currentOrders.length > 0
+                      ? <div className="space-y-4">{currentOrders.map(renderOrderCard)}</div>
+                      : <p className="text-sm text-muted-foreground px-1">لا توجد طلبات قيد التنفيذ</p>}
+                  </section>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>

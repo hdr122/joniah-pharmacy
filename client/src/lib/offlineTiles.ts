@@ -89,6 +89,61 @@ export function tileUrl(z: number, x: number, y: number): string {
   return TILE_URL.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
 
+// طبقة بلاطات offline-first لـ Leaflet: من IndexedDB أولاً ثم الشبكة (مع التخزين).
+// نمرّر L كوسيط كي لا تعتمد هذه المكتبة على leaflet مباشرةً.
+export function createOfflineTileLayer(L: any): any {
+  const Layer = L.GridLayer.extend({
+    createTile(coords: any, done: (err: any, tile: HTMLElement) => void) {
+      const img = document.createElement("img");
+      img.setAttribute("role", "presentation");
+      img.alt = "";
+      (async () => {
+        try {
+          let blob = await getTile(coords.z, coords.x, coords.y);
+          if (!blob && navigator.onLine) {
+            const res = await fetch(tileUrl(coords.z, coords.x, coords.y));
+            if (res.ok) { blob = await res.blob(); putTile(coords.z, coords.x, coords.y, blob); }
+          }
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            img.onload = () => { URL.revokeObjectURL(url); done(null, img); };
+            img.onerror = () => { URL.revokeObjectURL(url); done(null, img); };
+            img.src = url;
+          } else {
+            img.style.background = "#e9e5f5";
+            done(null, img);
+          }
+        } catch {
+          done(null, img);
+        }
+      })();
+      return img;
+    },
+  });
+  return new Layer({ minZoom: 1, maxZoom: 19, maxNativeZoom: 19 });
+}
+
+// استخراج إحداثيات (lat,lng) من رابط خرائط (q=.. أو @lat,lng أو ll=..) أو نص "lat,lng"
+export function parseLatLng(input?: string | null): { lat: number; lng: number } | null {
+  if (!input) return null;
+  const s = String(input);
+  const patterns = [
+    /[?&](?:q|ll|destination|daddr)=(-?\d+\.\d+)[, ]+(-?\d+\.\d+)/i,
+    /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/,
+  ];
+  for (const re of patterns) {
+    const m = re.exec(s);
+    if (m) {
+      const lat = parseFloat(m[1]); const lng = parseFloat(m[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+        return { lat, lng };
+      }
+    }
+  }
+  return null;
+}
+
 // ── IndexedDB ────────────────────────────────────────────────────────────────
 let dbPromise: Promise<IDBDatabase> | null = null;
 function openDb(): Promise<IDBDatabase> {

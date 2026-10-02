@@ -5215,6 +5215,62 @@ export async function getDayStartHour(): Promise<number> {
   return 5; // الافتراضي 5 صباحاً
 }
 
+// المحافظة التي يُنزّلها مندوبو الفرع للخرائط offline (افتراضياً الأنبار)
+export async function getBranchMapProvince(branchId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) return "anbar";
+  try {
+    const { branches } = await import("../drizzle/schema");
+    const r = await db.select({ p: branches.mapProvince }).from(branches).where(eq(branches.id, branchId)).limit(1);
+    return (r[0]?.p || "anbar") as string;
+  } catch { return "anbar"; }
+}
+
+// تنسيق Date كسلسلة DATETIME بتوقيت UTC (توقيت الخادم) — للمقارنة مع القيم المخزّنة
+function utcSqlString(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ` +
+    `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+
+/**
+ * ملخّص المندوب: تسليمات اليوم (تُصفَّر عند ساعة بدء اليوم في لوحة المدير) +
+ * تسليمات الشهر (تبقى حتى نهاية الشهر). الحساب بتوقيت بغداد (UTC+3) بينما الخادم UTC.
+ */
+export async function getRiderDaySummary(deliveryPersonId: number) {
+  const db = await getDb();
+  if (!db) return { todayDelivered: 0, monthDelivered: 0 };
+  const hour = await getDayStartHour();
+  const BAG = 3 * 3600e3;
+  const now = new Date();
+  const bag = new Date(now.getTime() + BAG);
+
+  // بداية اليوم (ساعة بدء اليوم بتوقيت بغداد) كلحظة UTC
+  const startBag = new Date(bag);
+  startBag.setUTCHours(hour, 0, 0, 0);
+  if (bag.getUTCHours() < hour) startBag.setUTCDate(startBag.getUTCDate() - 1);
+  const dayStartUtc = new Date(startBag.getTime() - BAG);
+
+  // بداية الشهر بتوقيت بغداد كلحظة UTC
+  const monthStartUtc = new Date(Date.UTC(bag.getUTCFullYear(), bag.getUTCMonth(), 1, 0, 0, 0) - BAG);
+
+  const dayStr = utcSqlString(dayStartUtc);
+  const monthStr = utcSqlString(monthStartUtc);
+
+  try {
+    const row: any = await db.execute(sql`SELECT
+        SUM(CASE WHEN status = 'delivered' AND deliveredAt >= ${dayStr} THEN 1 ELSE 0 END) todayDelivered,
+        SUM(CASE WHEN status = 'delivered' AND deliveredAt >= ${monthStr} THEN 1 ELSE 0 END) monthDelivered
+      FROM orders
+      WHERE deliveryPersonId = ${deliveryPersonId} AND isDeleted = 0`);
+    const r = (Array.isArray(row) && Array.isArray(row[0]) ? row[0] : row)[0] || {};
+    return { todayDelivered: Number(r.todayDelivered || 0), monthDelivered: Number(r.monthDelivered || 0) };
+  } catch (e) {
+    console.warn("[Database] getRiderDaySummary failed:", e);
+    return { todayDelivered: 0, monthDelivered: 0 };
+  }
+}
+
 
 // ===== Branch Management =====
 
@@ -5272,6 +5328,7 @@ export async function updateBranch(id: number, data: {
   subscriptionStartDate?: string;
   subscriptionEndDate?: string;
   isActive?: boolean;
+  mapProvince?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

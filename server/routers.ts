@@ -1107,6 +1107,11 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getDeliveryPersonStats(input.deliveryPersonId);
       }),
+
+    // ملخّص المندوب: تسليمات اليوم (تُصفَّر عند ساعة بدء اليوم) + تسليمات الشهر (تبقى للشهر)
+    riderSummary: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getRiderDaySummary(ctx.user.id);
+    }),
     
     allDeliveryPersons: adminProcedure.query(async ({ ctx }) => {
       // Super admin يرى جميع البيانات، Admin يرى بيانات فرعه فقط
@@ -2560,12 +2565,20 @@ export const appRouter = router({
         subscriptionStartDate: z.string().optional(),
         subscriptionEndDate: z.string().optional(),
         isActive: z.boolean().optional(),
+        mapProvince: z.string().max(40).optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
         await db.updateBranch(id, data);
         return { success: true };
       }),
+
+    // المحافظة التي يُنزّلها مندوبو هذا الفرع للخرائط offline (للمندوب — فرعه فقط)
+    myMapProvince: protectedProcedure.query(async ({ ctx }) => {
+      const branchId = ctx.user.branchId;
+      if (!branchId) return { province: "anbar" };
+      return { province: await db.getBranchMapProvince(branchId) };
+    }),
 
     getStats: superAdminProcedure.query(async () => {
       return await db.getAllBranchesStats();

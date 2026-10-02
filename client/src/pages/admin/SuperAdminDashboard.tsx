@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IRAQ_PROVINCES } from "@/lib/offlineTiles";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ export default function SuperAdminDashboard() {
     phone: "",
     subscriptionStartDate: "",
     subscriptionEndDate: "",
+    mapProvince: "anbar",
   });
 
   const [apiDialogBranch, setApiDialogBranch] = useState<any>(null);
@@ -186,6 +188,7 @@ export default function SuperAdminDashboard() {
       phone: branch.phone || "",
       subscriptionStartDate: branch.subscriptionStartDate || "",
       subscriptionEndDate: branch.subscriptionEndDate || "",
+      mapProvince: branch.mapProvince || "anbar",
     });
     setEditDialogOpen(true);
   };
@@ -658,6 +661,24 @@ ${waFooterValue || waFooter?.defaultFooter || "— نظام شركة Xenon 🛡"
                   onChange={(e) => setEditBranch({ ...editBranch, subscriptionEndDate: e.target.value })}
                 />
               </div>
+            </div>
+
+            {/* محافظة خريطة المندوب — يُنزّلها مندوبو هذا الفرع للعمل بلا إنترنت */}
+            <div className="space-y-2">
+              <Label htmlFor="editMapProvince">محافظة خريطة المندوب (تُنزَّل للعمل بلا إنترنت)</Label>
+              <select
+                id="editMapProvince"
+                value={editBranch.mapProvince}
+                onChange={(e) => setEditBranch({ ...editBranch, mapProvince: e.target.value })}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              >
+                {IRAQ_PROVINCES.map((p) => (
+                  <option key={p.key} value={p.key}>{p.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                يحدّد المحافظة التي سيُنزّل مندوبو هذا الفرع خريطتها تلقائياً. الافتراضي: الأنبار.
+              </p>
             </div>
           </div>
 
