@@ -28,7 +28,10 @@
 الناتج `app-debug.apk` قابل للتثبيت مباشرة (Sideload): انقله للهاتف وثبّته بعد
 السماح بـ«تثبيت من مصادر غير معروفة».
 
-## البناء المحلي (إن توفّر Android Studio / Android SDK)
+## البناء المحلي (Android SDK مُثبّت على هذا الجهاز)
+
+تم تثبيت Android SDK في `C:\Users\Harth\Android\Sdk` (JDK 21 + platform android-36 +
+build-tools 36.0.0). البناء:
 
 ```bash
 pnpm install
@@ -38,8 +41,18 @@ cd android
 ./gradlew assembleDebug       # الناتج: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-يتطلب: JDK 21، وAndroid SDK (platform 36). افتح `android/` في Android Studio ليُنزّل
-المكوّنات تلقائياً، أو اضبط `ANDROID_HOME`.
+`android/local.properties` يحوي مسار SDK (استخدم شرطة مائلة أمامية):
+```
+sdk.dir=C:/Users/Harth/Android/Sdk
+```
+
+### مطبّان مهمّان (محلولان في المستودع)
+- **مسار المشروع عربي:** AGP يرفض المسارات غير اللاتينية على ويندوز. حُلّ بإضافة
+  `android.overridePathCheck=true` في `android/gradle.properties`.
+- **تطابق معرّف التطبيق مع Firebase:** `applicationId` (في `android/app/build.gradle`)
+  يجب أن يطابق `package_name` في `google-services.json` وهو
+  `com.joniah.pharmacy.delivery`، وإلّا يفشل `processDebugGoogleServices`. الاسم
+  الظاهر للمستخدم «Xenon للتوصيل» (في `strings.xml`)، والمعرّف داخلي لا يراه المستخدم.
 
 ## إصدار موقّع للنشر (Play Store أو توزيع رسمي)
 
