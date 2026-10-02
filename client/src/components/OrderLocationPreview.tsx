@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,7 +8,11 @@ import { createOfflineTileLayer, parseLatLng } from "@/lib/offlineTiles";
 
 /**
  * معاينة موقع المندوب وموقع الزبون للطلب على خريطة واحدة (تعمل بلا إنترنت إن حُفظت
- * بلاطات المحافظة). تُفتح عند الضغط على طلب مقبول.
+ * بلاطات المحافظة). تُفتح عند الضغط على «معاينة الموقع» في طلب مقبول.
+ *
+ * نستخدم callback ref لإنشاء خريطة Leaflet فور تركيب عنصر الخريطة في الـ DOM —
+ * هذا يتفادى مشكلة توقيت useEffect مع نوافذ Radix (البوابة تُركّب الـ ref بعد تنفيذ
+ * التأثير فتبقى الخريطة فارغة).
  */
 export default function OrderLocationPreview({
   order,
@@ -19,7 +23,6 @@ export default function OrderLocationPreview({
   open: boolean;
   onClose: () => void;
 }) {
-  const mapElRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const meRef = useRef<L.CircleMarker | null>(null);
   const custRef = useRef<L.Marker | null>(null);
@@ -27,27 +30,41 @@ export default function OrderLocationPreview({
   const watchRef = useRef<number | null>(null);
   const [me, setMe] = useState<{ lat: number; lng: number } | null>(null);
 
-  // موقع الزبون من روابط الطلب (أول رابط صالح)
-  const customer =
-    parseLatLng(order?.locationLink) ||
-    parseLatLng(order?.customerLocationUrl1) ||
-    parseLatLng(order?.customerLocationUrl2) ||
-    parseLatLng(order?.customerLastDeliveryLocation);
+  // موقع الزبون من روابط الطلب — ثابت لكل طلب
+  const customer = useMemo(
+    () =>
+      parseLatLng(order?.locationLink) ||
+      parseLatLng(order?.customerLocationUrl1) ||
+      parseLatLng(order?.customerLocationUrl2) ||
+      parseLatLng(order?.customerLastDeliveryLocation),
+    [order?.id] // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const customerUrl = order?.locationLink || order?.customerLocationUrl1 || order?.customerLocationUrl2 || order?.customerLastDeliveryLocation;
 
-  useEffect(() => {
-    if (!open || !mapElRef.current || mapRef.current) return;
+  // إنشاء/هدم الخريطة عبر callback ref (يُستدعى عند تركيب العنصر وإزالته)
+  const mapNodeRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) {
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+      meRef.current = null; custRef.current = null; lineRef.current = null;
+      return;
+    }
+    if (mapRef.current) return;
     const center: L.LatLngExpression = customer ? [customer.lat, customer.lng] : [33.3152, 44.3661];
-    const map = L.map(mapElRef.current, { center, zoom: customer ? 15 : 12, zoomControl: true, attributionControl: false });
+    const map = L.map(node, { center, zoom: customer ? 15 : 12, zoomControl: true, attributionControl: false });
     mapRef.current = map;
     createOfflineTileLayer(L).addTo(map);
     L.control.attribution({ prefix: false }).addAttribution("© OpenStreetMap").addTo(map);
-
     if (customer) {
       custRef.current = L.marker([customer.lat, customer.lng]).addTo(map).bindPopup("موقع الزبون");
     }
+    // الخريطة داخل نافذة متحرّكة — صحّح الحجم بعد ظهورها
+    setTimeout(() => map.invalidateSize(), 180);
+    setTimeout(() => map.invalidateSize(), 500);
+  }, [customer]);
 
-    // الموقع الحالي للمندوب
+  // تتبّع موقع المندوب أثناء فتح النافذة
+  useEffect(() => {
+    if (!open) return;
     if ("geolocation" in navigator) {
       watchRef.current = navigator.geolocation.watchPosition(
         (pos) => setMe({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -55,20 +72,13 @@ export default function OrderLocationPreview({
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
       );
     }
-
-    // أعطِ الخريطة لحظة لتضبط الحجم داخل النافذة
-    setTimeout(() => map.invalidateSize(), 250);
-
     return () => {
-      if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
-      map.remove();
-      mapRef.current = null;
-      meRef.current = null; custRef.current = null; lineRef.current = null;
+      if (watchRef.current !== null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
+      setMe(null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, order?.id]);
+  }, [open]);
 
-  // حدّث نقطة المندوب والخط بينه وبين الزبون + ضبط الإطار ليشملهما
+  // حدّث نقطة المندوب والخط بينه وبين الزبون + اضبط الإطار
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !me) return;
@@ -82,14 +92,14 @@ export default function OrderLocationPreview({
       const pts: L.LatLngExpression[] = [ll, [customer.lat, customer.lng]];
       if (!lineRef.current) lineRef.current = L.polyline(pts, { color: "#d946ef", weight: 3, dashArray: "6 6" }).addTo(map);
       else lineRef.current.setLatLngs(pts);
-      try { map.fitBounds(L.latLngBounds(pts).pad(0.3)); } catch {}
+      try { map.fitBounds(L.latLngBounds(pts).pad(0.3)); } catch { /* تجاهل */ }
     } else {
       map.setView(ll, 15);
     }
   }, [me, customer]);
 
   const distanceKm = me && customer
-    ? (L.latLng(me.lat, me.lng).distanceTo(L.latLng(customer.lat, customer.lng)) / 1000)
+    ? L.latLng(me.lat, me.lng).distanceTo(L.latLng(customer.lat, customer.lng)) / 1000
     : null;
 
   return (
@@ -102,7 +112,7 @@ export default function OrderLocationPreview({
           </DialogTitle>
         </DialogHeader>
 
-        <div ref={mapElRef} className="w-full" style={{ height: "48vh", minHeight: 280 }} />
+        <div ref={mapNodeRef} className="w-full bg-muted" style={{ height: "46vh", minHeight: 280 }} />
 
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2 text-sm">
@@ -126,10 +136,10 @@ export default function OrderLocationPreview({
           <div className="flex gap-2">
             {customerUrl && (
               <Button variant="outline" className="flex-1" onClick={() => window.open(customerUrl, "_blank")}>
-                <ExternalLink className="w-4 h-4 ml-1" /> فتح موقع الزبون في الخرائط
+                <ExternalLink className="w-4 h-4 ml-1" /> موقع الزبون في الخرائط
               </Button>
             )}
-            {me && customer && (
+            {customer && (
               <Button className="flex-1 bg-violet-600 hover:bg-violet-700"
                 onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${customer.lat},${customer.lng}`, "_blank")}>
                 <Navigation className="w-4 h-4 ml-1" /> المسار إلى الزبون

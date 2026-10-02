@@ -912,6 +912,7 @@ export default function DeliveryDashboard() {
   };
 
   return (
+    <>
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen">
       {user && user.branchId && (
         <EnableNotificationsModal userId={user.id} branchId={user.branchId} />
@@ -920,7 +921,7 @@ export default function DeliveryDashboard() {
       <OrderLocationPreview order={previewOrder} open={!!previewOrder} onClose={() => setPreviewOrder(null)} />
       
       <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-[#120b26] dark:to-[#1c1136] p-4 lg:p-8" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6 pb-28">
         {/* Header - هوية Xenon */}
         <div className="relative overflow-hidden bg-[#170f2e] rounded-2xl shadow-lg p-6 text-white ring-1 ring-white/10">
           <div className="pointer-events-none absolute -top-16 left-1/4 h-48 w-48 rounded-full bg-fuchsia-600/25 blur-[80px]" />
@@ -1088,28 +1089,10 @@ export default function DeliveryDashboard() {
         {/* Orders List - تصميم جديد */}
         <Card className="shadow-lg">
           <CardHeader className="bg-accent/50 dark:from-gray-800 dark:to-gray-700">
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <CardTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-violet-600" />
-                طلباتي
-              </CardTitle>
-              <div className="inline-flex rounded-lg border border-border/60 bg-background p-1">
-                <button
-                  type="button"
-                  onClick={() => setOrdersView("home")}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${ordersView === "home" ? "bg-violet-600 text-white" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  الرئيسية
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOrdersView("log")}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${ordersView === "log" ? "bg-violet-600 text-white" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  السجل
-                </button>
-              </div>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              {ordersView === "log" ? <Clock className="w-5 h-5 text-violet-600" /> : <Package className="w-5 h-5 text-violet-600" />}
+              {ordersView === "log" ? "سجل اليوم" : "طلباتي"}
+            </CardTitle>
             <CardDescription>{ordersView === "log" ? "طلبات اليوم (الجديدة والمكتملة)" : "الطلبات الجديدة والحالية المعيّنة لك"}</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -1382,5 +1365,39 @@ export default function DeliveryDashboard() {
       </Dialog>
       </div>
     </PullToRefresh>
+
+    {/* شريط التنقّل السفلي — نمط تطبيقات الهاتف */}
+    <nav
+      className="fixed bottom-0 inset-x-0 z-50 bg-[#170f2e]/95 backdrop-blur border-t border-white/10 text-white"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      dir="rtl"
+    >
+      <div className="max-w-7xl mx-auto grid grid-cols-4">
+        {[
+          { key: "home", label: "الرئيسية", Icon: Package, active: ordersView === "home", onClick: () => { setOrdersView("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }, badge: 0 },
+          { key: "log", label: "السجل", Icon: Clock, active: ordersView === "log", onClick: () => { setOrdersView("log"); window.scrollTo({ top: 0, behavior: "smooth" }); }, badge: 0 },
+          { key: "map", label: "الخريطة", Icon: MapPin, active: false, onClick: () => setLocation("/delivery/map"), badge: 0 },
+          { key: "notif", label: "الإشعارات", Icon: Bell, active: false, onClick: () => setLocation("/delivery/notifications"), badge: unreadCount || 0 },
+        ].map(({ key, label, Icon, active, onClick, badge }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={onClick}
+            className={`relative flex flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors ${active ? "text-white" : "text-violet-200/60 hover:text-white"}`}
+          >
+            <span className={`relative flex items-center justify-center w-11 h-7 rounded-full transition-colors ${active ? "bg-violet-600" : ""}`}>
+              <Icon className="w-5 h-5" />
+              {badge > 0 && (
+                <span className="absolute -top-1 -left-1 bg-red-500 text-white rounded-full text-[9px] min-w-[16px] h-[16px] px-1 flex items-center justify-center font-bold">
+                  {badge}
+                </span>
+              )}
+            </span>
+            {label}
+          </button>
+        ))}
+      </div>
+    </nav>
+    </>
   );
 }
