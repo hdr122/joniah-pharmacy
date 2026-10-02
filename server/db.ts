@@ -5272,6 +5272,72 @@ export async function getRiderDaySummary(deliveryPersonId: number) {
 }
 
 
+// ===== Order Images (صورة مرفقة بالطلب — سقف دوّار 500 صورة) =====
+let orderImagesReady = false;
+export async function ensureOrderImagesTable() {
+  if (orderImagesReady) return;
+  const db = await getDb();
+  if (!db) return;
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS order_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    orderId INT NOT NULL,
+    branchId INT NOT NULL,
+    mimeType VARCHAR(50) DEFAULT 'image/jpeg',
+    data LONGTEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_order (orderId),
+    INDEX branch_idx (branchId)
+  )`);
+  orderImagesReady = true;
+}
+
+const ORDER_IMAGES_CAP = 500; // أقصى عدد صور محفوظة في النظام
+
+/** حفظ/تحديث صورة طلب ثم تقليم الأقدم إن تجاوز العدد 500 (سقف دوّار). */
+export async function saveOrderImage(branchId: number, orderId: number, dataBase64: string, mimeType = "image/jpeg") {
+  const db = await getDb();
+  if (!db) return;
+  await ensureOrderImagesTable();
+  // نظّف بادئة data: إن وُجدت
+  const comma = dataBase64.indexOf(",");
+  const payload = dataBase64.startsWith("data:") && comma > -1 ? dataBase64.slice(comma + 1) : dataBase64;
+  if (!payload) return;
+  await db.execute(sql`INSERT INTO order_images (orderId, branchId, mimeType, data)
+    VALUES (${orderId}, ${branchId}, ${mimeType}, ${payload})
+    ON DUPLICATE KEY UPDATE data = VALUES(data), mimeType = VALUES(mimeType), createdAt = CURRENT_TIMESTAMP`);
+  // تقليم: احذف الأقدم بما يتجاوز السقف
+  try {
+    const cnt = rowsOf(await db.execute(sql`SELECT COUNT(*) c FROM order_images`))[0];
+    const n = Number(cnt?.c || 0);
+    if (n > ORDER_IMAGES_CAP) {
+      const over = n - ORDER_IMAGES_CAP;
+      await db.execute(sql`DELETE FROM order_images ORDER BY id ASC LIMIT ${sql.raw(String(over))}`);
+    }
+  } catch (e) { console.warn("[Database] order_images prune failed:", e); }
+}
+
+/** بايتات صورة طلب واحدة (مع فرعها للتحقّق في المسار). null إن لا توجد. */
+export async function getOrderImage(orderId: number): Promise<{ mimeType: string; data: string; branchId: number } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  await ensureOrderImagesTable();
+  try {
+    const row = rowsOf(await db.execute(sql`SELECT mimeType, data, branchId FROM order_images WHERE orderId = ${orderId} LIMIT 1`))[0];
+    if (!row || !row.data) return null;
+    return { mimeType: row.mimeType || "image/jpeg", data: String(row.data), branchId: Number(row.branchId) };
+  } catch (e) { console.warn("[Database] getOrderImage failed:", e); return null; }
+}
+
+/** معرّفات الطلبات التي لها صورة مرفقة ضمن فرع — لعرض زر الصورة في بطاقة المندوب. */
+export async function listOrderImageIds(branchId: number): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  await ensureOrderImagesTable();
+  try {
+    return rowsOf(await db.execute(sql`SELECT orderId FROM order_images WHERE branchId = ${branchId}`)).map((r: any) => Number(r.orderId));
+  } catch { return []; }
+}
+
 // ===== Branch Management =====
 
 export async function getAllBranches() {

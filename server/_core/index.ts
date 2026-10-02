@@ -13,6 +13,7 @@ import { handleOwnTracksWebhook } from "../owntracks-webhook";
 import { mobileRouter } from "../mobile-api";
 import { publicApiRouter } from "../public-api";
 import { registerCallAudioRoutes } from "../call-audio";
+import { registerOrderImageRoutes } from "../order-image";
 import { erpApiRouter, handleErpSsoConsume, initErpApiKey } from "../erp-api";
 import * as whatsapp from "../whatsapp";
 import * as sentiment from "../sentiment";
@@ -48,6 +49,7 @@ async function startServer() {
   
   // 🎧 بثّ تسجيلات المكالمات (مع تحويل AMR تلقائياً) — قبل tRPC كي لا يبتلعه
   registerCallAudioRoutes(app);
+  registerOrderImageRoutes(app);
 
   // Traccar webhook endpoint (GET request from Traccar Client app)
   app.get("/api/traccar", handleTraccarWebhook);

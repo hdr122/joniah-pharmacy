@@ -437,6 +437,12 @@ export const appRouter = router({
     count: protectedProcedure.query(async () => {
       return await db.getOrdersCount();
     }),
+
+    // معرّفات الطلبات التي لها صورة مرفقة (ضمن فرع المستخدم) — لعرض زر الصورة
+    myImages: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.user.branchId) return [] as number[];
+      return await db.listOrderImageIds(ctx.user.branchId);
+    }),
     
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
@@ -472,6 +478,8 @@ export const appRouter = router({
           provinceId: z.number().optional(),
           price: z.number(),
           discount: z.number().int().min(0).optional(), // خصم بالدينار (0 = لا خصم)
+          imageData: z.string().optional(), // صورة مرفقة (data URL / base64) — يراها المندوب
+          imageMime: z.string().optional(),
           customerId: z.number().optional(),
           note: z.string().optional(),
           locationLink: z.string().optional(),
@@ -528,6 +536,10 @@ export const appRouter = router({
           discount: Math.min(Math.max(input.discount ?? 0, 0), input.price), // لا يتجاوز الخصم السعر
           createdBy: ctx.user.id, // حفظ معرف المستخدم الذي أنشأ الطلب
         });
+        // 🖼️ صورة مرفقة بالطلب (يراها المندوب) — سقف دوّار 500 صورة
+        if (createdOrder?.id && input.imageData) {
+          await db.saveOrderImage(getBranchId(ctx.user), createdOrder.id, input.imageData, input.imageMime || "image/jpeg").catch((e) => console.warn("[order image] save failed:", e));
+        }
         // واتساب: إشعار المندوب + الزبون (best-effort)
         if (createdOrder?.id) whatsapp.onOrderCreated(getBranchId(ctx.user), createdOrder.id).catch(() => {});
         // 📣 قسم المتابعة: جدولة رسالة المتابعة للزبون

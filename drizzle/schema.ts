@@ -691,3 +691,17 @@ export const followupJobs = mysqlTable("followup_jobs", {
 	index("due_idx").on(table.branchId, table.status, table.dueAt),
 	index("campaign_idx").on(table.campaignId, table.status),
 ]);
+
+// ── صورة مرفقة بالطلب (سقف دوّار 500 صورة، تُحذف الأقدم) ──────────────────────
+export const orderImages = mysqlTable("order_images", {
+	id: int().autoincrement().primaryKey().notNull(),
+	orderId: int().notNull(),
+	branchId: int().notNull(),
+	mimeType: varchar({ length: 50 }).default('image/jpeg'),
+	data: longtext(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow(),
+},
+(table) => [
+	unique("uniq_order").on(table.orderId),
+	index("branch_idx").on(table.branchId),
+]);

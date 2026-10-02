@@ -14,7 +14,8 @@ import { formatNumberWithCommas, removeCommas } from "@/lib/dateUtils";
 
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, User, MapPin, Phone, Link as LinkIcon } from "lucide-react";
+import { Loader2, User, MapPin, Phone, Link as LinkIcon, ImagePlus, X } from "lucide-react";
+import { compressImage } from "@/lib/imageCompress";
 
 export default function CreateOrder() {
   const [, setLocation] = useLocation();
@@ -43,6 +44,10 @@ export default function CreateOrder() {
     discount: "",
     notes: "",
   });
+
+  // صورة مرفقة بالطلب (يراها المندوب) — تُضغط قبل الإرسال
+  const [attachImage, setAttachImage] = useState<File | null>(null);
+  const [attachPreview, setAttachPreview] = useState<string | null>(null);
 
   const utils = trpc.useUtils();
   const { data: deliveries } = trpc.activeDeliveryPersons.list.useQuery();
@@ -117,7 +122,7 @@ export default function CreateOrder() {
     setShowSuggestions(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.deliveryPersonId || !formData.regionId || !formData.price) {
@@ -132,12 +137,28 @@ export default function CreateOrder() {
       return;
     }
 
+    // ضغط الصورة المرفقة (إن وُجدت) قبل الإرسال لتقليل الحِمل
+    let imageData: string | undefined;
+    let imageMime: string | undefined;
+    if (attachImage) {
+      try {
+        const c = await compressImage(attachImage, { maxSize: 1280, maxBytes: 300_000 });
+        imageData = c.base64;
+        imageMime = c.mimeType;
+      } catch {
+        toast.error("تعذّر معالجة الصورة المرفقة");
+        return;
+      }
+    }
+
     createMutation.mutate({
       deliveryPersonId: parseInt(formData.deliveryPersonId),
       regionId: parseInt(formData.regionId),
       price: parseInt(formData.price),
       discount: formData.discount ? parseInt(formData.discount) : undefined,
       note: formData.notes || undefined,
+      imageData,
+      imageMime,
       locationLink: formData.customerLocationUrl1 || undefined, // رابط الموقع للطلب
       hidePhoneFromDelivery: 0,
       
@@ -439,6 +460,43 @@ export default function CreateOrder() {
                 className="mt-1 min-h-[180px] text-base leading-relaxed resize-y"
                 rows={8}
               />
+            </div>
+
+            {/* 🖼️ صورة مرفقة (اختياري) — يراها المندوب */}
+            <div>
+              <Label>صورة مرفقة (اختياري) — يراها المندوب</Label>
+              {attachPreview ? (
+                <div className="mt-2 relative inline-block">
+                  <img src={attachPreview} alt="مرفق" className="max-h-48 rounded-lg border border-border" />
+                  <button
+                    type="button"
+                    onClick={() => { setAttachImage(null); setAttachPreview(null); }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center shadow"
+                    aria-label="إزالة الصورة"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="mt-2 flex items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg py-6 cursor-pointer hover:bg-muted/50 transition-colors text-muted-foreground">
+                  <ImagePlus className="w-5 h-5" />
+                  <span className="text-sm">اضغط لإرفاق صورة (ستظهر للمندوب)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      setAttachImage(f);
+                      const r = new FileReader();
+                      r.onload = () => setAttachPreview(String(r.result));
+                      r.readAsDataURL(f);
+                    }}
+                  />
+                </label>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">تُضغط الصورة تلقائياً، ويحتفظ النظام بآخر 500 صورة فقط.</p>
             </div>
           </CardContent>
         </Card>

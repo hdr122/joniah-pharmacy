@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Package, CheckCircle, Clock, XCircle, Loader2, Upload, MapPin, ExternalLink, LogOut, Bell, Navigation, NavigationOff, ChevronDown, Settings, User, Phone, MessageCircle } from "lucide-react";
+import { Package, CheckCircle, Clock, XCircle, Loader2, Upload, MapPin, ExternalLink, LogOut, Bell, Navigation, NavigationOff, ChevronDown, Settings, User, Phone, MessageCircle, Image as ImageIcon, Download } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 
@@ -69,6 +69,7 @@ export default function DeliveryDashboard() {
   const [pendingSync, setPendingSync] = useState(0);
   const [ordersView, setOrdersView] = useState<"home" | "log">("home"); // الرئيسية (جديدة/حالية) أو سجل اليوم
   const [previewOrder, setPreviewOrder] = useState<any>(null); // معاينة موقع الطلب على الخريطة
+  const [imageOrderId, setImageOrderId] = useState<number | null>(null); // معاينة صورة الطلب
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const [notificationSound, setNotificationSound] = useState(() => {
     return localStorage.getItem("notificationSound") !== "false";
@@ -101,6 +102,12 @@ export default function DeliveryDashboard() {
     enabled: !!user?.id,
     refetchInterval: 30000,
   });
+  // معرّفات الطلبات التي لها صورة مرفقة — لعرض زر «عرض الصورة»
+  const { data: imageIds } = trpc.orders.myImages.useQuery(undefined, {
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+  });
+  const imageSet = new Set<number>(imageIds || []);
   
   useEffect(() => {
     if (unreadCount && unreadCount > previousUnreadCount && previousUnreadCount > 0 && notificationSound) {
@@ -583,6 +590,13 @@ export default function DeliveryDashboard() {
                                 <MapPin className="w-3.5 h-3.5 ml-1" /> معاينة الموقع
                               </Button>
                             )}
+                            {imageSet.has(order.id) && (
+                              <Button type="button" size="sm" variant="outline"
+                                className="h-7 border-fuchsia-300 text-fuchsia-700 dark:text-fuchsia-300 dark:border-fuchsia-700"
+                                onClick={() => setImageOrderId(order.id)}>
+                                <ImageIcon className="w-3.5 h-3.5 ml-1" /> عرض الصورة
+                              </Button>
+                            )}
                             {getStatusBadge(order.status)}
                             {isOverdue && (
                               <Badge className="bg-amber-500 text-white border-0">
@@ -919,6 +933,26 @@ export default function DeliveryDashboard() {
       )}
 
       <OrderLocationPreview order={previewOrder} open={!!previewOrder} onClose={() => setPreviewOrder(null)} />
+
+      <Dialog open={imageOrderId !== null} onOpenChange={(o) => !o && setImageOrderId(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>صورة الطلب #{imageOrderId}</DialogTitle>
+          </DialogHeader>
+          {imageOrderId !== null && (
+            <div className="space-y-3">
+              <img src={`/api/order-image/${imageOrderId}`} alt="صورة الطلب" className="w-full rounded-lg border border-border" />
+              <a
+                href={`/api/order-image/${imageOrderId}`}
+                download={`order-${imageOrderId}.png`}
+                className="flex items-center justify-center gap-2 text-sm text-violet-600 dark:text-violet-400 underline underline-offset-2"
+              >
+                <Download className="w-4 h-4" /> تنزيل الصورة
+              </a>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <div className="min-h-screen bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-[#120b26] dark:to-[#1c1136] p-4 lg:p-8" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-6 pb-28">
