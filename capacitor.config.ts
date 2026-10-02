@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.xenon.delivery',
+  appId: 'com.joniah.pharmacy.delivery',
   appName: 'Xenon Delivery',
   webDir: 'dist/public',
   bundledWebRuntime: false,

@@ -9,7 +9,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     defaultConfig {
-        applicationId "com.joniah.delivery"
+        applicationId "com.joniah.pharmacy.delivery"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

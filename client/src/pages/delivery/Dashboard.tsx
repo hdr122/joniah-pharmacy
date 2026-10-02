@@ -553,66 +553,41 @@ export default function DeliveryDashboard() {
         <div className="relative overflow-hidden bg-[#170f2e] rounded-2xl shadow-lg p-6 text-white ring-1 ring-white/10">
           <div className="pointer-events-none absolute -top-16 left-1/4 h-48 w-48 rounded-full bg-fuchsia-600/25 blur-[80px]" />
           <div className="pointer-events-none absolute -bottom-16 right-1/4 h-48 w-48 rounded-full bg-violet-600/25 blur-[80px]" />
-          <div className="relative flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <img src="/xenon-logo.svg" alt="Xenon" className="w-14 h-14 xenon-logo-glow" />
-              <div>
-                <h1 className="text-3xl font-bold">مرحباً {user?.name} 👋</h1>
-                <p className="text-violet-200/70 mt-1">
+          <div className="relative flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <img src="/xenon-logo.svg" alt="Xenon" className="w-12 h-12 sm:w-14 sm:h-14 xenon-logo-glow shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">مرحباً {user?.name} 👋</h1>
+                <p className="text-violet-200/70 text-sm mt-0.5">
                   لوحة المندوب — <span className="xenon-gradient-text font-bold">Xenon</span>
                 </p>
               </div>
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-2 shrink-0">
               <ThemeToggle />
               <Button
                 variant="outline"
-                className="border-white text-white hover:bg-white/10"
+                size="icon"
+                aria-label="الخريطة ومساري"
+                className="border-white/30 text-white hover:bg-white/10"
                 onClick={() => setLocation("/delivery/map")}
               >
-                <MapPin className="w-4 h-4 ml-2" />
-                الخريطة ومساري
+                <MapPin className="w-5 h-5" />
               </Button>
-              <Button
-                variant={locationTracking ? "secondary" : "outline"}
-                className={locationTracking
-                  ? "bg-white text-violet-600 hover:bg-violet-50"
-                  : "border-white text-white hover:bg-white/10"
-                }
-                onClick={toggleLocationTracking}
-              >
-                {locationTracking ? (
-                  <>
-                    <Navigation className="w-4 h-4 ml-2 animate-pulse" />
-                    تتبع نشط
-                  </>
-                ) : (
-                  <>
-                    <NavigationOff className="w-4 h-4 ml-2" />
-                    بدء العمل
-                  </>
-                )}
-              </Button>
-              {pendingSync > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 text-xs font-medium" title="نقاط مسار محفوظة محلياً ستُرسل عند عودة الإنترنت">
-                  <Upload className="w-3.5 h-3.5" />
-                  {pendingSync} بانتظار المزامنة
-                </span>
-              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="relative border-white text-white hover:bg-white/10"
+                    size="icon"
+                    aria-label="الإشعارات"
+                    className="relative border-white/30 text-white hover:bg-white/10"
                   >
-                    <Bell className="w-4 h-4 ml-2" />
-                    الإشعارات
+                    <Bell className="w-5 h-5" />
                     {(unreadCount || 0) > 0 && (
-                      <Badge className="absolute -top-2 -left-2 bg-red-500 text-white px-2 py-0.5 text-xs">
+                      <Badge className="absolute -top-1.5 -left-1.5 bg-red-500 text-white px-1.5 py-0.5 text-[10px] min-w-[18px] justify-center">
                         {unreadCount}
                       </Badge>
                     )}
-                    <ChevronDown className="w-3 h-3 mr-2" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80">
@@ -650,9 +625,8 @@ export default function DeliveryDashboard() {
               </DropdownMenu>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                    <User className="w-4 h-4 ml-2" />
-                    <ChevronDown className="w-3 h-3 mr-2" />
+                  <Button variant="outline" size="icon" aria-label="الحساب" className="border-white/30 text-white hover:bg-white/10">
+                    <User className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -680,6 +654,38 @@ export default function DeliveryDashboard() {
               </DropdownMenu>
             </div>
           </div>
+        </div>
+
+        {/* شريط حالة العمل — الإجراء الأساسي للمندوب */}
+        <div className={`rounded-2xl p-4 ring-1 flex items-center justify-between gap-3 flex-wrap transition-colors ${
+          locationTracking
+            ? "bg-emerald-500/10 ring-emerald-400/30"
+            : "bg-white/80 dark:bg-white/5 ring-border/60"
+        }`}>
+          <div className="flex items-center gap-3 min-w-0">
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${locationTracking ? "bg-emerald-500/20" : "bg-muted"}`}>
+              {locationTracking
+                ? <Navigation className="w-5 h-5 text-emerald-600 animate-pulse" />
+                : <NavigationOff className="w-5 h-5 text-muted-foreground" />}
+            </span>
+            <div className="min-w-0">
+              <p className="font-bold text-foreground">{locationTracking ? "جارٍ العمل — التتبّع نشط" : "أنت غير نشط"}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {locationTracking ? "موقعك ومسارك يُحفظان ويُرسلان للإدارة" : "اضغط «ابدأ العمل» لبدء التتبّع واستقبال الطلبات"}
+                {pendingSync > 0 && <span className="text-amber-600 dark:text-amber-400"> • {pendingSync} نقطة بانتظار المزامنة</span>}
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={toggleLocationTracking}
+            className={locationTracking
+              ? "bg-rose-600 hover:bg-rose-700 text-white shrink-0"
+              : "bg-gradient-to-l from-violet-600 to-fuchsia-600 hover:opacity-90 text-white shrink-0"}
+          >
+            {locationTracking
+              ? (<><NavigationOff className="w-4 h-4 ml-2" /> إيقاف العمل</>)
+              : (<><Navigation className="w-4 h-4 ml-2" /> ابدأ العمل</>)}
+          </Button>
         </div>
 
         {/* Statistics - هوية Xenon */}

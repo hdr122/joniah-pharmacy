@@ -40,12 +40,19 @@ export default function OfflineMap() {
   const meMarkerRef = useRef<L.CircleMarker | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
-  const [selected, setSelected] = useState<string>("baghdad");
+  const [selected, setSelected] = useState<string>(() => {
+    try { return localStorage.getItem("riderProvince") || "baghdad"; } catch { return "baghdad"; }
+  });
   const [preset, setPreset] = useState<string>("streets");
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
   const [downloaded, setDownloaded] = useState<Record<string, { name: string; tiles: number; at: string }>>({});
   const [cachedCount, setCachedCount] = useState(0);
   const [online, setOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [showManual, setShowManual] = useState(false);
+  const [metaLoaded, setMetaLoaded] = useState(false); // هل حُمّلت قائمة الخرائط المحفوظة؟
+  // محافظة مؤكّدة (من الموقع أو من آخر اختيار) — التنزيل التلقائي لا يبدأ إلا لها
+  const confirmedRef = useRef<string | null>(null);
+  const autoRef = useRef(false);
 
   const province = IRAQ_PROVINCES.find((p) => p.key === selected)!;
   const presetObj = ZOOM_PRESETS.find((z) => z.key === preset)!;
@@ -54,6 +61,7 @@ export default function OfflineMap() {
   const refreshMeta = useCallback(async () => {
     setDownloaded(await getDownloadedProvinces());
     setCachedCount(await cachedTileCount());
+    setMetaLoaded(true);
   }, []);
 
   // إنشاء الخريطة مرّة واحدة
@@ -125,7 +133,11 @@ export default function OfflineMap() {
             map.setView(ll, 16);
             // اقترح محافظة المندوب تلقائياً
             const p = provinceContaining(latitude, longitude);
-            if (p) setSelected(p.key);
+            if (p) {
+              setSelected(p.key);
+              confirmedRef.current = p.key; // محافظة مؤكّدة من الموقع ⇒ يسمح بالتنزيل التلقائي
+              try { localStorage.setItem("riderProvince", p.key); } catch {}
+            }
           } else {
             meMarkerRef.current.setLatLng(ll);
           }
@@ -155,6 +167,11 @@ export default function OfflineMap() {
 
   useEffect(() => {
     refreshMeta();
+    // محافظة محفوظة من جلسة سابقة ⇒ تُعتبر مؤكّدة حتى لو تعذّر تحديد الموقع
+    try {
+      const last = localStorage.getItem("riderProvince");
+      if (last && !confirmedRef.current) confirmedRef.current = last;
+    } catch {}
     const on = () => setOnline(true);
     const off = () => setOnline(false);
     window.addEventListener("online", on);
@@ -164,26 +181,46 @@ export default function OfflineMap() {
     return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); clearInterval(t); };
   }, [refreshMeta]);
 
-  const startDownload = async () => {
-    if (!online) { toast.error("التنزيل يحتاج إنترنت. وصّل الإنترنت ثم نزّل خريطة المحافظة."); return; }
-    if (estimate > MAX_TILES) {
-      toast.error(`عدد البلاطات كبير جداً (${estimate.toLocaleString()}). اختر تفصيلاً أقل.`);
-      return;
+  // تنزيل خريطة محافظة. silent = للتنزيل التلقائي أول مرّة بلا نافذة تأكيد.
+  const runDownload = async (prov: ProvinceBox, pr: typeof ZOOM_PRESETS[number], silent: boolean) => {
+    if (!online) { if (!silent) toast.error("التنزيل يحتاج إنترنت. وصّل الإنترنت ثم نزّل خريطة المحافظة."); return; }
+    const est = estimateTiles(prov.bbox, pr.min, pr.max);
+    if (est > MAX_TILES) { if (!silent) toast.error(`عدد البلاطات كبير جداً (${est.toLocaleString()}). اختر تفصيلاً أقل.`); return; }
+    if (!silent) {
+      const approxMb = Math.round((est * 18) / 1024);
+      if (!confirm(`سيتم تنزيل خريطة «${prov.name}» (${pr.label}).\n\nعدد البلاطات: ${est.toLocaleString()}\nالحجم التقريبي: ~${approxMb} ميغابايت\n\nيُفضّل استخدام Wi-Fi. متابعة؟`)) return;
     }
-    const approxMb = Math.round((estimate * 18) / 1024); // ~18KB/بلاطة تقريباً
-    if (!confirm(`سيتم تنزيل خريطة «${province.name}» (${presetObj.label}).\n\nعدد البلاطات: ${estimate.toLocaleString()}\nالحجم التقريبي: ~${approxMb} ميغابايت\n\nيُفضّل استخدام Wi-Fi. متابعة؟`)) return;
-
-    setProgress({ done: 0, total: estimate, failed: 0, running: true });
+    setProgress({ done: 0, total: est, failed: 0, running: true });
     try {
-      await downloadProvince(province, presetObj.min, presetObj.max, (p) => setProgress(p));
-      toast.success(`تم تنزيل خريطة ${province.name} — تعمل الآن بلا إنترنت`);
+      await downloadProvince(prov, pr.min, pr.max, (p) => setProgress(p));
+      toast.success(`تم حفظ خريطة ${prov.name} — تعمل الآن بلا إنترنت ✓`);
     } catch (e: any) {
-      toast.error("تعذّر إكمال التنزيل: " + (e?.message || ""));
+      if (!silent) toast.error("تعذّر إكمال التنزيل: " + (e?.message || ""));
     } finally {
       await refreshMeta();
       setTimeout(() => setProgress(null), 2500);
     }
   };
+
+  const startDownload = () => runDownload(province, presetObj, false);
+
+  // ⬇️ تنزيل تلقائي مرّة واحدة: عند فتح الصفحة، إن لم تكن خريطة محافظة المندوب
+  // محفوظة بعد، تُنزَّل تلقائياً (مستوى الشوارع). بعدها لا تُنزَّل ثانيةً لأنها محفوظة.
+  useEffect(() => {
+    if (!metaLoaded) return;                    // انتظر تحميل قائمة المحفوظة — وإلا تنزيل مكرّر
+    const prov = confirmedRef.current;
+    if (!prov) return;                         // ننتظر تأكيد المحافظة (من الموقع/الذاكرة)
+    if (autoRef.current) return;               // مرّة واحدة فقط لكل فتح
+    if (!online) return;
+    if (downloaded[prov]) return;              // محفوظة سلفاً ⇒ لا تنزيل
+    if (progress?.running) return;
+    const p = IRAQ_PROVINCES.find((x) => x.key === prov);
+    if (!p) return;
+    autoRef.current = true;
+    const streets = ZOOM_PRESETS.find((z) => z.key === "streets")!;
+    runDownload(p, streets, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online, downloaded, selected, metaLoaded]);
 
   const pct = progress && progress.total ? Math.round((progress.done / progress.total) * 100) : 0;
 
@@ -208,83 +245,107 @@ export default function OfflineMap() {
       <div ref={mapElRef} className="w-full" style={{ height: "52vh", zIndex: 0 }} />
 
       <div className="p-4 space-y-4 max-w-3xl mx-auto">
-        {/* تنزيل خريطة المحافظة */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Download className="w-5 h-5 text-violet-600" /> تنزيل خريطة المحافظة للعمل بلا إنترنت
-            </CardTitle>
-            <CardDescription className="leading-relaxed">
-              نزّل خريطة محافظتك مرّة واحدة (يُفضّل على Wi-Fi) لتظهر الخريطة ومسارك حتى عند انقطاع الإنترنت.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">المحافظة</label>
-              <select
-                value={selected}
-                onChange={(e) => setSelected(e.target.value)}
-                disabled={!!progress?.running}
-                className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
-              >
-                {IRAQ_PROVINCES.map((p) => (
-                  <option key={p.key} value={p.key}>
-                    {p.name}{downloaded[p.key] ? " ✓ (منزّلة)" : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">مستوى التفصيل</label>
-              <div className="grid grid-cols-3 gap-2 mt-1">
-                {ZOOM_PRESETS.map((z) => (
-                  <button
-                    key={z.key}
-                    type="button"
-                    disabled={!!progress?.running}
-                    onClick={() => setPreset(z.key)}
-                    className={`border rounded-md p-2 text-center transition-colors ${
-                      preset === z.key ? "bg-violet-600 text-white border-violet-600" : "hover:bg-muted"
-                    }`}
-                  >
-                    <span className="block text-sm font-medium">{z.label}</span>
-                    <span className={`block text-[10px] mt-0.5 ${preset === z.key ? "text-violet-100" : "text-muted-foreground"}`}>{z.hint}</span>
+        {/* حالة خريطة المحافظة */}
+        <Card className="overflow-hidden">
+          {progress?.running ? (
+            // أثناء التنزيل (تلقائي أو يدوي)
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Loader2 className="w-4 h-4 animate-spin text-violet-600" />
+                جارٍ حفظ خريطة {province.name} للعمل بلا إنترنت…
+              </div>
+              <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-full bg-gradient-to-l from-violet-600 to-fuchsia-500 transition-all" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{progress.done.toLocaleString()} / {progress.total.toLocaleString()} ({pct}%)</span>
+                <Button size="sm" variant="outline" className="text-rose-600 border-rose-300 h-7" onClick={() => cancelDownload()}>
+                  <X className="w-3 h-3 ml-1" /> إيقاف
+                </Button>
+              </div>
+            </CardContent>
+          ) : downloaded[selected] ? (
+            // الخريطة محفوظة — لا حاجة للتنزيل ثانيةً
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-foreground">خريطة {downloaded[selected].name} محفوظة ✓</p>
+                  <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                    تعمل الآن بلا إنترنت. لا حاجة لتنزيلها مرّة أخرى. ({downloaded[selected].tiles.toLocaleString()} بلاطة)
+                  </p>
+                  <button onClick={() => setShowManual((v) => !v)} className="text-xs text-violet-600 dark:text-violet-400 underline underline-offset-2 mt-2">
+                    {showManual ? "إخفاء الخيارات" : "تنزيل محافظة أخرى أو تحديث"}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-sm text-muted-foreground">
-              البلاطات التقديرية: <b className="text-foreground">{estimate.toLocaleString()}</b>
-              {" "}• الحجم ~<b className="text-foreground">{Math.round((estimate * 18) / 1024)}</b> ميغابايت
-              {estimate > MAX_TILES && <span className="text-rose-600 block mt-1">كبير جداً — اختر تفصيلاً أقل.</span>}
-            </div>
-
-            {progress?.running ? (
-              <div className="space-y-2">
-                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-violet-600 transition-all" style={{ width: `${pct}%` }} />
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{progress.done.toLocaleString()} / {progress.total.toLocaleString()} ({pct}%)</span>
-                  <Button size="sm" variant="outline" className="text-rose-600 border-rose-300 h-7" onClick={() => cancelDownload()}>
-                    <X className="w-3 h-3 ml-1" /> إيقاف
-                  </Button>
                 </div>
               </div>
-            ) : (
+            </CardContent>
+          ) : (
+            // لم تُحفظ بعد — التنزيل التلقائي سيبدأ، أو انتظار الإنترنت/تحديد المحافظة
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
+                  <Download className="w-5 h-5 text-violet-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-foreground">خريطة {province.name} للعمل بلا إنترنت</p>
+                  <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                    {online
+                      ? "سيتم حفظ الخريطة تلقائياً مرّة واحدة. يُفضّل أن يكون أول تنزيل على Wi‑Fi."
+                      : "وصّل الإنترنت لحفظ الخريطة مرّة واحدة، ثم ستعمل بلا إنترنت."}
+                  </p>
+                </div>
+              </div>
               <Button onClick={startDownload} disabled={!online || estimate > MAX_TILES} className="w-full bg-violet-600 hover:bg-violet-700">
-                <Download className="w-4 h-4 ml-2" /> تنزيل خريطة {province.name}
+                <Download className="w-4 h-4 ml-2" /> تنزيل خريطة {province.name} الآن
               </Button>
-            )}
+              <button onClick={() => setShowManual((v) => !v)} className="block mx-auto text-xs text-violet-600 dark:text-violet-400 underline underline-offset-2">
+                {showManual ? "إخفاء الخيارات المتقدّمة" : "خيارات متقدّمة (المحافظة والتفصيل)"}
+              </button>
+            </CardContent>
+          )}
 
-            {progress && !progress.running && progress.done > 0 && (
-              <p className="text-sm text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> اكتمل التنزيل ({(progress.total - progress.failed).toLocaleString()} بلاطة)
-              </p>
-            )}
-          </CardContent>
+          {/* خيارات متقدّمة — مطويّة افتراضياً لتبسيط الواجهة */}
+          {showManual && !progress?.running && (
+            <CardContent className="border-t p-4 space-y-4">
+              <div>
+                <label className="text-sm font-medium">المحافظة</label>
+                <select
+                  value={selected}
+                  onChange={(e) => { setSelected(e.target.value); try { localStorage.setItem("riderProvince", e.target.value); } catch {} }}
+                  className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                >
+                  {IRAQ_PROVINCES.map((p) => (
+                    <option key={p.key} value={p.key}>
+                      {p.name}{downloaded[p.key] ? " ✓ (محفوظة)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">مستوى التفصيل</label>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  {ZOOM_PRESETS.map((z) => (
+                    <button key={z.key} type="button" onClick={() => setPreset(z.key)}
+                      className={`border rounded-md p-2 text-center transition-colors ${preset === z.key ? "bg-violet-600 text-white border-violet-600" : "hover:bg-muted"}`}>
+                      <span className="block text-sm font-medium">{z.label}</span>
+                      <span className={`block text-[10px] mt-0.5 ${preset === z.key ? "text-violet-100" : "text-muted-foreground"}`}>{z.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                البلاطات التقديرية: <b className="text-foreground">{estimate.toLocaleString()}</b>
+                {" "}• الحجم ~<b className="text-foreground">{Math.round((estimate * 18) / 1024)}</b> ميغابايت
+                {estimate > MAX_TILES && <span className="text-rose-600 block mt-1">كبير جداً — اختر تفصيلاً أقل.</span>}
+              </div>
+              <Button onClick={startDownload} disabled={!online || estimate > MAX_TILES} variant="outline" className="w-full">
+                <Download className="w-4 h-4 ml-2" /> تنزيل/تحديث خريطة {province.name} ({presetObj.label})
+              </Button>
+            </CardContent>
+          )}
         </Card>
 
         {/* الخرائط المنزّلة */}
