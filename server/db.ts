@@ -4472,6 +4472,7 @@ export async function saveOrderRoutePoint(data: {
   heading?: string;
   deviationFromRoute?: number;
   isOffRoute?: boolean;
+  recordedAt?: string; // وقت التسجيل الحقيقي (للنقاط المخزّنة محلياً عند انقطاع النت)
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -4487,9 +4488,40 @@ export async function saveOrderRoutePoint(data: {
     heading: data.heading,
     deviationFromRoute: data.deviationFromRoute,
     isOffRoute: data.isOffRoute ? 1 : 0,
+    ...(data.recordedAt ? { timestamp: toSqlDatetime(data.recordedAt) } : {}),
   });
 
   return result;
+}
+
+/**
+ * إدراج دفعة نقاط مسار دفعة واحدة — تُستخدم لمزامنة المسار المخزّن محلياً
+ * بعد عودة الإنترنت. تحافظ على الوقت الأصلي لكل نقطة.
+ */
+export async function saveOrderRoutePointsBatch(
+  branchId: number,
+  deliveryPersonId: number,
+  points: Array<{
+    orderId: number; latitude: string; longitude: string;
+    accuracy?: string; speed?: string; heading?: string; recordedAt?: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db || !points.length) return { inserted: 0 };
+  const values = points.map((pt) => ({
+    branchId,
+    orderId: pt.orderId,
+    deliveryPersonId,
+    latitude: pt.latitude,
+    longitude: pt.longitude,
+    accuracy: pt.accuracy,
+    speed: pt.speed,
+    heading: pt.heading,
+    isOffRoute: 0,
+    ...(pt.recordedAt ? { timestamp: toSqlDatetime(pt.recordedAt) } : {}),
+  }));
+  await db.insert(orderRouteTracking).values(values);
+  return { inserted: values.length };
 }
 
 /**
@@ -6159,6 +6191,7 @@ export async function saveDeliveryLocation(data: {
   speed?: string;
   heading?: string;
   battery?: string;
+  recordedAt?: string; // وقت التسجيل الحقيقي (للنقاط المخزّنة محلياً)
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database connection failed");
@@ -6183,9 +6216,39 @@ export async function saveDeliveryLocation(data: {
     speed: data.speed,
     heading: data.heading,
     battery: data.battery,
+    ...(data.recordedAt ? { createdAt: toSqlDatetime(data.recordedAt) } : {}),
   });
 
   return result;
+}
+
+/**
+ * إدراج دفعة مواقع للمندوب دفعة واحدة — لمزامنة المواقع المخزّنة محلياً
+ * بعد عودة الإنترنت، مع الحفاظ على الوقت الأصلي لكل نقطة.
+ */
+export async function saveDeliveryLocationsBatch(
+  branchId: number,
+  deliveryPersonId: number,
+  points: Array<{
+    latitude: string; longitude: string; accuracy?: string;
+    speed?: string; heading?: string; battery?: string; recordedAt?: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db || !points.length) return { inserted: 0 };
+  const values = points.map((pt) => ({
+    branchId,
+    deliveryPersonId,
+    latitude: pt.latitude,
+    longitude: pt.longitude,
+    accuracy: pt.accuracy,
+    speed: pt.speed,
+    heading: pt.heading,
+    battery: pt.battery,
+    ...(pt.recordedAt ? { createdAt: toSqlDatetime(pt.recordedAt) } : {}),
+  }));
+  await db.insert(deliveryLocations).values(values);
+  return { inserted: values.length };
 }
 
 export async function getDeliveryLocations(deliveryPersonId: number, limit: number = 50, withinMinutes: number = 60) {

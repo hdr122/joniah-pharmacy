@@ -16,5 +16,9 @@ export default defineConfig({
     environment: "node",
     include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
     setupFiles: ["./vitest.setup.ts"],
+    // كل الاختبارات تشترك في قاعدة بيانات MariaDB واحدة، وبعضها يُعيد بناء جداول
+    // (اختبار الترحيل يُسقط جداول واتساب). التشغيل المتوازي للملفات يسبّب تسابقاً
+    // يُفشل اختبارات تقرأ بينما يُسقط آخر الجدول. نُشغّل الملفات تسلسلياً للحتمية.
+    fileParallelism: false,
   },
 });

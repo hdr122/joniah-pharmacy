@@ -1708,10 +1708,52 @@ export const appRouter = router({
           heading: input.heading,
           battery: input.battery,
         });
-        
+
         return { success: true };
       }),
-    
+
+    // مزامنة دفعة مواقع مخزّنة محلياً (عند عودة الإنترنت) — تحافظ على وقت كل نقطة
+    saveLocationsBatch: protectedProcedure
+      .input(z.object({
+        points: z.array(z.object({
+          latitude: z.string(),
+          longitude: z.string(),
+          accuracy: z.string().optional(),
+          speed: z.string().optional(),
+          heading: z.string().optional(),
+          battery: z.string().optional(),
+          recordedAt: z.string().optional(),
+        })).min(1).max(500),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'delivery') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only delivery persons can save location' });
+        }
+        const res = await db.saveDeliveryLocationsBatch(getBranchId(ctx.user), ctx.user.id, input.points);
+        return { success: true, inserted: res.inserted };
+      }),
+
+    // مزامنة دفعة نقاط مسار طلب مخزّنة محلياً (عند عودة الإنترنت)
+    saveRoutePointsBatch: protectedProcedure
+      .input(z.object({
+        points: z.array(z.object({
+          orderId: z.number(),
+          latitude: z.string(),
+          longitude: z.string(),
+          accuracy: z.string().optional(),
+          speed: z.string().optional(),
+          heading: z.string().optional(),
+          recordedAt: z.string().optional(),
+        })).min(1).max(500),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'delivery') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only delivery persons can save route points' });
+        }
+        const res = await db.saveOrderRoutePointsBatch(getBranchId(ctx.user), ctx.user.id, input.points);
+        return { success: true, inserted: res.inserted };
+      }),
+
     // Get all active delivery locations (admin only)
     getActiveLocations: adminProcedure.query(async () => {
       return await db.getActiveDeliveryLocations();

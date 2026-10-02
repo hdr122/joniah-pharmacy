@@ -41,6 +41,7 @@ import DeliveryNotifications from "./pages/delivery/Notifications";
 import NotificationSettings from "./pages/delivery/NotificationSettings";
 import DeliveryProfile from "./pages/delivery/DeliveryProfile";
 import DeliveryNavigation from "./pages/delivery/DeliveryNavigation";
+import OfflineMap from "./pages/delivery/OfflineMap";
 import TraccarSettings from "./pages/admin/TraccarSettings";
 import TraccarStats from "./pages/admin/TraccarStats";
 import MonthlyDistanceReport from "@/pages/admin/MonthlyDistanceReport";
@@ -683,6 +684,12 @@ function Router() {
         {() => {
           if (!isDelivery) return <Redirect to="/admin" />;
           return <DeliveryNavigation />;
+        }}
+      </Route>
+      <Route path="/delivery/map">
+        {() => {
+          if (!isDelivery) return <Redirect to="/admin" />;
+          return <OfflineMap />;
         }}
       </Route>
       <Route path="/">

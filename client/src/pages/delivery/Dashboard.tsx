@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { startBackgroundTracking, stopBackgroundTracking, isNativePlatform, requestLocationPermissions } from "@/lib/backgroundLocation";
+import { enqueueLocation, enqueueRoutePoint, flushQueue, startAutoFlush, getPendingCounts, appendTrackPoint } from "@/lib/offlineQueue";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -64,6 +65,7 @@ export default function DeliveryDashboard() {
     return saved === null ? true : saved === "true";
   });
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [pendingSync, setPendingSync] = useState(0);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const [notificationSound, setNotificationSound] = useState(() => {
     return localStorage.getItem("notificationSound") !== "false";
@@ -111,15 +113,37 @@ export default function DeliveryDashboard() {
   const [, setLocation] = useLocation();
   const [autoStartAttempted, setAutoStartAttempted] = useState(false);
 
+  // المزامنة التلقائية للنقاط المخزّنة محلياً تبدأ فور دخول المندوب،
+  // وتُفرّغ ما تراكم أثناء انقطاع الإنترنت حتى لو لم يكن التتبّع مفعّلاً الآن.
+  useEffect(() => {
+    if (user?.role !== "delivery") return;
+    startAutoFlush();
+    getPendingCounts().then((c) => setPendingSync(c.total)).catch(() => {});
+  }, [user?.role]);
+
   const toggleLocationTracking = useCallback(async () => {
     if (!locationTracking) {
       console.log("[GPS] Requesting location permission...");
-      
+
+      // على التطبيق الأصلي (أندرويد): اطلب صلاحية الموقع في الخلفية وابدأ خدمة
+      // المقدّمة (foreground service) ذات الإشعار الدائم عبر إضافة التتبّع الخلفي.
+      if (isNativePlatform()) {
+        const granted = await requestLocationPermissions();
+        if (!granted) {
+          toast.error("نحتاج صلاحية الموقع «طوال الوقت» ليستمر التتبّع والجهاز مقفل. فعّلها من إعدادات التطبيق.");
+          return;
+        }
+        setLocationTracking(true);
+        localStorage.setItem("locationTracking", "true");
+        toast.success("بدأ العمل — التتبّع يعمل حتى والجهاز مقفل");
+        return;
+      }
+
       if (!("geolocation" in navigator)) {
         toast.error("المتصفح لا يدعم تحديد الموقع");
         return;
       }
-      
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           console.log("[GPS] Permission granted");
@@ -129,7 +153,7 @@ export default function DeliveryDashboard() {
         },
         (error) => {
           console.error("[GPS] Permission denied:", error);
-          
+
           switch (error.code) {
             case error.PERMISSION_DENIED:
               toast.error("تم رفض صلاحية الوصول للموقع. يرجى السماح بالوصول من إعدادات المتصفح");
@@ -154,9 +178,11 @@ export default function DeliveryDashboard() {
       console.log("[GPS] Stopping tracking");
       setLocationTracking(false);
       localStorage.setItem("locationTracking", "false");
-      toast.success("تم إيقاف تتبع الموقع");
+      // أفرغ ما تبقّى في الطابور عند إيقاف العمل
+      flushQueue().then(() => getPendingCounts().then((c) => setPendingSync(c.total))).catch(() => {});
+      toast.success("تم إيقاف العمل وتتبع الموقع");
     }
-  }, [locationTracking]);
+  }, [locationTracking, user?.role]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -168,6 +194,8 @@ export default function DeliveryDashboard() {
       const { latitude, longitude, accuracy, speed, heading, altitude } = location;
       
       setCurrentLocation({ lat: latitude, lng: longitude });
+      // سجّل النقطة في مسار العرض على الخريطة (يبقى محلياً حتى بلا إنترنت)
+      appendTrackPoint({ lat: latitude, lng: longitude, t: location.timestamp || Date.now() }).catch(() => {});
 
       let batteryLevel: number | undefined;
       if ('getBattery' in navigator) {
@@ -179,35 +207,46 @@ export default function DeliveryDashboard() {
         }
       }
 
-      console.log("[GPS] Saving location:", { latitude, longitude, accuracy });
+      const recordedAt = new Date(location.timestamp || Date.now()).toISOString();
+      console.log("[GPS] Buffering location:", { latitude, longitude, accuracy });
 
-      // حفظ الموقع العام للمندوب
-      saveLocationMutation.mutate({
+      // 1) خزّن الموقع محلياً أولاً — لا يضيع مهما انقطع الإنترنت أو أُغلق التطبيق
+      await enqueueLocation({
         latitude: latitude.toString(),
         longitude: longitude.toString(),
         accuracy: accuracy?.toString(),
         speed: speed?.toString(),
         heading: heading?.toString(),
         battery: batteryLevel?.toString(),
+        recordedAt,
       });
-      
-      // حفظ نقطة GPS في مسار الطلبات النشطة
-      const activeOrders = orders?.filter((order: any) => 
+
+      // 2) خزّن نقطة المسار لكل طلب نشط محلياً أيضاً
+      const activeOrders = orders?.filter((order: any) =>
         order.status === 'pending' && order.acceptedAt
       );
-      
       if (activeOrders && activeOrders.length > 0) {
-        activeOrders.forEach((order: any) => {
-          saveRoutePointMutation.mutate({
+        for (const order of activeOrders) {
+          await enqueueRoutePoint({
             orderId: order.id,
             latitude: latitude.toString(),
             longitude: longitude.toString(),
             accuracy: accuracy?.toString(),
             speed: speed?.toString(),
             heading: heading?.toString(),
+            recordedAt,
           });
-        });
+        }
       }
+
+      // 3) حاول الإرسال فوراً (إن كان هناك إنترنت) — وإلّا يبقى في الطابور ويُرسل لاحقاً
+      flushQueue().then((r) => {
+        if (r.sentLocations || r.sentRoutePoints) {
+          getPendingCounts().then((c) => setPendingSync(c.total));
+        } else {
+          getPendingCounts().then((c) => setPendingSync(c.total));
+        }
+      }).catch(() => {});
     };
     
     startBackgroundTracking(
@@ -527,9 +566,17 @@ export default function DeliveryDashboard() {
             <div className="flex gap-3 flex-wrap">
               <ThemeToggle />
               <Button
+                variant="outline"
+                className="border-white text-white hover:bg-white/10"
+                onClick={() => setLocation("/delivery/map")}
+              >
+                <MapPin className="w-4 h-4 ml-2" />
+                الخريطة ومساري
+              </Button>
+              <Button
                 variant={locationTracking ? "secondary" : "outline"}
-                className={locationTracking 
-                  ? "bg-white text-violet-600 hover:bg-violet-50" 
+                className={locationTracking
+                  ? "bg-white text-violet-600 hover:bg-violet-50"
                   : "border-white text-white hover:bg-white/10"
                 }
                 onClick={toggleLocationTracking}
@@ -542,10 +589,16 @@ export default function DeliveryDashboard() {
                 ) : (
                   <>
                     <NavigationOff className="w-4 h-4 ml-2" />
-                    تفعيل التتبع
+                    بدء العمل
                   </>
                 )}
               </Button>
+              {pendingSync > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 text-xs font-medium" title="نقاط مسار محفوظة محلياً ستُرسل عند عودة الإنترنت">
+                  <Upload className="w-3.5 h-3.5" />
+                  {pendingSync} بانتظار المزامنة
+                </span>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -603,6 +656,10 @@ export default function DeliveryDashboard() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setLocation("/delivery/map")}>
+                    <MapPin className="w-4 h-4 ml-2" />
+                    خريطة المحافظة ومساري
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocation("/delivery/profile")}>
                     <User className="w-4 h-4 ml-2" />
                     الملف الشخصي

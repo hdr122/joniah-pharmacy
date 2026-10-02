@@ -82,11 +82,12 @@ export async function startBackgroundTracking(
       // Configure the plugin
       const id = await BackgroundGeolocation.addWatcher(
         {
-          backgroundMessage: "جاري تتبع موقعك لتحديث الإدارة",
-          backgroundTitle: "Xenon للتوصيل",
+          // هذا النص يظهر في إشعار دائم لا يُحذف طوال عمل التتبّع (خدمة مقدّمة)
+          backgroundMessage: "التطبيق يعمل ويتتبّع موقعك ومسارك. اضغط للفتح.",
+          backgroundTitle: "Xenon — جارٍ العمل 🟢",
           requestPermissions: true,
           stale: false,
-          distanceFilter: 10, // Update every 10 meters
+          distanceFilter: 10, // تحديث كل 10 أمتار
         },
         (location: BackgroundGeolocationLocation | null, error: BackgroundGeolocationError | null) => {
           if (error) {
