@@ -43,8 +43,7 @@
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:foregroundServiceType="location"
-            android:exported="false"
-            tools:node="merge" />
+            tools:replace="android:foregroundServiceType" />
     </application>
 
     <queries>
