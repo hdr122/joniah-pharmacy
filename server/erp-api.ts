@@ -43,6 +43,10 @@ const SYSTEM_KEY = "delegates";
 let erpKeyPromise: Promise<string | null> | null = null;
 
 async function loadOrCreateErpKey(): Promise<string | null> {
+  // Deployments can pin the key via the ERP_API_KEY env var (recommended for
+  // cloud: deterministic, no need to fish it out of logs or the DB).
+  if (process.env.ERP_API_KEY) return process.env.ERP_API_KEY;
+
   const row = await db.getSetting(ERP_KEY_SETTING);
   if (row && row.value) return row.value;
 
