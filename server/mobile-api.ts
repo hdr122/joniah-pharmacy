@@ -335,6 +335,24 @@ mobileRouter.post("/orders/:id/return", authenticateMobile, async (req: Request,
   }
 });
 
+// POST /api/mobile/orders/:id/reject - رفض طلب جديد (قبل الموافقة) → ملغى
+mobileRouter.post("/orders/:id/reject", authenticateMobile, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const orderId = parseInt(req.params.id);
+    const { reason } = req.body || {};
+    const order = await db.getOrderById(orderId);
+    if (!order || order.deliveryPersonId !== user.id) {
+      return res.status(403).json({ error: "غير مصرّح" });
+    }
+    await db.updateOrderStatus(orderId, "cancelled", { postponeReason: reason || "رفض المندوب" });
+    return res.json({ success: true, message: "تم رفض الطلب" });
+  } catch (error) {
+    console.error("[Mobile API] Reject order error:", error);
+    return res.status(500).json({ error: "حدث خطأ في رفض الطلب" });
+  }
+});
+
 // ==========================================
 // LOCATION TRACKING ENDPOINTS
 // ==========================================

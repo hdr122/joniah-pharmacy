@@ -1,10 +1,10 @@
-const CACHE_NAME = 'xenon-delivery-v3';
-const STATIC_CACHE = 'xenon-static-v3';
-const API_CACHE = 'xenon-api-v2';
+const CACHE_NAME = 'xenon-delivery-v4';
+const STATIC_CACHE = 'xenon-static-v4';
+const API_CACHE = 'xenon-api-v3';
 
-// الملفات الأساسية للتخزين المؤقت
+// الملفات الأساسية للتخزين المؤقت — لا نُخزّن '/' (index.html) كي تبقى الصفحة
+// محدَّثة دائماً من الشبكة ولا تُقدَّم نسخة قديمة تشير إلى حِزَم JS محذوفة (شاشة بيضاء)
 const urlsToCache = [
-  '/',
   '/offline.html',
   '/manifest.json',
   '/icon-192.png',

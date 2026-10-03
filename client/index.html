@@ -31,6 +31,38 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>نظام مندوبين شركة Xenon</title>
+    <!-- حارس الإقلاع: إن بقيت الشاشة بيضاء (فشل تحميل/نسخة قديمة مخزّنة)، يمسح
+         الكاش وعمّال الخدمة ويُعيد التحميل مرّة واحدة لإصلاح الشاشة البيضاء تلقائياً -->
+    <script>
+      (function () {
+        try {
+          var KEY = 'xenon_boot_retry';
+          window.addEventListener('load', function () {
+            setTimeout(function () {
+              var root = document.getElementById('root');
+              var ok = root && root.children && root.children.length > 0;
+              if (ok) { try { sessionStorage.removeItem(KEY); } catch (e) {} return; }
+              if (sessionStorage.getItem(KEY)) return; // محاولة واحدة لكل جلسة
+              try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+              var reload = function () { location.reload(); };
+              var tasks = [];
+              if ('serviceWorker' in navigator) {
+                tasks.push(navigator.serviceWorker.getRegistrations()
+                  .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
+                  .catch(function () {}));
+              }
+              if (window.caches && caches.keys) {
+                tasks.push(caches.keys()
+                  .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+                  .catch(function () {}));
+              }
+              Promise.all(tasks).then(reload, reload);
+              setTimeout(reload, 1500);
+            }, 9000);
+          });
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -38,7 +70,8 @@
 
   <body>
     <div id="root"></div>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <!-- defer: لا يحجب إقلاع التطبيق إن تأخّر هذا المصدر الخارجي (كان سبب شاشة بيضاء أحياناً) -->
+    <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];

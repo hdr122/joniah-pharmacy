@@ -1,0 +1,29 @@
+name: xenon_rider
+description: "تطبيق مندوبي Xenon — تطبيق أصلي للتوصيل"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2
+  shared_preferences: ^2.3.2
+  geolocator: ^13.0.2
+  flutter_background_service: ^5.0.10
+  flutter_local_notifications: ^18.0.1
+  connectivity_plus: ^6.1.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  image_picker: ^1.1.2
+  intl: ^0.19.0
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
